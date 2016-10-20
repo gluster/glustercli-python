@@ -323,9 +323,40 @@ def parse_snapshot_list(data):
     raise NotImplementedError("Snapshot List")
 
 
+def _parse_a_peer(peer):
+    value = {
+        'uuid': peer.find('uuid').text,
+        'hostname': peer.find('hostname').text,
+        'connected': peer.find('connected').text
+    }
+
+    if value['connected'] == '0':
+        value['connected'] = "Disconnected"
+    elif value['connected'] == '1':
+        value['connected'] = "Connected"
+
+    return value
+
+
 def parse_peer_status(data):
-    raise NotImplementedError("Peer Status")
+    tree = etree.fromstring(data)
+    peers = []
+    for el in tree.findall('peerStatus/peer'):
+        try:
+            peers.append(_parse_a_peer(el))
+        except (ParseError, AttributeError, ValueError) as e:
+            raise GlusterCmdOutputParseError(e)
+
+    return peers
 
 
 def parse_pool_list(data):
-    raise NotImplementedError("Pool List")
+    tree = etree.fromstring(data)
+    pools = []
+    for el in tree.findall('peerStatus/peer'):
+        try:
+            pools.append(_parse_a_peer(el))
+        except (ParseError, AttributeError, ValueError) as e:
+            raise GlusterCmdOutputParseError(e)
+
+    return pools
