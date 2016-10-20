@@ -131,6 +131,130 @@ def parse_volume_status(status_data, volinfo):
     return volumes
 
 
+def _parse_profile_info_clear(el):
+    clear = {
+        'volname': el.find('volname').text,
+        'bricks': []
+    }
+
+    for b in el.findall('brick'):
+        clear['bricks'].append({'brick_name': b.find('brickName').text,
+                                'clear_stats': b.find('clearStats').text})
+
+    return clear
+
+
+def _bytes_size(size):
+    traditional = [
+        (1024**5, 'PB'),
+        (1024**4, 'TB'),
+        (1024**3, 'GB'),
+        (1024**2, 'MB'),
+        (1024**1, 'KB'),
+        (1024**0, 'B')
+    ]
+
+    for factor, suffix in traditional:
+        if size > factor:
+            break
+    return str(int(size / factor)) + suffix
+
+
+def _parse_profile_block_stats(b_el):
+    stats = []
+    for b in b_el.findall('block'):
+        size = _bytes_size(int(b.find('size').text))
+        stats.append({size: {'reads': int(b.find('reads').text),
+                             'writes': int(b.find('writes').text)}})
+    return stats
+
+
+def _parse_profile_fop_stats(fop_el):
+    stats = []
+    for f in fop_el.findall('fop'):
+        name = f.find('name')
+        stats.append({name: {'hits': int(f.find('hits').text),
+                             'max_latency': float(f.find('maxLatency').text),
+                             'min_latency': float(f.find('minLatency').text),
+                             'avg_latency': float(f.find('avgLatency').text),
+                             }})
+    return stats
+
+
+def _parse_profile_bricks(brick_el):
+    cumulative_block_stats = []
+    cumulative_fop_stats = []
+    cumulative_total_read_bytes = 0
+    cumulative_total_write_bytes = 0
+    cumulative_total_duration = 0
+
+    interval_block_stats = []
+    interval_fop_stats = []
+    interval_total_read_bytes = 0
+    interval_total_write_bytes = 0
+    interval_total_duration = 0
+
+    brick_name = brick_el.find('brickName').text
+
+    if brick_el.find('cumulativeStats') is not None:
+        cumulative_block_stats = _parse_profile_block_stats(brick_el.find('cumulativeStats/blockStats'))
+        cumulative_fop_stats = _parse_profile_fop_stats(brick_el.find('cumulativeStats/fopStats'))
+        cumulative_total_read_bytes = int(brick_el.find('cumulativeStats').find('totalRead').text)
+        cumulative_total_write_bytes = int(brick_el.find('cumulativeStats').find('totalWrite').text)
+        cumulative_total_duration = int(brick_el.find('cumulativeStats').find('duration').text)
+
+    if brick_el.find('intervalStats') is not None:
+        interval_block_stats = _parse_profile_block_stats(brick_el.find('intervalStats/blockStats'))
+        interval_fop_stats = _parse_profile_fop_stats(brick_el.find('intervalStats/fopStats'))
+        interval_total_read_bytes = int(brick_el.find('intervalStats').find('totalRead').text)
+        interval_total_write_bytes = int(brick_el.find('intervalStats').find('totalWrite').text)
+        interval_total_duration = int(brick_el.find('intervalStats').find('duration').text)
+
+    profile_brick = {
+        'brick_name': brick_name,
+        'cumulative_block_stats': cumulative_block_stats,
+        'cumulative_fop_stats': cumulative_fop_stats,
+        'cumulative_total_read_bytes': cumulative_total_read_bytes,
+        'cumulative_total_write_bytes': cumulative_total_write_bytes,
+        'cumulative_total_duration': cumulative_total_duration,
+        'interval_block_stats': interval_block_stats,
+        'interval_fop_stats': interval_fop_stats,
+        'interval_total_read_bytes': interval_total_read_bytes,
+        'interval_total_write_bytes': interval_total_write_bytes,
+        'interval_total_duration': interval_total_duration,
+    }
+
+    return profile_brick
+
+
+def _parse_profile_info(el):
+    profile = {
+        'volname': el.find('volname').text,
+        'bricks': []
+    }
+
+    for b in el.findall('brick'):
+        profile['bricks'].append(_parse_profile_bricks(b))
+
+    return profile
+
+
+def parse_volume_profile_info(info, op):
+    xml = etree.fromstring(info)
+    profiles = []
+    for el in xml.findall('volProfile'):
+        try:
+            if op == "clear":
+                profiles.append(_parse_profile_info_clear(el))
+            else:
+                profiles.append(_parse_profile_info(el))
+
+        except (ParseError, AttributeError, ValueError) as e:
+            raise GlusterCmdOutputParseError(e)
+
+    return profiles
+
+
 def parse_volume_options(data):
     raise NotImplementedError("Volume Options")
 
@@ -199,9 +323,40 @@ def parse_snapshot_list(data):
     raise NotImplementedError("Snapshot List")
 
 
+def _parse_a_peer(peer):
+    value = {
+        'uuid': peer.find('uuid').text,
+        'hostname': peer.find('hostname').text,
+        'connected': peer.find('connected').text
+    }
+
+    if value['connected'] == '0':
+        value['connected'] = "Disconnected"
+    elif value['connected'] == '1':
+        value['connected'] = "Connected"
+
+    return value
+
+
 def parse_peer_status(data):
-    raise NotImplementedError("Peer Status")
+    tree = etree.fromstring(data)
+    peers = []
+    for el in tree.findall('peerStatus/peer'):
+        try:
+            peers.append(_parse_a_peer(el))
+        except (ParseError, AttributeError, ValueError) as e:
+            raise GlusterCmdOutputParseError(e)
+
+    return peers
 
 
 def parse_pool_list(data):
-    raise NotImplementedError("Pool List")
+    tree = etree.fromstring(data)
+    pools = []
+    for el in tree.findall('peerStatus/peer'):
+        try:
+            pools.append(_parse_a_peer(el))
+        except (ParseError, AttributeError, ValueError) as e:
+            raise GlusterCmdOutputParseError(e)
+
+    return pools

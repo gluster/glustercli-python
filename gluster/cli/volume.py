@@ -13,7 +13,8 @@ from utils import volume_execute, volume_execute_xml, GlusterCmdException
 from parsers import (parse_volume_info,
                      parse_volume_status,
                      parse_volume_options,
-                     parse_volume_list)
+                     parse_volume_list,
+                     parse_volume_profile_info)
 
 # Following import are not used in this file, but imported to make
 # it available via volume.(noqa to ignore in pep8 check)
@@ -27,6 +28,7 @@ import tier       # noqa
 
 
 LOCK_KINDS = ["blocked", "granted", "all"]
+INFO_OPS = ["peek", "incremental", "cumulative", "clear"]
 
 
 def start(volname, force=False):
@@ -318,9 +320,53 @@ def barrier_disable(volname):
     return volume_execute(cmd)
 
 
+def profile_start(volname):
+    """
+    Start Profile
+
+    :param volname: Volume Name
+    :return: Output of Profile command, raises
+     GlusterCmdException((rc, out, err)) on error
+    """
+    cmd = ["profile", volname, "start"]
+    return volume_execute(cmd)
+
+
+def profile_stop(volname):
+    """
+    Stop Profile
+
+    :param volname: Volume Name
+    :return: Output of Profile command, raises
+     GlusterCmdException((rc, out, err)) on error
+    """
+    cmd = ["profile", volname, "stop"]
+    return volume_execute(cmd)
+
+
+def profile_info(volname, op, peek=False):
+    """
+    Get Profile info
+
+    :param volname: Volume Name
+    :param op: Operation type of info,
+    like peek, incremental, cumulative, clear
+    :param peek: Use peek or not, default is False
+    :return: Return profile info, raises
+    GlusterCmdException((rc, out, err)) on error
+    """
+
+    if op.lower() not in INFO_OPS:
+        raise GlusterCmdException((-1, "",
+                                   "Invalid Info Operation Type, use peek, incremental, cumulative, clear"))
+    cmd = ["profile", volname, "info", op.lower()]
+
+    if op.lower() == INFO_OPS[1] and peek:
+        cmd += ["peek"]
+
+    return parse_volume_profile_info(volume_execute_xml(cmd), op)
+
 # TODO: Pending Wrappers
-# volume profile <VOLNAME> {start|info [peek|incremental
-#     [peek]|cumulative|clear]|stop} [nfs] - volume profile operations
 # volume statedump <VOLNAME> [nfs|quotad] [all|mem|iobuf|
 #     callpool|priv|fd|inode|history]... - perform statedump on bricks
 # volume status [all | <VOLNAME> [nfs|shd|<BRICK>|quotad]]
