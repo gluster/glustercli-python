@@ -9,8 +9,8 @@
 #  cases as published by the Free Software Foundation.
 #
 
-from utils import quota_execute, quota_execute_xml, volume_execute
-from parsers import parse_quota_list_paths, parse_quota_list_objects
+from .utils import quota_execute, quota_execute_xml, volume_execute
+from .parsers import parse_quota_list_paths, parse_quota_list_objects
 
 
 def inode_quota_enable(volname):

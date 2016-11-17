@@ -332,7 +332,7 @@ def parse_georep_status(data, volinfo):
                 out[-1].append(gstatus[session][bname])
             else:
                 # Offline Status
-                node, brick = bname.split(":")
+                node, brick_path = bname.split(":")
                 if "@" not in slave:
                     slave_user = "root"
                 else:
@@ -342,7 +342,7 @@ def parse_georep_status(data, volinfo):
                     "mastervol": mvol,
                     "slavevol": slave.split("::")[-1],
                     "master_node": node,
-                    "master_brick": brick,
+                    "master_brick": brick_path,
                     "slave_user": slave_user,
                     "slave": slave,
                     "slave_node": "N/A",
@@ -353,7 +353,7 @@ def parse_georep_status(data, volinfo):
                     "meta": "N/A",
                     "failures": "N/A",
                     "checkpoint_completed": "N/A",
-                    "master_node_uuid": brick["hostUuid"],
+                    "master_node_uuid": brick["uuid"],
                     "last_synced": "N/A",
                     "checkpoint_time": "N/A",
                     "checkpoint_completion_time": "N/A"

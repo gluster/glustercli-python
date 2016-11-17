@@ -9,8 +9,8 @@
 #  cases as published by the Free Software Foundation.
 #
 
-from utils import peer_execute, peer_execute_xml, gluster_execute_xml
-from parsers import parse_peer_status, parse_pool_list
+from .utils import peer_execute, peer_execute_xml, gluster_execute_xml
+from .parsers import parse_peer_status, parse_pool_list
 
 
 def probe(host):

@@ -8,8 +8,8 @@
 #  later), or the GNU General Public License, version 2 (GPLv2), in all
 #  cases as published by the Free Software Foundation.
 #
-from utils import heal_execute, heal_execute_xml, GlusterCmdException
-from parsers import parse_heal_statistics, parse_heal_info
+from .utils import heal_execute, heal_execute_xml, GlusterCmdException
+from .parsers import parse_heal_statistics, parse_heal_info
 
 
 HEAL_INFO_TYPES = ["healed", "heal-failed", "split-brain"]

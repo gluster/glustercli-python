@@ -8,8 +8,8 @@
 #  later), or the GNU General Public License, version 2 (GPLv2), in all
 #  cases as published by the Free Software Foundation.
 #
-from utils import bitrot_execute, bitrot_execute_xml, GlusterCmdException
-from parsers import parse_bitrot_scrub_status
+from .utils import bitrot_execute, bitrot_execute_xml, GlusterCmdException
+from .parsers import parse_bitrot_scrub_status
 
 THROTTLE_TYPES = ["lazy", "normal", "aggressive"]
 FREQUENCY_TYPES = ["hourly", "daily", "weekly", "biweekly", "monthly"]

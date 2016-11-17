@@ -9,22 +9,21 @@
 #  cases as published by the Free Software Foundation.
 #
 
-from utils import volume_execute, volume_execute_xml, GlusterCmdException
-from parsers import (parse_volume_info,
-                     parse_volume_status,
-                     parse_volume_options,
-                     parse_volume_list,
-                     parse_volume_profile_info)
+from .utils import volume_execute, volume_execute_xml, GlusterCmdException
+from .parsers import (parse_volume_info,
+                      parse_volume_status,
+                      parse_volume_options,
+                      parse_volume_list,
+                      parse_volume_profile_info)
 
 # Following import are not used in this file, but imported to make
 # it available via volume.(noqa to ignore in pep8 check)
-import bitrot     # noqa
-import bricks     # noqa
-import georep     # noqa
-import heal       # noqa
-import quota      # noqa
-import rebalance  # noqa
-import tier       # noqa
+from . import bitrot     # noqa
+from . import bricks     # noqa
+from . import heal       # noqa
+from . import quota      # noqa
+from . import rebalance  # noqa
+from . import tier       # noqa
 
 
 LOCK_KINDS = ["blocked", "granted", "all"]

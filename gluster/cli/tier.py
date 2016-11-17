@@ -9,8 +9,8 @@
 #  cases as published by the Free Software Foundation.
 #
 
-from utils import tier_execute, tier_execute_xml
-from parsers import parse_tier_detach, parse_tier_status
+from .utils import tier_execute, tier_execute_xml
+from .parsers import parse_tier_detach, parse_tier_status
 
 
 def status(volname):

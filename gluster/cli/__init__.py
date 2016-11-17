@@ -9,22 +9,22 @@
 #  cases as published by the Free Software Foundation.
 #
 
-__version__ = '0.1'
+__version__ = '0.2'
 
-import volume
-import bitrot
-import bricks
-import georep
-import peer
-import quota
-import snapshot
-import heal
-import nfs_ganesha
-import rebalance
-import tier
+from . import volume
+from . import bitrot
+from . import bricks
+from . import georep
+from . import peer
+from . import quota
+from . import snapshot
+from . import heal
+from . import nfs_ganesha
+from . import rebalance
+from . import tier
 
-from utils import (set_gluster_path,
-                   GlusterCmdException)
+from .utils import (set_gluster_path,
+                    GlusterCmdException)
 
 # Reexport
 __all__ = ["volume",
