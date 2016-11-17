@@ -9,8 +9,8 @@
 #  cases as published by the Free Software Foundation.
 #
 
-from utils import volume_execute, volume_execute_xml
-from parsers import parse_rebalance_status
+from .utils import volume_execute, volume_execute_xml
+from .parsers import parse_rebalance_status
 
 
 def fix_layout_start(volname):

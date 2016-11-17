@@ -8,8 +8,8 @@
 #  later), or the GNU General Public License, version 2 (GPLv2), in all
 #  cases as published by the Free Software Foundation.
 #
-from utils import volume_execute, volume_execute_xml
-from parsers import parse_remove_brick_status
+from .utils import volume_execute, volume_execute_xml
+from .parsers import parse_remove_brick_status
 
 
 def add(volname, bricks, stripe=None, replica=None, arbiter=None, force=False):

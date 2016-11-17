@@ -8,7 +8,7 @@
 #  later), or the GNU General Public License, version 2 (GPLv2), in all
 #  cases as published by the Free Software Foundation.
 #
-from utils import gluster_execute
+from .utils import gluster_execute
 
 
 def enable():

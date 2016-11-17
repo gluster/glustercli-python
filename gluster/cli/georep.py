@@ -8,9 +8,9 @@
 #  later), or the GNU General Public License, version 2 (GPLv2), in all
 #  cases as published by the Free Software Foundation.
 #
-from utils import georep_execute, georep_execute_xml, gluster_system_execute
-from parsers import parse_georep_config, parse_georep_status
-import volume
+from .utils import georep_execute, georep_execute_xml, gluster_system_execute
+from .parsers import parse_georep_config, parse_georep_status
+from . import volume
 
 
 def gsec_create(ssh_key_prefix=True):
