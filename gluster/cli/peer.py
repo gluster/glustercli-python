@@ -66,12 +66,12 @@ def detachAll():
                 host = peer["hostname"]
                 if peer["connected"] == "Connected":
                     cmd = ["detach",host]
-                        try:
-                            result = peer_execute(cmd)
-                            out = str(host)+" "+result
-                        	print out
-			            except:
-                            return peer_execute(cmd)
+                    try:
+                        result = peer_execute(cmd)
+                        out = str(host)+" "+result
+                    	print out
+		            except:
+                        return peer_execute(cmd)
                 else:
                     return str(host)+" is not connected. Can't Detach"
     return "ALL PEERS DETACHED SUCCESSFULLY"
