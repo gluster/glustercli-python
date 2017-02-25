@@ -61,7 +61,7 @@ def detachAll():
     if len(peers) == 0:
         return "No peers to Detach"
     else:
-	print "Found "+str(len(peers))+" peers"
+        print "Found "+str(len(peers))+" peers"
         for peer in peers:
                 host = peer["hostname"]
                 if peer["connected"] == "Connected":
@@ -69,8 +69,8 @@ def detachAll():
                     try:
                         result = peer_execute(cmd)
                         out = str(host)+" "+result
-                    	print out
-		            except:
+                        print out
+                    except:
                         return peer_execute(cmd)
                 else:
                     return str(host)+" is not connected. Can't Detach"
