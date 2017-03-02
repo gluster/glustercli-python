@@ -60,7 +60,6 @@ def detachAll():
         print "Error in fetching peer status"
     if len(peers) == 0:
         print "No peers to Detach"
-        exit()
     else:
         print "Found "+str(len(peers))+" peers"
         for peer in peers:
@@ -72,12 +71,10 @@ def detachAll():
                         out = str(host)+" "+result
                         print out
                     except:
-                        print "Error in disconnecting"
+                        print "Error in detaching"
                 else:
                     print str(host)+" is not connected. Can't Detach"
-                    exit()
     print "ALL PEERS DETACHED SUCCESSFULLY"
-    exit()
 
 def status():
     """
