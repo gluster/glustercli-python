@@ -55,7 +55,7 @@ def detach_all():
      print: success and failure messages, raises
     """
     peers = parse_peer_status(peer_execute_xml(["status"]))
-    err_list = []
+    errors_list = []
     if len(peers) > 0:
         print "Found "+str(len(peers))+" peers"
         for peer in peers:
@@ -67,11 +67,11 @@ def detach_all():
                     out = str(host)+" "+result
                     print out
                 except Exception as err:
-                    err_list.append(err)
+                    errors_list.append(err)
             else:
                 err = str(host)+" is not connected"
-                err_list.append(err)
-    if len(err_list):
+                errors_list.append(err)
+    if len(errors_list):
         raise GlusterCmdException((1, "", errors_list))
 
 def status():
