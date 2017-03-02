@@ -9,7 +9,7 @@
 #  cases as published by the Free Software Foundation.
 #
 
-from .utils import peer_execute, peer_execute_xml, gluster_execute_xml
+from .utils import peer_execute, peer_execute_xml, gluster_execute_xml, GlusterCmdException
 from .parsers import parse_peer_status, parse_pool_list
 
 
@@ -47,34 +47,32 @@ def detach(host):
     cmd = ["detach", host]
     return peer_execute(cmd)
 
-def detachAll():
+def detach_all():
     """
     Removes All Hosts from Cluster
 
     :returns: nothing
      print: success and failure messages, raises
     """
-    try:
-        peers = parse_peer_status(peer_execute_xml(["status"]))
-    except:
-        print "Error in fetching peer status"
-    if len(peers) == 0:
-        print "No peers to Detach"
-    else:
+    peers = parse_peer_status(peer_execute_xml(["status"]))
+    err_list = []
+    if len(peers) > 0:
         print "Found "+str(len(peers))+" peers"
         for peer in peers:
-                host = peer["hostname"]
-                if peer["connected"] == "Connected":
-                    cmd = ["detach",host]
-                    try:
-                        result = peer_execute(cmd)
-                        out = str(host)+" "+result
-                        print out
-                    except:
-                        print "Error in detaching"
-                else:
-                    print str(host)+" is not connected. Can't Detach"
-    print "ALL PEERS DETACHED SUCCESSFULLY"
+            host = peer["hostname"]
+            if peer["connected"] == "Connected":
+                cmd = ["detach",host]
+                try:
+                    result = peer_execute(cmd)
+                    out = str(host)+" "+result
+                    print out
+                except Exception as err:
+                    err_list.append(err)
+            else:
+                err = str(host)+" is not connected"
+                err_list.append(err)
+    if len(err_list):
+        raise GlusterCmdException((1, "", errors_list))
 
 def status():
     """
