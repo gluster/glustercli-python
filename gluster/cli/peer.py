@@ -51,15 +51,16 @@ def detachAll():
     """
     Removes All Hosts from Cluster
 
-    :returns: success and failure messages, raises
-     GlusterCmdException((rc, out, err)) on error
+    :returns: nothing
+     print: success and failure messages, raises
     """
     try:
         peers = parse_peer_status(peer_execute_xml(["status"]))
     except:
-        return parse_peer_status(peer_execute_xml(["status"]))
+        print "Error in fetching peer status"
     if len(peers) == 0:
-        return "No peers to Detach"
+        print "No peers to Detach"
+        exit()
     else:
         print "Found "+str(len(peers))+" peers"
         for peer in peers:
@@ -71,10 +72,12 @@ def detachAll():
                         out = str(host)+" "+result
                         print out
                     except:
-                        return peer_execute(cmd)
+                        print "Error in disconnecting"
                 else:
-                    return str(host)+" is not connected. Can't Detach"
-    return "ALL PEERS DETACHED SUCCESSFULLY"
+                    print str(host)+" is not connected. Can't Detach"
+                    exit()
+    print "ALL PEERS DETACHED SUCCESSFULLY"
+    exit()
 
 def status():
     """
