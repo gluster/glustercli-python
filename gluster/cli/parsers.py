@@ -172,7 +172,7 @@ def _parse_profile_block_stats(b_el):
 def _parse_profile_fop_stats(fop_el):
     stats = []
     for f in fop_el.findall('fop'):
-        name = f.find('name')
+        name = f.find('name').text
         stats.append({name: {'hits': int(f.find('hits').text),
                              'max_latency': float(f.find('maxLatency').text),
                              'min_latency': float(f.find('minLatency').text),
