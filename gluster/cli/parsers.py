@@ -394,11 +394,24 @@ def parse_tier_status(data):
 
 
 def parse_volume_list(data):
-    raise NotImplementedError("Volumes List")
-
+    xml = etree.fromstring(data)
+    volumes = []
+    for el in xml.findall('volList'):
+        volumes.append(el.find('volume').text)
+    return volumes
 
 def parse_heal_info(data):
-    raise NotImplementedError("Heal Info")
+    xml = etree.fromstring(data)
+    healinfo = []
+    for el in xml.findall('healInfo/bricks/brick'):
+        healinfo.append({
+            'name': el.find('name').text,
+            'status': el.find('status').text,
+            'host_uuid': el.attrib['hostUuid'],
+            'nr_entries': el.find('numberOfEntries').text
+        })
+    return healinfo
+
 
 
 def parse_heal_statistics(data):
