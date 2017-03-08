@@ -9,7 +9,7 @@
 #  cases as published by the Free Software Foundation.
 #
 
-from .utils import peer_execute, peer_execute_xml, gluster_execute_xml
+from .utils import peer_execute, peer_execute_xml, gluster_execute_xml, GlusterCmdException
 from .parsers import parse_peer_status, parse_pool_list
 
 
@@ -47,6 +47,33 @@ def detach(host):
     cmd = ["detach", host]
     return peer_execute(cmd)
 
+def detach_all():
+    """
+    Removes All Hosts from Cluster
+
+    :returns: Output of peer detach command, raises
+     GlusterCmdException((rc, out, err)) on error
+    """
+    peers = parse_peer_status(peer_execute_xml(["status"]))
+    errors_list = []
+    outlist = []
+    if len(peers) > 0:
+        for peer in peers:
+            host = peer["hostname"]
+            if peer["connected"] == "Connected":
+                cmd = ["detach",host]
+                try:
+                    result = peer_execute(cmd)
+                    out = str(host)+" "+result
+                    outlist.append(out)
+                except Exception as err:
+                    errors_list.append(err)
+            else:
+                err = str(host)+" is not connected"
+                errors_list.append(err)
+    if len(errors_list):
+        raise GlusterCmdException((1, "", errors_list))
+    return "/n".join(outlist)
 
 def status():
     """
