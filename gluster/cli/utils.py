@@ -12,10 +12,20 @@
 import subprocess
 
 GLUSTERCMD = "gluster"
+GLUSTERD_SOCKET = None
 
 
 def execute(cmd):
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    c = []
+    c.append(GLUSTERCMD)
+
+    if GLUSTERD_SOCKET:
+        c.append("--glusterd-sock={0}".format(GLUSTERD_SOCKET))
+
+    c.append("--mode=script")
+    c += cmd
+
+    p = subprocess.Popen(c, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = p.communicate()
     return p.returncode, out, err
 
@@ -29,6 +39,11 @@ def set_gluster_path(path):
     GLUSTERCMD = path
 
 
+def set_gluster_socket(path):
+    global GLUSTERD_SOCKET
+    GLUSTERD_SOCKET = path
+
+
 def execute_or_raise(cmd):
     rc, out, err = execute(cmd)
     if rc != 0:
@@ -38,96 +53,105 @@ def execute_or_raise(cmd):
 
 
 def gluster_system_execute(cmd):
-    cmd = [GLUSTERCMD, "--mode=script", "system::", "execute"] + cmd
+    cmd.insert(0, "system::")
+    cmd.insert(1, "execute")
     return execute_or_raise(cmd)
 
 
 def gluster_execute(cmd):
-    cmd = [GLUSTERCMD, "--mode=script"] + cmd
     return execute_or_raise(cmd)
 
 
 def gluster_execute_xml(cmd):
-    cmd = [GLUSTERCMD, "--mode=script"] + cmd + ["--xml"]
+    cmd.append("--xml")
     return execute_or_raise(cmd)
 
 
 def volume_execute(cmd):
-    cmd = [GLUSTERCMD, "--mode=script", "volume"] + cmd
+    cmd.insert(0, "volume")
     return execute_or_raise(cmd)
 
 
 def peer_execute(cmd):
-    cmd = [GLUSTERCMD, "--mode=script", "peer"] + cmd
+    cmd.insert(0, "peer")
     return execute_or_raise(cmd)
 
 
 def volume_execute_xml(cmd):
-    cmd = [GLUSTERCMD, "--mode=script", "volume"] + cmd + ["--xml"]
-    return execute_or_raise(cmd)
+    cmd.insert(0, "volume")
+    return gluster_execute_xml(cmd)
 
 
 def peer_execute_xml(cmd):
-    cmd = [GLUSTERCMD, "--mode=script", "peer"] + cmd + ["--xml"]
-    return execute_or_raise(cmd)
+    cmd.insert(0, "peer")
+    return gluster_execute_xml(cmd)
 
 
 def georep_execute(cmd):
-    cmd = [GLUSTERCMD, "--mode=script", "volume", "geo-replication"] + cmd
+    cmd.insert(0, "volume")
+    cmd.insert(1, "geo-replication")
     return execute_or_raise(cmd)
 
 
 def georep_execute_xml(cmd):
-    cmd = [GLUSTERCMD, "--mode=script", "volume", "geo-replication"] + cmd + [
-        "--xml"]
-    return execute_or_raise(cmd)
+    cmd.insert(0, "volume")
+    cmd.insert(1, "geo-replication")
+    return gluster_execute_xml(cmd)
 
 
 def bitrot_execute(cmd):
-    cmd = [GLUSTERCMD, "--mode=script", "volume", "bitrot"] + cmd
+    cmd.insert(0, "volume")
+    cmd.insert(1, "bitrot")
     return execute_or_raise(cmd)
 
 
 def bitrot_execute_xml(cmd):
-    cmd = [GLUSTERCMD, "--mode=script", "volume", "bitrot"] + cmd + ["--xml"]
-    return execute_or_raise(cmd)
+    cmd.insert(0, "volume")
+    cmd.insert(1, "bitrot")
+    return gluster_execute_xml(cmd)
 
 
 def quota_execute(cmd):
-    cmd = [GLUSTERCMD, "--mode=script", "volume", "quota"] + cmd
+    cmd.insert(0, "volume")
+    cmd.insert(1, "quota")
     return execute_or_raise(cmd)
 
 
 def quota_execute_xml(cmd):
-    cmd = [GLUSTERCMD, "--mode=script", "volume", "quota"] + cmd + ["--xml"]
-    return execute_or_raise(cmd)
+    cmd.insert(0, "volume")
+    cmd.insert(1, "quota")
+    return gluster_execute_xml(cmd)
 
 
 def heal_execute(cmd):
-    cmd = [GLUSTERCMD, "--mode=script", "volume", "heal"] + cmd
+    cmd.insert(0, "volume")
+    cmd.insert(1, "heal")
     return execute_or_raise(cmd)
 
 
 def heal_execute_xml(cmd):
-    cmd = [GLUSTERCMD, "--mode=script", "volume", "heal"] + cmd + ["--xml"]
-    return execute_or_raise(cmd)
+    cmd.insert(0, "volume")
+    cmd.insert(1, "heal")
+    return gluster_execute_xml(cmd)
 
 
 def snapshot_execute(cmd):
-    cmd = [GLUSTERCMD, "--mode=script", "snapshot"] + cmd
+    cmd.insert(0, "snapshot")
     return execute_or_raise(cmd)
 
 
 def snapshot_execute_xml(cmd):
-    cmd = [GLUSTERCMD, "--mode=script", "snapshot"] + cmd + ["--xml"]
-    return execute_or_raise(cmd)
+    cmd.insert(0, "snapshot")
+    return gluster_execute_xml(cmd)
 
 
 def tier_execute(cmd):
-    cmd = [GLUSTERCMD, "--mode=script", "volume", "tier"] + cmd
+    cmd.insert(0, "volume")
+    cmd.insert(1, "tier")
     return execute_or_raise(cmd)
 
 
 def tier_execute_xml(cmd):
-    cmd = [GLUSTERCMD, "--mode=script", "volume", "tier"] + cmd + ["--xml"]
-    return execute_or_raise(cmd)
+    cmd.insert(0, "volume")
+    cmd.insert(1, "tier")
+    return gluster_execute_xml(cmd)
