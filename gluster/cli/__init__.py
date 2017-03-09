@@ -9,7 +9,7 @@
 #  cases as published by the Free Software Foundation.
 #
 
-__version__ = '0.2'
+__version__ = '0.3'
 
 from . import volume
 from . import bitrot
@@ -24,6 +24,7 @@ from . import rebalance
 from . import tier
 
 from .utils import (set_gluster_path,
+                    set_gluster_socket,
                     GlusterCmdException)
 
 # Reexport
@@ -39,4 +40,5 @@ __all__ = ["volume",
            "rebalance",
            "tier",
            "set_gluster_path",
+           "set_gluster_socket",
            "GlusterCmdException"]
