@@ -9,7 +9,7 @@
 #  cases as published by the Free Software Foundation.
 #
 
-__version__ = '0.3'
+__version__ = '0.4'
 
 from . import volume
 from . import bitrot
@@ -25,6 +25,9 @@ from . import tier
 
 from .utils import (set_gluster_path,
                     set_gluster_socket,
+                    set_ssh_host,
+                    set_ssh_pem_file,
+                    ssh_connection,
                     GlusterCmdException)
 
 # Reexport
@@ -41,4 +44,7 @@ __all__ = ["volume",
            "tier",
            "set_gluster_path",
            "set_gluster_socket",
+           "set_ssh_host",
+           "set_ssh_pem_file",
+           "ssh_connection",
            "GlusterCmdException"]
