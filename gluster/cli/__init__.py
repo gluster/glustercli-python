@@ -9,8 +9,6 @@
 #  cases as published by the Free Software Foundation.
 #
 
-__version__ = '0.4'
-
 from . import volume
 from . import bitrot
 from . import bricks

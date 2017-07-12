@@ -14,19 +14,7 @@ import os
 import re
 from setuptools import setup, find_packages
 
-
-# Get version without importing.
-glustercli_file_path = os.path.join(os.path.dirname(__file__),
-                                    'gluster/cli/__init__.py')
-with open(glustercli_file_path) as f:
-    for line in f:
-        match = re.match(r"__version__.*'([0-9.]+)'", line)
-        if match:
-            version = match.group(1)
-            break
-    else:
-        raise Exception("Couldn't find version in setup.py")
-
+VERSION = 0.5
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
@@ -34,8 +22,8 @@ def read(fname):
 
 setup(
     name='glustercli',
-    version=version,
-    description='Python bindings for GlusterFS CLI',
+    version=VERSION,
+    description='Python bindings for GlusterFS CLI and Metrics collection',
     long_description=read('README.rst'),
     license='GPLv2 or LGPLv3+',
     author='Red Hat, Inc.',
