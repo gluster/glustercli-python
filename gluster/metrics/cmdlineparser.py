@@ -1,6 +1,8 @@
 from argparse import ArgumentParser
 import socket
 
+import utils
+
 
 def _hostname():
     return socket.gethostname().split('.')[0]
@@ -9,6 +11,7 @@ def _hostname():
 def parse_cmdline_glusterd(args):
     return {
         "name": "glusterd",
+        "node_id": utils.get_node_id(),
         "hostname": _hostname()
     }
 
@@ -23,6 +26,7 @@ def parse_cmdline_glusterfsd(args):
     return {
         "name": "glusterfsd",
         "hostname": _hostname(),
+        "node_id": utils.get_node_id(),
         "server": pargs.server,
         "brick_path": pargs.brick_name,
         "volname": pargs.volfile_id.split(".")[0]

@@ -25,7 +25,7 @@ def get_cmdline(pid):
 
 def local_processes():
     # Run ps command and get all the details for all gluster processes
-    # ps --no-header -ww -o pid,pcpu,pmem,rsz,vsz,comm -C glusterd,glusterfsd
+    # ps --no-header -ww -o pid,pcpu,pmem,rsz,vsz,etimes,comm -C glusterd,..
     # command can be used instead of comm, but if an argument has space then
     # it is a problem
     # for example `mytool "hello world" arg2` will be displayed as
@@ -33,14 +33,13 @@ def local_processes():
     # Read cmdline from `/proc/<pid>/cmdline` to get full commands
     # Use argparse to parse the output and form the key
     # Example output of ps command:
-    # 1406  0.0  0.5 11176 805048 glusterfsd
-    # 1416  0.0  0.5 11208 805048 glusterfsd
+    # 6959  0.0  0.6 12840 713660  504076 glusterfs
     details = []
     cmd = ["ps",
            "--no-header",  # No header in the output
            "-ww",  # To set unlimited width to avoid crop
            "-o",  # Output Format
-           "pid,pcpu,pmem,rsz,vsz,comm",
+           "pid,pcpu,pmem,rsz,vsz,etimes,comm",
            "-C",
            ",".join(GLUSTER_PROCS)]
 
@@ -54,8 +53,13 @@ def local_processes():
 
     for line in data.split("\n"):
         # Sample data:
-        # 1406  0.0  0.5 11176 805048 glusterfsd
-        pid, pcpu, pmem, rsz, vsz, comm = line.strip().split()
+        # 6959  0.0  0.6 12840 713660  504076 glusterfs
+        try:
+            pid, pcpu, pmem, rsz, vsz, etimes, comm = line.strip().split()
+        except ValueError:
+            # May be bad ps output, for example
+            # 30916  0.0  0.0     0      0       7 python <defunct>
+            continue
 
         args = get_cmdline(int(pid))
         if not args:
@@ -73,6 +77,7 @@ def local_processes():
                 data["percentage_memory"] = float(pmem)
                 data["resident_memory"] = int(rsz)
                 data["virtual_memory"] = int(vsz)
+                data["elapsed_time_sec"] = int(etimes)
                 data["pid"] = int(pid)
                 details.append(data)
 

@@ -2,14 +2,23 @@ from gluster.cli import volume
 
 UUID_FILE = "/var/lib/glusterd/glusterd.info"
 
+myuuid = None
+
 
 def get_node_id():
+    global myuuid
+
+    if myuuid is not None:
+        return myuuid
+
     val = None
     with open(UUID_FILE) as f:
         for line in f:
             if line.startswith("UUID="):
                 val = line.strip().split("=")[-1]
                 break
+
+    myuuid = val
     return val
 
 
