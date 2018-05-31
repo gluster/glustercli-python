@@ -395,9 +395,8 @@ def parse_tier_status(data):
 def parse_volume_list(data):
     xml = etree.fromstring(data)
     volumes = []
-    for el in xml.findall('volList'):
-        for el_vol in el.findall('volume'):
-          volumes.append(el_vol.text)
+    for el in xml.findall('volList/volume'):
+        volumes.append(el.text)
     return volumes
 
 def parse_heal_info(data):
