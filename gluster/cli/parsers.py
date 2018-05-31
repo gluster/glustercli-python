@@ -427,8 +427,11 @@ def parse_snapshot_info(data):
 
 
 def parse_snapshot_list(data):
-    raise NotImplementedError("Snapshot List")
-
+    xml = etree.fromstring(data)
+    snapshots = []
+    for el in xml.findall('snapList/snapshot'):
+      snapshots.append(el.text)
+    return snapshots
 
 def _parse_a_peer(peer):
     value = {
