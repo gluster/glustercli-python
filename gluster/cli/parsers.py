@@ -392,12 +392,11 @@ def parse_tier_detach(data):
 def parse_tier_status(data):
     raise NotImplementedError("Tier Status")
 
-
 def parse_volume_list(data):
     xml = etree.fromstring(data)
     volumes = []
-    for el in xml.findall('volList'):
-        volumes.append(el.find('volume').text)
+    for el in xml.findall('volList/volume'):
+        volumes.append(el.text)
     return volumes
 
 def parse_heal_info(data):
@@ -427,8 +426,11 @@ def parse_snapshot_info(data):
 
 
 def parse_snapshot_list(data):
-    raise NotImplementedError("Snapshot List")
-
+    xml = etree.fromstring(data)
+    snapshots = []
+    for el in xml.findall('snapList/snapshot'):
+      snapshots.append(el.text)
+    return snapshots
 
 def _parse_a_peer(peer):
     value = {
