@@ -392,12 +392,12 @@ def parse_tier_detach(data):
 def parse_tier_status(data):
     raise NotImplementedError("Tier Status")
 
-
 def parse_volume_list(data):
     xml = etree.fromstring(data)
     volumes = []
     for el in xml.findall('volList'):
-        volumes.append(el.find('volume').text)
+        for el_vol in el.findall('volume'):
+          volumes.append(el_vol.text)
     return volumes
 
 def parse_heal_info(data):
