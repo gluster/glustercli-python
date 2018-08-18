@@ -76,11 +76,21 @@ def _parse_a_node(node_el):
         'block_size': node_el.find('blockSize').text,
         'mnt_options': node_el.find('mntOptions').text,
         'fs_name': node_el.find('fsName').text,
-        'ports': {
+    }
+
+    # ISSUE #14 glusterfs 3.6.5 does not have 'ports' key 
+    # in vol status detail xml output
+    if node_el.find('ports'):
+        value['ports'] = {
             "tcp": node_el.find('ports').find("tcp").text,
             "rdma": node_el.find('ports').find("rdma").text
         }
-    }
+    else:
+        value['ports'] = { 
+            "tcp": node_el.find('port') ,
+            "rdma": None
+        }
+
 
     return value
 
