@@ -391,8 +391,47 @@ def parse_georep_config(data):
     raise NotImplementedError("Georep Config")
 
 
-def parse_remove_brick_status(data):
-    raise NotImplementedError("Remove Brick Status")
+def parse_remove_brick_status(status):
+    tree = etree.fromstring(status)
+
+    result = {'nodes': [], 'aggregate': _parse_remove_aggregate(tree.find('volRemoveBrick/aggregate'))}
+
+    for el in tree.findall('volRemoveBrick/node'):
+        result['nodes'].append(_parse_remove_node(el))
+
+    return result
+
+
+def _parse_remove_node(node_el):
+    value = {
+        'name': node_el.find('nodeName').text,
+        'id': node_el.find('id').text,
+        'files': node_el.find('files').text,
+        'size': node_el.find('size').text,
+        'lookups': node_el.find('lookups').text,
+        'failures': node_el.find('failures').text,
+        'skipped': node_el.find('skipped').text,
+        'status_code': node_el.find('status').text,
+        'status': node_el.find('statusStr').text,
+        'runtime': node_el.find('runtime').text
+    }
+
+    return value
+
+
+def _parse_remove_aggregate(aggregate_el):
+    value = {
+        'files': aggregate_el.find('files').text,
+        'size': aggregate_el.find('size').text,
+        'lookups': aggregate_el.find('lookups').text,
+        'failures': aggregate_el.find('failures').text,
+        'skipped': aggregate_el.find('skipped').text,
+        'status_code': aggregate_el.find('status').text,
+        'status': aggregate_el.find('statusStr').text,
+        'runtime': aggregate_el.find('runtime').text
+    }
+
+    return value
 
 
 def parse_tier_detach(data):
