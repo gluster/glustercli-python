@@ -349,10 +349,10 @@ def profile_info(volname, op, peek=False):
 
     :param volname: Volume Name
     :param op: Operation type of info,
-    like peek, incremental, cumulative, clear
+     like peek, incremental, cumulative, clear
     :param peek: Use peek or not, default is False
     :return: Return profile info, raises
-    GlusterCmdException((rc, out, err)) on error
+     GlusterCmdException((rc, out, err)) on error
     """
 
     if op.lower() not in INFO_OPS:
