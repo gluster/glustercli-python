@@ -19,7 +19,6 @@ from . import snapshot
 from . import heal
 from . import nfs_ganesha
 from . import rebalance
-from . import tier
 
 from .utils import (set_gluster_path,
                     set_gluster_socket,
@@ -39,7 +38,6 @@ __all__ = ["volume",
            "heal",
            "nfs_ganesha",
            "rebalance",
-           "tier",
            "set_gluster_path",
            "set_gluster_socket",
            "set_ssh_host",
