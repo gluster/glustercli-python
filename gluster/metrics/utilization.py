@@ -9,7 +9,7 @@ def local_utilization(volname=None):
 
     :param volname: Volume Name
     :returns: List of utilization information
-        {               
+        {
             "volume": VOLUME_NAME,
             "brick_index": BRICK_INDEX_IN_VOL_INFO,
             "node_id": NODE_ID,
