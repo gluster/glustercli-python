@@ -65,7 +65,7 @@ def detach_all():
                 cmd = ["detach", host]
                 try:
                     result = peer_execute(cmd)
-                    out = str(host) + " " + result
+                    out = str(host) + " " + result.decode()
                     outlist.append(out)
                 except Exception as err:
                     errors_list.append(err)
@@ -74,7 +74,7 @@ def detach_all():
                 errors_list.append(err)
     if len(errors_list):
         raise GlusterCmdException((1, "", errors_list))
-    return "/n".join(outlist)
+    return "\n".join(outlist)
 
 
 def status():
