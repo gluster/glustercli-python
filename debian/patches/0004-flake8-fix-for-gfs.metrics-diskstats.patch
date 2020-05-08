@@ -1,0 +1,18 @@
+From: Caleb <yocalebo@gmail.com>
+Date: Sat, 4 Apr 2020 12:15:02 -0400
+Subject: flake8 fix for gfs.metrics diskstats
+
+---
+ gfs/metrics/diskstats.py | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/gfs/metrics/diskstats.py b/gfs/metrics/diskstats.py
+index a04391b..ced6e3e 100644
+--- a/gfs/metrics/diskstats.py
++++ b/gfs/metrics/diskstats.py
+@@ -115,5 +115,4 @@ def local_diskstats(volname=None):
+ 
+         brick.update(diskstat_data.get(brick["device"], default_diskstat))
+ 
+-
+     return local_bricks
