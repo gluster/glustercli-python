@@ -1,0 +1,6080 @@
+From: Caleb <yocalebo@gmail.com>
+Date: Sat, 4 Apr 2020 12:07:08 -0400
+Subject: rename top-level module because glusterfs-common has a python module
+ that has same name
+
+---
+ gfs/__init__.py                  |  12 +
+ gfs/cli/__init__.py              |  48 ++++
+ gfs/cli/bitrot.py                | 105 +++++++++
+ gfs/cli/bricks.py                | 152 +++++++++++++
+ gfs/cli/georep.py                | 278 ++++++++++++++++++++++
+ gfs/cli/heal.py                  | 111 +++++++++
+ gfs/cli/nfs_ganesha.py           |  33 +++
+ gfs/cli/parsers.py               | 481 +++++++++++++++++++++++++++++++++++++++
+ gfs/cli/peer.py                  |  97 ++++++++
+ gfs/cli/quota.py                 | 187 +++++++++++++++
+ gfs/cli/rebalance.py             |  64 ++++++
+ gfs/cli/snapshot.py              | 203 +++++++++++++++++
+ gfs/cli/tier.py                  | 131 +++++++++++
+ gfs/cli/utils.py                 | 215 +++++++++++++++++
+ gfs/cli/volume.py                | 377 ++++++++++++++++++++++++++++++
+ gfs/metrics/__init__.py          |  21 ++
+ gfs/metrics/cmdlineparser.py     |  69 ++++++
+ gfs/metrics/diskstats.py         | 119 ++++++++++
+ gfs/metrics/process.py           |  84 +++++++
+ gfs/metrics/utilization.py       |  41 ++++
+ gfs/metrics/utils.py             |  40 ++++
+ gluster/__init__.py              |  12 -
+ gluster/cli/__init__.py          |  48 ----
+ gluster/cli/bitrot.py            | 105 ---------
+ gluster/cli/bricks.py            | 152 -------------
+ gluster/cli/georep.py            | 278 ----------------------
+ gluster/cli/heal.py              | 111 ---------
+ gluster/cli/nfs_ganesha.py       |  33 ---
+ gluster/cli/parsers.py           | 481 ---------------------------------------
+ gluster/cli/peer.py              |  97 --------
+ gluster/cli/quota.py             | 187 ---------------
+ gluster/cli/rebalance.py         |  64 ------
+ gluster/cli/snapshot.py          | 203 -----------------
+ gluster/cli/tier.py              | 131 -----------
+ gluster/cli/utils.py             | 215 -----------------
+ gluster/cli/volume.py            | 377 ------------------------------
+ gluster/metrics/__init__.py      |  21 --
+ gluster/metrics/cmdlineparser.py |  69 ------
+ gluster/metrics/diskstats.py     | 119 ----------
+ gluster/metrics/process.py       |  84 -------
+ gluster/metrics/utilization.py   |  41 ----
+ gluster/metrics/utils.py         |  40 ----
+ 42 files changed, 2868 insertions(+), 2868 deletions(-)
+ create mode 100644 gfs/__init__.py
+ create mode 100644 gfs/cli/__init__.py
+ create mode 100644 gfs/cli/bitrot.py
+ create mode 100644 gfs/cli/bricks.py
+ create mode 100644 gfs/cli/georep.py
+ create mode 100644 gfs/cli/heal.py
+ create mode 100644 gfs/cli/nfs_ganesha.py
+ create mode 100644 gfs/cli/parsers.py
+ create mode 100644 gfs/cli/peer.py
+ create mode 100644 gfs/cli/quota.py
+ create mode 100644 gfs/cli/rebalance.py
+ create mode 100644 gfs/cli/snapshot.py
+ create mode 100644 gfs/cli/tier.py
+ create mode 100644 gfs/cli/utils.py
+ create mode 100644 gfs/cli/volume.py
+ create mode 100644 gfs/metrics/__init__.py
+ create mode 100644 gfs/metrics/cmdlineparser.py
+ create mode 100644 gfs/metrics/diskstats.py
+ create mode 100644 gfs/metrics/process.py
+ create mode 100644 gfs/metrics/utilization.py
+ create mode 100644 gfs/metrics/utils.py
+ delete mode 100644 gluster/__init__.py
+ delete mode 100644 gluster/cli/__init__.py
+ delete mode 100644 gluster/cli/bitrot.py
+ delete mode 100644 gluster/cli/bricks.py
+ delete mode 100644 gluster/cli/georep.py
+ delete mode 100644 gluster/cli/heal.py
+ delete mode 100644 gluster/cli/nfs_ganesha.py
+ delete mode 100644 gluster/cli/parsers.py
+ delete mode 100644 gluster/cli/peer.py
+ delete mode 100644 gluster/cli/quota.py
+ delete mode 100644 gluster/cli/rebalance.py
+ delete mode 100644 gluster/cli/snapshot.py
+ delete mode 100644 gluster/cli/tier.py
+ delete mode 100644 gluster/cli/utils.py
+ delete mode 100644 gluster/cli/volume.py
+ delete mode 100644 gluster/metrics/__init__.py
+ delete mode 100644 gluster/metrics/cmdlineparser.py
+ delete mode 100644 gluster/metrics/diskstats.py
+ delete mode 100644 gluster/metrics/process.py
+ delete mode 100644 gluster/metrics/utilization.py
+ delete mode 100644 gluster/metrics/utils.py
+
+diff --git a/gfs/__init__.py b/gfs/__init__.py
+new file mode 100644
+index 0000000..e795df8
+--- /dev/null
++++ b/gfs/__init__.py
+@@ -0,0 +1,12 @@
++# Copyright (c) 2016 Red Hat, Inc.
++#
++# This file is part of libgfapi-python project which is a
++# subproject of GlusterFS ( www.gluster.org)
++#
++# This file is licensed to you under your choice of the GNU Lesser
++# General Public License, version 3 or any later version (LGPLv3 or
++# later), or the GNU General Public License, version 2 (GPLv2), in all
++# cases as published by the Free Software Foundation.
++
++from pkgutil import extend_path
++__path__ = extend_path(__path__, __name__)
+diff --git a/gfs/cli/__init__.py b/gfs/cli/__init__.py
+new file mode 100644
+index 0000000..23f3fc1
+--- /dev/null
++++ b/gfs/cli/__init__.py
+@@ -0,0 +1,48 @@
++# -*- coding: utf-8 -*-
++#
++#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
++#  This file is part of GlusterFS.
++#
++#  This file is licensed to you under your choice of the GNU Lesser
++#  General Public License, version 3 or any later version (LGPLv3 or
++#  later), or the GNU General Public License, version 2 (GPLv2), in all
++#  cases as published by the Free Software Foundation.
++#
++
++from . import volume
++from . import bitrot
++from . import bricks
++from . import georep
++from . import peer
++from . import quota
++from . import snapshot
++from . import heal
++from . import nfs_ganesha
++from . import rebalance
++from . import tier
++
++from .utils import (set_gluster_path,
++                    set_gluster_socket,
++                    set_ssh_host,
++                    set_ssh_pem_file,
++                    ssh_connection,
++                    GlusterCmdException)
++
++# Reexport
++__all__ = ["volume",
++           "bitrot",
++           "bricks",
++           "georep",
++           "peer",
++           "quota",
++           "snapshot",
++           "heal",
++           "nfs_ganesha",
++           "rebalance",
++           "tier",
++           "set_gluster_path",
++           "set_gluster_socket",
++           "set_ssh_host",
++           "set_ssh_pem_file",
++           "ssh_connection",
++           "GlusterCmdException"]
+diff --git a/gfs/cli/bitrot.py b/gfs/cli/bitrot.py
+new file mode 100644
+index 0000000..6c52251
+--- /dev/null
++++ b/gfs/cli/bitrot.py
+@@ -0,0 +1,105 @@
++# -*- coding: utf-8 -*-
++#
++#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
++#  This file is part of GlusterFS.
++#
++#  This file is licensed to you under your choice of the GNU Lesser
++#  General Public License, version 3 or any later version (LGPLv3 or
++#  later), or the GNU General Public License, version 2 (GPLv2), in all
++#  cases as published by the Free Software Foundation.
++#
++from .utils import bitrot_execute, bitrot_execute_xml, GlusterCmdException
++from .parsers import parse_bitrot_scrub_status
++
++THROTTLE_TYPES = ["lazy", "normal", "aggressive"]
++FREQUENCY_TYPES = ["hourly", "daily", "weekly", "biweekly", "monthly"]
++
++
++def enable(volname):
++    """
++    Enable Bitrot Feature
++
++    :param volname: Volume Name
++    :returns: Output of Enable command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "enable"]
++    return bitrot_execute(cmd)
++
++
++def disable(volname):
++    """
++    Disable Bitrot Feature
++
++    :param volname: Volume Name
++    :returns: Output of Disable command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "disable"]
++    return bitrot_execute(cmd)
++
++
++def scrub_throttle(volname, throttle_type):
++    """
++    Configure Scrub Throttle
++
++    :param volname: Volume Name
++    :param throttle_type: lazy|normal|aggressive
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    if throttle_type.lower() not in THROTTLE_TYPES:
++        raise GlusterCmdException((-1, "", "Invalid Scrub Throttle Type"))
++    cmd = [volname, "scrub-throttle", throttle_type.lower()]
++    return bitrot_execute(cmd)
++
++
++def scrub_frequency(volname, freq):
++    """
++    Configure Scrub Frequency
++
++    :param volname: Volume Name
++    :param freq: hourly|daily|weekly|biweekly|monthly
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    if freq.lower() not in FREQUENCY_TYPES:
++        raise GlusterCmdException((-1, "", "Invalid Scrub Frequency"))
++    cmd = [volname, "scrub-frequency", freq]
++    return bitrot_execute(cmd)
++
++
++def scrub_pause(volname):
++    """
++    Pause Bitrot Scrub
++
++    :param volname: Volume Name
++    :returns: Output of Pause command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "scrub", "pause"]
++    return bitrot_execute(cmd)
++
++
++def scrub_resume(volname):
++    """
++    Resume Bitrot Scrub
++
++    :param volname: Volume Name
++    :returns: Output of the Resume command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "scrub", "resume"]
++    return bitrot_execute(cmd)
++
++
++def scrub_status(volname):
++    """
++    Scrub Status
++
++    :param volname: Volume Name
++    :returns: Scrub Status, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "scrub", "status"]
++    return parse_bitrot_scrub_status(bitrot_execute_xml(cmd))
+diff --git a/gfs/cli/bricks.py b/gfs/cli/bricks.py
+new file mode 100644
+index 0000000..95f921f
+--- /dev/null
++++ b/gfs/cli/bricks.py
+@@ -0,0 +1,152 @@
++# -*- coding: utf-8 -*-
++#
++#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
++#  This file is part of GlusterFS.
++#
++#  This file is licensed to you under your choice of the GNU Lesser
++#  General Public License, version 3 or any later version (LGPLv3 or
++#  later), or the GNU General Public License, version 2 (GPLv2), in all
++#  cases as published by the Free Software Foundation.
++#
++from .utils import volume_execute, volume_execute_xml
++from .parsers import parse_remove_brick_status
++
++
++def add(volname, bricks, stripe=None, replica=None, arbiter=None, force=False):
++    """
++    Add Bricks
++
++    :param volname: Volume Name
++    :param bricks: List of Bricks
++    :param stripe: Stripe Count
++    :param replica: Replica Count
++    :param arbiter: Arbiter Count
++    :param force: True|False Force Add Bricks
++    :returns: Output of add-brick command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["add-brick", volname]
++    if stripe is not None:
++        cmd += ["stripe", "{0}".format(stripe)]
++
++    if replica is not None:
++        cmd += ["replica", "{0}".format(replica)]
++
++    if arbiter is not None:
++        cmd += ["arbiter", "{0}".format(arbiter)]
++
++    cmd += bricks
++
++    if force:
++        cmd += ["force"]
++
++    return volume_execute(cmd)
++
++
++def remove_start(volname, bricks, replica=None, force=False):
++    """
++    Remove Bricks start
++
++    :param volname: Volume Name
++    :param bricks: List of Bricks
++    :param replica: Replica Count
++    :param force: True|False Force Remove Bricks
++    :returns: Output of remove-brick start command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["remove-brick", volname]
++    if replica is not None:
++        cmd += ["replica", "{0}".format(replica)]
++
++    cmd += bricks
++    cmd += ["start"]
++    if force:
++        cmd += ["force"]
++
++    return volume_execute(cmd)
++
++
++def remove_stop(volname, bricks, replica=None, force=False):
++    """
++    Remove Bricks stop
++
++    :param volname: Volume Name
++    :param bricks: List of Bricks
++    :param replica: Replica Count
++    :param force: True|False Force Remove Bricks
++    :returns: Output of remove-brick stop command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["remove-brick", volname]
++    if replica is not None:
++        cmd += ["replica", "{0}".format(replica)]
++
++    cmd += bricks
++    cmd += ["stop"]
++    if force:
++        cmd += ["force"]
++
++    return volume_execute(cmd)
++
++
++def remove_commit(volname, bricks, replica=None, force=False):
++    """
++    Remove Bricks Commit
++
++    :param volname: Volume Name
++    :param bricks: List of Bricks
++    :param replica: Replica Count
++    :param force: True|False Force Remove Bricks
++    :returns: Output of remove-brick commit command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["remove-brick", volname]
++    if replica is not None:
++        cmd += ["replica", "{0}".format(replica)]
++
++    cmd += bricks
++    cmd += ["commit"]
++    if force:
++        cmd += ["force"]
++
++    return volume_execute(cmd)
++
++
++def remove_status(volname, bricks, replica=None, force=False):
++    """
++    Remove Bricks status
++
++    :param volname: Volume Name
++    :param bricks: List of Bricks
++    :param replica: Replica Count
++    :param force: True|False Force Remove Bricks
++    :returns: Remove Bricks Status, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["remove-brick", volname]
++    if replica is not None:
++        cmd += ["replica", "{0}".format(replica)]
++
++    cmd += bricks
++    cmd += ["status"]
++    if force:
++        cmd += ["force"]
++
++    return parse_remove_brick_status(volume_execute_xml(cmd))
++
++
++def replace_commit(volname, source_brick, new_brick, force=False):
++    """
++    Replace Bricks
++
++    :param volname: Volume Name
++    :param source_brick: Source Brick
++    :param new_brick: New Replacement Brick
++    :param force: True|False Force Replace Bricks
++    :returns: Output of replace-brick command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["replace-brick", volname, source_brick, new_brick, "commit"]
++    if force:
++        cmd += ["force"]
++    return volume_execute(cmd)
+diff --git a/gfs/cli/georep.py b/gfs/cli/georep.py
+new file mode 100644
+index 0000000..6f0af73
+--- /dev/null
++++ b/gfs/cli/georep.py
+@@ -0,0 +1,278 @@
++# -*- coding: utf-8 -*-
++#
++#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
++#  This file is part of GlusterFS.
++#
++#  This file is licensed to you under your choice of the GNU Lesser
++#  General Public License, version 3 or any later version (LGPLv3 or
++#  later), or the GNU General Public License, version 2 (GPLv2), in all
++#  cases as published by the Free Software Foundation.
++#
++from .utils import georep_execute, georep_execute_xml, gluster_system_execute
++from .parsers import parse_georep_config, parse_georep_status
++from . import volume
++
++
++def gsec_create(ssh_key_prefix=True):
++    """
++    Generate Geo-replication SSH Keys
++
++    :param ssh_key_prefix: True|False Command prefix in generated public keys
++    :returns: Output of gsec_create command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["gsec_create"]
++    if not ssh_key_prefix:
++        cmd += ["container"]
++
++    return gluster_system_execute(cmd)
++
++
++def create(volname, slave_host, slave_vol, slave_user="root",
++           push_pem=True, no_verify=False, force=False, ssh_port=22):
++    """
++    Create Geo-replication Session
++
++    :param volname: Master Volume Name
++    :param slave_host: Slave Hostname or IP
++    :param slave_vol: Slave Volume
++    :param slave_user: Slave User, default is "root"
++    :param push_pem: True|False Push SSH keys to Slave
++    :param no_verify: True|False Skip the Slave Verification
++     process before create
++    :param force: True|False Force Create Session
++    :param ssh_port: SSH Port, Default is 22
++    :returns: Output of Create command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname,
++           "{0}@{1}::{2}".format(slave_user, slave_host, slave_vol),
++           "create"]
++
++    if ssh_port != 22:
++        cmd += ["ssh-port", "{0}".format(ssh_port)]
++
++    if push_pem:
++        cmd += ["push-pem"]
++
++    if no_verify:
++        cmd += ["no-verify"]
++
++    if force:
++        cmd += ["force"]
++
++    return georep_execute(cmd)
++
++
++def start(volname, slave_host, slave_vol, slave_user="root", force=False):
++    """
++    Start Geo-replication Session
++
++    :param volname: Master Volume Name
++    :param slave_host: Slave Hostname or IP
++    :param slave_vol: Slave Volume
++    :param slave_user: Slave User, default is "root"
++    :param force: True|False Force Start the Session
++    :returns: Output of Start command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname,
++           "{0}@{1}::{2}".format(slave_user, slave_host, slave_vol),
++           "start"]
++
++    if force:
++        cmd += ["force"]
++
++    return georep_execute(cmd)
++
++
++def stop(volname, slave_host, slave_vol, slave_user="root", force=False):
++    """
++    Stop Geo-replication Session
++
++    :param volname: Master Volume Name
++    :param slave_host: Slave Hostname or IP
++    :param slave_vol: Slave Volume
++    :param slave_user: Slave User, default is "root"
++    :param force: True|False Force Stop the Session
++    :returns: Output of Stop command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname,
++           "{0}@{1}::{2}".format(slave_user, slave_host, slave_vol),
++           "stop"]
++
++    if force:
++        cmd += ["force"]
++
++    return georep_execute(cmd)
++
++
++def restart(volname, slave_host, slave_vol, slave_user="root", force=False):
++    """
++    Restart Geo-replication Session
++
++    :param volname: Master Volume Name
++    :param slave_host: Slave Hostname or IP
++    :param slave_vol: Slave Volume
++    :param slave_user: Slave User, default is "root"
++    :param force: True|False Force Start the Session
++    :returns: Output of Start command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    stop(volname, slave_host, slave_vol, slave_user, force=True)
++    return start(volname, slave_host, slave_vol, slave_user, force)
++
++
++def delete(volname, slave_host, slave_vol, slave_user="root",
++           reset_sync_time=None):
++    """
++    Delete Geo-replication Session
++
++    :param volname: Master Volume Name
++    :param slave_host: Slave Hostname or IP
++    :param slave_vol: Slave Volume
++    :param slave_user: Slave User, default is "root"
++    :param reset_sync_time: True|False Reset Sync time on delete
++    :returns: Output of Start command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname,
++           "{0}@{1}::{2}".format(slave_user, slave_host, slave_vol),
++           "delete"]
++
++    if reset_sync_time is not None:
++        cmd += ["reset-sync-time"]
++
++    return georep_execute(cmd)
++
++
++def pause(volname, slave_host, slave_vol, slave_user="root", force=False):
++    """
++    Pause Geo-replication Session
++
++    :param volname: Master Volume Name
++    :param slave_host: Slave Hostname or IP
++    :param slave_vol: Slave Volume
++    :param slave_user: Slave User, default is "root"
++    :param force: True|False Force Pause Session
++    :returns: Output of Pause command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname,
++           "{0}@{1}::{2}".format(slave_user, slave_host, slave_vol),
++           "pause"]
++
++    if force:
++        cmd += ["force"]
++
++    return georep_execute(cmd)
++
++
++def resume(volname, slave_host, slave_vol, slave_user="root", force=False):
++    """
++    Resume Geo-replication Session
++
++    :param volname: Master Volume Name
++    :param slave_host: Slave Hostname or IP
++    :param slave_vol: Slave Volume
++    :param slave_user: Slave User, default is "root"
++    :param force: True|False Force Resume Session
++    :returns: Output of Resume command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname,
++           "{0}@{1}::{2}".format(slave_user, slave_host, slave_vol),
++           "resume"]
++
++    if force:
++        cmd += ["force"]
++
++    return georep_execute(cmd)
++
++
++def config_set(volname, slave_host, slave_vol, key, value,
++               slave_user="root"):
++    """
++    Set Config of a Geo-replication Session
++
++    :param volname: Master Volume Name
++    :param slave_host: Slave Hostname or IP
++    :param slave_vol: Slave Volume
++    :param slave_user: Slave User, default is "root"
++    :param key: Config Key
++    :param value: Config Value
++    :returns: Output of Config set command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname,
++           "{0}@{1}::{2}".format(slave_user, slave_host, slave_vol),
++           "config", key, value]
++    return georep_execute(cmd)
++
++
++def config_reset(volname, slave_host, slave_vol, key, slave_user="root"):
++    """
++    Reset configuration of Geo-replication Session
++
++    :param volname: Master Volume Name
++    :param slave_host: Slave Hostname or IP
++    :param slave_vol: Slave Volume
++    :param slave_user: Slave User, default is "root"
++    :param key: Config Key
++    :returns: Output of Config reset command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname,
++           "{0}@{1}::{2}".format(slave_user, slave_host, slave_vol),
++           "config", "!{0}".format(key)]
++    return georep_execute(cmd)
++
++
++def config_get(volname, slave_host, slave_vol, key=None,
++               slave_user="root"):
++    """
++    Get Configuration of Geo-replication Session
++
++    :param volname: Master Volume Name
++    :param slave_host: Slave Hostname or IP
++    :param slave_vol: Slave Volume
++    :param slave_user: Slave User, default is "root"
++    :param key: Config Key
++    :returns: Geo-rep session Config Values, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname,
++           "{0}@{1}::{2}".format(slave_user, slave_host, slave_vol),
++           "config"]
++
++    if key is not None:
++        cmd += [key]
++
++    return parse_georep_config(georep_execute_xml(cmd))
++
++
++def status(volname=None, slave_host=None, slave_vol=None,
++           slave_user="root"):
++    """
++    Status of Geo-replication Session
++
++    :param volname: Master Volume Name
++    :param slave_host: Slave Hostname or IP
++    :param slave_vol: Slave Volume
++    :param slave_user: Slave User, default is "root"
++    :returns: Geo-replication Status, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = []
++
++    if volname is not None:
++        cmd += [volname]
++
++    if volname is not None and slave_host is not None and \
++       slave_vol is not None:
++        cmd += ["{0}@{1}::{2}".format(slave_user, slave_host, slave_vol)]
++
++    cmd += ["status"]
++
++    return parse_georep_status(georep_execute_xml(cmd), volume.info())
+diff --git a/gfs/cli/heal.py b/gfs/cli/heal.py
+new file mode 100644
+index 0000000..6e4e342
+--- /dev/null
++++ b/gfs/cli/heal.py
+@@ -0,0 +1,111 @@
++# -*- coding: utf-8 -*-
++#
++#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
++#  This file is part of GlusterFS.
++#
++#  This file is licensed to you under your choice of the GNU Lesser
++#  General Public License, version 3 or any later version (LGPLv3 or
++#  later), or the GNU General Public License, version 2 (GPLv2), in all
++#  cases as published by the Free Software Foundation.
++#
++from .utils import heal_execute, heal_execute_xml, GlusterCmdException
++from .parsers import parse_heal_statistics, parse_heal_info
++
++
++HEAL_INFO_TYPES = ["healed", "heal-failed", "split-brain"]
++
++
++def enable(volname):
++    """
++    Enable Volume Heal
++
++    :param volname: Volume Name
++    :returns: Output of Enable command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "enable"]
++    return heal_execute(cmd)
++
++
++def disable(volname):
++    """
++    Disable Volume Heal
++
++    :param volname: Volume Name
++    :returns: Output of Disable command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "disable"]
++    return heal_execute(cmd)
++
++
++def full(volname):
++    """
++    Full Volume Heal
++
++    :param volname: Volume Name
++    :returns: Output of Full Heal command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "full"]
++    return heal_execute(cmd)
++
++
++def statistics(volname):
++    """
++    Get Statistics of Heal
++
++    :param volname: Volume Name
++    :returns: Output of Statistics command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "statistics"]
++    return parse_heal_statistics(heal_execute_xml(cmd))
++
++
++def info(volname, info_type=None):
++    """
++    Get Volume Heal Info
++
++    :param volname: Volume Name
++    :returns: Output of Heal Info command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "info"]
++
++    if info_type is not None:
++        if info_type.lower() not in HEAL_INFO_TYPES:
++            raise GlusterCmdException((-1, "", "Invalid Heal Info Types"))
++
++        cmd += [info_type.lower()]
++
++    return parse_heal_info(heal_execute_xml(cmd))
++
++
++def split_brain(volname, bigger_file=None,
++                latest_mtime=None, source_brick=None, path=None):
++    """
++    Split Brain Resolution
++
++    :param volname: Volume Name
++    :param bigger_file: File Path of Bigger file
++    :param latest_mtime: File Path of Latest mtime
++    :param source_brick: Source Brick for Good Copy
++    :param path: Resolution of this path/file
++    :returns: Output of Split-brain command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "split-brain"]
++    if bigger_file is not None:
++        cmd += ["bigger-file", bigger_file]
++
++    if latest_mtime is not None:
++        cmd += ["latest-mtime", latest_mtime]
++
++    if source_brick is not None:
++        cmd += ["source-brick", source_brick]
++
++    if path is not None:
++        cmd += [path]
++
++    return heal_execute(cmd)
+diff --git a/gfs/cli/nfs_ganesha.py b/gfs/cli/nfs_ganesha.py
+new file mode 100644
+index 0000000..9c7c463
+--- /dev/null
++++ b/gfs/cli/nfs_ganesha.py
+@@ -0,0 +1,33 @@
++# -*- coding: utf-8 -*-
++#
++#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
++#  This file is part of GlusterFS.
++#
++#  This file is licensed to you under your choice of the GNU Lesser
++#  General Public License, version 3 or any later version (LGPLv3 or
++#  later), or the GNU General Public License, version 2 (GPLv2), in all
++#  cases as published by the Free Software Foundation.
++#
++from .utils import gluster_execute
++
++
++def enable():
++    """
++    Enable NFS Ganesha
++
++    :returns: Output of Enable command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["nfs-ganesha", "enable"]
++    return gluster_execute(cmd)
++
++
++def disable():
++    """
++    Disable NFS Ganesha
++
++    :returns: Output of Disable command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["nfs-ganesha", "disable"]
++    return gluster_execute(cmd)
+diff --git a/gfs/cli/parsers.py b/gfs/cli/parsers.py
+new file mode 100644
+index 0000000..3d18c3d
+--- /dev/null
++++ b/gfs/cli/parsers.py
+@@ -0,0 +1,481 @@
++# -*- coding: utf-8 -*-
++#
++#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
++#  This file is part of GlusterFS.
++#
++#  This file is licensed to you under your choice of the GNU Lesser
++#  General Public License, version 3 or any later version (LGPLv3 or
++#  later), or the GNU General Public License, version 2 (GPLv2), in all
++#  cases as published by the Free Software Foundation.
++#
++import xml.etree.cElementTree as etree
++
++ParseError = etree.ParseError if hasattr(etree, 'ParseError') else SyntaxError
++
++
++class GlusterCmdOutputParseError(Exception):
++    pass
++
++
++def _parse_a_vol(volume_el):
++    value = {
++        'name': volume_el.find('name').text,
++        'uuid': volume_el.find('id').text,
++        'type': volume_el.find('typeStr').text.upper().replace('-', '_'),
++        'status': volume_el.find('statusStr').text,
++        'num_bricks': int(volume_el.find('brickCount').text),
++        'distribute': int(volume_el.find('distCount').text),
++        'stripe': int(volume_el.find('stripeCount').text),
++        'replica': int(volume_el.find('replicaCount').text),
++        'transport': volume_el.find('transport').text,
++        'bricks': [],
++        'options': []
++    }
++
++    if value['transport'] == '0':
++        value['transport'] = 'TCP'
++    elif value['transport'] == '1':
++        value['transport'] = 'RDMA'
++    else:
++        value['transport'] = 'TCP,RDMA'
++
++    for b in volume_el.findall('bricks/brick'):
++        value['bricks'].append({"name": b.find("name").text,
++                                "uuid": b.find("hostUuid").text})
++
++    for o in volume_el.findall('options/option'):
++        value['options'].append({"name": o.find('name').text,
++                                 "value": o.find('value').text})
++
++    return value
++
++
++def parse_volume_info(info):
++    tree = etree.fromstring(info)
++    volumes = []
++    for el in tree.findall('volInfo/volumes/volume'):
++        try:
++            volumes.append(_parse_a_vol(el))
++        except (ParseError, AttributeError, ValueError) as e:
++            raise GlusterCmdOutputParseError(e)
++
++    return volumes
++
++
++def _parse_a_node(node_el):
++    brick_path = (node_el.find('hostname').text + ":" +
++                  node_el.find('path').text)
++    value = {
++        'name': brick_path,
++        'uuid': node_el.find('peerid').text,
++        'online': True if node_el.find('status').text == "1" else False,
++        'pid': node_el.find('pid').text,
++        'size_total': node_el.find('sizeTotal').text,
++        'size_free': node_el.find('sizeFree').text,
++        'device': node_el.find('device').text,
++        'block_size': node_el.find('blockSize').text,
++        'mnt_options': node_el.find('mntOptions').text,
++        'fs_name': node_el.find('fsName').text,
++    }
++
++    # ISSUE #14 glusterfs 3.6.5 does not have 'ports' key 
++    # in vol status detail xml output
++    if node_el.find('ports'):
++        value['ports'] = {
++            "tcp": node_el.find('ports').find("tcp").text,
++            "rdma": node_el.find('ports').find("rdma").text
++        }
++    else:
++        value['ports'] = { 
++            "tcp": node_el.find('port') ,
++            "rdma": None
++        }
++
++
++    return value
++
++
++def _parse_volume_status(data):
++    tree = etree.fromstring(data)
++    nodes = []
++    for el in tree.findall('volStatus/volumes/volume/node'):
++        try:
++            nodes.append(_parse_a_node(el))
++        except (ParseError, AttributeError, ValueError) as e:
++            raise GlusterCmdOutputParseError(e)
++
++    return nodes
++
++
++def parse_volume_status(status_data, volinfo):
++    nodes_data = _parse_volume_status(status_data)
++    tmp_brick_status = {}
++    for node in nodes_data:
++        tmp_brick_status[node["name"]] = node
++
++    volumes = []
++    for v in volinfo:
++        volumes.append(v.copy())
++        volumes[-1]["bricks"] = []
++
++        for b in v["bricks"]:
++            brick_status_data = tmp_brick_status.get(b["name"], None)
++            if brick_status_data is None:
++                # Default Status
++                volumes[-1]["bricks"].append({
++                    "name": b["name"],
++                    "uuid": b["uuid"],
++                    "online": False,
++                    "ports": {"tcp": "N/A", "rdma": "N/A"},
++                    "pid": "N/A",
++                    "size_total": "N/A",
++                    "size_free": "N/A",
++                    "device": "N/A",
++                    "block_size": "N/A",
++                    "mnt_options": "N/A",
++                    "fs_name": "N/A"
++                })
++            else:
++                volumes[-1]["bricks"].append(brick_status_data.copy())
++
++    return volumes
++
++
++def _parse_profile_info_clear(el):
++    clear = {
++        'volname': el.find('volname').text,
++        'bricks': []
++    }
++
++    for b in el.findall('brick'):
++        clear['bricks'].append({'brick_name': b.find('brickName').text,
++                                'clear_stats': b.find('clearStats').text})
++
++    return clear
++
++
++def _bytes_size(size):
++    traditional = [
++        (1024**5, 'PB'),
++        (1024**4, 'TB'),
++        (1024**3, 'GB'),
++        (1024**2, 'MB'),
++        (1024**1, 'KB'),
++        (1024**0, 'B')
++    ]
++
++    for factor, suffix in traditional:
++        if size > factor:
++            break
++    return str(int(size / factor)) + suffix
++
++
++def _parse_profile_block_stats(b_el):
++    stats = []
++    for b in b_el.findall('block'):
++        size = _bytes_size(int(b.find('size').text))
++        stats.append({size: {'reads': int(b.find('reads').text),
++                             'writes': int(b.find('writes').text)}})
++    return stats
++
++
++def _parse_profile_fop_stats(fop_el):
++    stats = []
++    for f in fop_el.findall('fop'):
++        name = f.find('name').text
++        stats.append({name: {'hits': int(f.find('hits').text),
++                             'max_latency': float(f.find('maxLatency').text),
++                             'min_latency': float(f.find('minLatency').text),
++                             'avg_latency': float(f.find('avgLatency').text),
++                             }})
++    return stats
++
++
++def _parse_profile_bricks(brick_el):
++    cumulative_block_stats = []
++    cumulative_fop_stats = []
++    cumulative_total_read_bytes = 0
++    cumulative_total_write_bytes = 0
++    cumulative_total_duration = 0
++
++    interval_block_stats = []
++    interval_fop_stats = []
++    interval_total_read_bytes = 0
++    interval_total_write_bytes = 0
++    interval_total_duration = 0
++
++    brick_name = brick_el.find('brickName').text
++
++    if brick_el.find('cumulativeStats') is not None:
++        cumulative_block_stats = _parse_profile_block_stats(brick_el.find('cumulativeStats/blockStats'))
++        cumulative_fop_stats = _parse_profile_fop_stats(brick_el.find('cumulativeStats/fopStats'))
++        cumulative_total_read_bytes = int(brick_el.find('cumulativeStats').find('totalRead').text)
++        cumulative_total_write_bytes = int(brick_el.find('cumulativeStats').find('totalWrite').text)
++        cumulative_total_duration = int(brick_el.find('cumulativeStats').find('duration').text)
++
++    if brick_el.find('intervalStats') is not None:
++        interval_block_stats = _parse_profile_block_stats(brick_el.find('intervalStats/blockStats'))
++        interval_fop_stats = _parse_profile_fop_stats(brick_el.find('intervalStats/fopStats'))
++        interval_total_read_bytes = int(brick_el.find('intervalStats').find('totalRead').text)
++        interval_total_write_bytes = int(brick_el.find('intervalStats').find('totalWrite').text)
++        interval_total_duration = int(brick_el.find('intervalStats').find('duration').text)
++
++    profile_brick = {
++        'brick_name': brick_name,
++        'cumulative_block_stats': cumulative_block_stats,
++        'cumulative_fop_stats': cumulative_fop_stats,
++        'cumulative_total_read_bytes': cumulative_total_read_bytes,
++        'cumulative_total_write_bytes': cumulative_total_write_bytes,
++        'cumulative_total_duration': cumulative_total_duration,
++        'interval_block_stats': interval_block_stats,
++        'interval_fop_stats': interval_fop_stats,
++        'interval_total_read_bytes': interval_total_read_bytes,
++        'interval_total_write_bytes': interval_total_write_bytes,
++        'interval_total_duration': interval_total_duration,
++    }
++
++    return profile_brick
++
++
++def _parse_profile_info(el):
++    profile = {
++        'volname': el.find('volname').text,
++        'bricks': []
++    }
++
++    for b in el.findall('brick'):
++        profile['bricks'].append(_parse_profile_bricks(b))
++
++    return profile
++
++
++def parse_volume_profile_info(info, op):
++    xml = etree.fromstring(info)
++    profiles = []
++    for el in xml.findall('volProfile'):
++        try:
++            if op == "clear":
++                profiles.append(_parse_profile_info_clear(el))
++            else:
++                profiles.append(_parse_profile_info(el))
++
++        except (ParseError, AttributeError, ValueError) as e:
++            raise GlusterCmdOutputParseError(e)
++
++    return profiles
++
++
++def parse_volume_options(data):
++    raise NotImplementedError("Volume Options")
++
++
++def parse_georep_status(data, volinfo):
++    """
++    Merge Geo-rep status and Volume Info to get Offline Status
++    and to sort the status in the same order as of Volume Info
++    """
++    session_keys = set()
++    gstatus = {}
++
++    try:
++        tree = etree.fromstring(data)
++        # Get All Sessions
++        for volume_el in tree.findall("geoRep/volume"):
++            sessions_el = volume_el.find("sessions")
++            # Master Volume name if multiple Volumes
++            mvol = volume_el.find("name").text
++
++            # For each session, collect the details
++            for session in sessions_el.findall("session"):
++                session_slave = "{0}:{1}".format(mvol, session.find(
++                    "session_slave").text)
++                session_keys.add(session_slave)
++                gstatus[session_slave] = {}
++
++                for pair in session.findall('pair'):
++                    master_brick = "{0}:{1}".format(
++                        pair.find("master_node").text,
++                        pair.find("master_brick").text
++                    )
++
++                    gstatus[session_slave][master_brick] = {
++                        "mastervol": mvol,
++                        "slavevol": pair.find("slave").text.split("::")[-1],
++                        "master_node": pair.find("master_node").text,
++                        "master_brick": pair.find("master_brick").text,
++                        "slave_user": pair.find("slave_user").text,
++                        "slave": pair.find("slave").text,
++                        "slave_node": pair.find("slave_node").text,
++                        "status": pair.find("status").text,
++                        "crawl_status": pair.find("crawl_status").text,
++                        "entry": pair.find("entry").text,
++                        "data": pair.find("data").text,
++                        "meta": pair.find("meta").text,
++                        "failures": pair.find("failures").text,
++                        "checkpoint_completed": pair.find(
++                            "checkpoint_completed").text,
++                        "master_node_uuid": pair.find("master_node_uuid").text,
++                        "last_synced": pair.find("last_synced").text,
++                        "checkpoint_time": pair.find("checkpoint_time").text,
++                        "checkpoint_completion_time":
++                        pair.find("checkpoint_completion_time").text
++                    }
++    except (ParseError, AttributeError, ValueError) as e:
++        raise GlusterCmdOutputParseError(e)
++
++    # Get List of Bricks for each Volume
++    all_bricks = {}
++    for vi in volinfo:
++        all_bricks[vi["name"]] = vi["bricks"]
++
++    # For Each session Get Bricks info for the Volume and Populate
++    # Geo-rep status for that Brick
++    out = []
++    for session in session_keys:
++        mvol, _, slave = session.split(":", 2)
++        slave = slave.replace("ssh://", "")
++        master_bricks = all_bricks[mvol]
++        out.append([])
++        for brick in master_bricks:
++            bname = brick["name"]
++            if gstatus.get(session) and gstatus[session].get(bname, None):
++                out[-1].append(gstatus[session][bname])
++            else:
++                # Offline Status
++                node, brick_path = bname.split(":")
++                if "@" not in slave:
++                    slave_user = "root"
++                else:
++                    slave_user, _ = slave.split("@")
++
++                out[-1].append({
++                    "mastervol": mvol,
++                    "slavevol": slave.split("::")[-1],
++                    "master_node": node,
++                    "master_brick": brick_path,
++                    "slave_user": slave_user,
++                    "slave": slave,
++                    "slave_node": "N/A",
++                    "status": "Offline",
++                    "crawl_status": "N/A",
++                    "entry": "N/A",
++                    "data": "N/A",
++                    "meta": "N/A",
++                    "failures": "N/A",
++                    "checkpoint_completed": "N/A",
++                    "master_node_uuid": brick["uuid"],
++                    "last_synced": "N/A",
++                    "checkpoint_time": "N/A",
++                    "checkpoint_completion_time": "N/A"
++                })
++    return out
++
++
++def parse_bitrot_scrub_status(data):
++    raise NotImplementedError("Bitrot Scrub Status")
++
++
++def parse_rebalance_status(data):
++    raise NotImplementedError("Rebalance Status")
++
++
++def parse_quota_list_paths(data):
++    raise NotImplementedError("Quota List Paths")
++
++
++def parse_quota_list_objects(data):
++    raise NotImplementedError("Quota List Objects")
++
++
++def parse_georep_config(data):
++    raise NotImplementedError("Georep Config")
++
++
++def parse_remove_brick_status(data):
++    raise NotImplementedError("Remove Brick Status")
++
++
++def parse_tier_detach(data):
++    raise NotImplementedError("Tier detach Status")
++
++
++def parse_tier_status(data):
++    raise NotImplementedError("Tier Status")
++
++def parse_volume_list(data):
++    xml = etree.fromstring(data)
++    volumes = []
++    for el in xml.findall('volList/volume'):
++        volumes.append(el.text)
++    return volumes
++
++def parse_heal_info(data):
++    xml = etree.fromstring(data)
++    healinfo = []
++    for el in xml.findall('healInfo/bricks/brick'):
++        healinfo.append({
++            'name': el.find('name').text,
++            'status': el.find('status').text,
++            'host_uuid': el.attrib['hostUuid'],
++            'nr_entries': el.find('numberOfEntries').text
++        })
++    return healinfo
++
++
++
++def parse_heal_statistics(data):
++    raise NotImplementedError("Heal Statistics")
++
++
++def parse_snapshot_status(data):
++    raise NotImplementedError("Snapshot Status")
++
++
++def parse_snapshot_info(data):
++    raise NotImplementedError("Snapshot Info")
++
++
++def parse_snapshot_list(data):
++    xml = etree.fromstring(data)
++    snapshots = []
++    for el in xml.findall('snapList/snapshot'):
++      snapshots.append(el.text)
++    return snapshots
++
++def _parse_a_peer(peer):
++    value = {
++        'uuid': peer.find('uuid').text,
++        'hostname': peer.find('hostname').text,
++        'connected': peer.find('connected').text
++    }
++
++    if value['connected'] == '0':
++        value['connected'] = "Disconnected"
++    elif value['connected'] == '1':
++        value['connected'] = "Connected"
++
++    return value
++
++
++def parse_peer_status(data):
++    tree = etree.fromstring(data)
++    peers = []
++    for el in tree.findall('peerStatus/peer'):
++        try:
++            peers.append(_parse_a_peer(el))
++        except (ParseError, AttributeError, ValueError) as e:
++            raise GlusterCmdOutputParseError(e)
++
++    return peers
++
++
++def parse_pool_list(data):
++    tree = etree.fromstring(data)
++    pools = []
++    for el in tree.findall('peerStatus/peer'):
++        try:
++            pools.append(_parse_a_peer(el))
++        except (ParseError, AttributeError, ValueError) as e:
++            raise GlusterCmdOutputParseError(e)
++
++    return pools
+diff --git a/gfs/cli/peer.py b/gfs/cli/peer.py
+new file mode 100644
+index 0000000..96eb4ff
+--- /dev/null
++++ b/gfs/cli/peer.py
+@@ -0,0 +1,97 @@
++# -*- coding: utf-8 -*-
++#
++#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
++#  This file is part of GlusterFS.
++#
++#  This file is licensed to you under your choice of the GNU Lesser
++#  General Public License, version 3 or any later version (LGPLv3 or
++#  later), or the GNU General Public License, version 2 (GPLv2), in all
++#  cases as published by the Free Software Foundation.
++#
++
++from .utils import peer_execute, peer_execute_xml, gluster_execute_xml, GlusterCmdException
++from .parsers import parse_peer_status, parse_pool_list
++
++
++def probe(host):
++    """
++    Add Host to Cluster
++
++    :param host: Hostname or IP
++    :returns: Output of peer probe command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["probe", host]
++    return peer_execute(cmd)
++
++
++def attach(host):
++    """
++    Add Host to Cluster, alias for probe
++
++    :param host: Hostname or IP
++    :returns: Output of peer probe command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    return probe(host)
++
++
++def detach(host):
++    """
++    Remove Host from Cluster
++
++    :param host: Hostname or IP
++    :returns: Output of peer detach command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["detach", host]
++    return peer_execute(cmd)
++
++def detach_all():
++    """
++    Removes All Hosts from Cluster
++
++    :returns: Output of peer detach command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    peers = parse_peer_status(peer_execute_xml(["status"]))
++    errors_list = []
++    outlist = []
++    if len(peers) > 0:
++        for peer in peers:
++            host = peer["hostname"]
++            if peer["connected"] == "Connected":
++                cmd = ["detach",host]
++                try:
++                    result = peer_execute(cmd)
++                    out = str(host)+" "+result
++                    outlist.append(out)
++                except Exception as err:
++                    errors_list.append(err)
++            else:
++                err = str(host)+" is not connected"
++                errors_list.append(err)
++    if len(errors_list):
++        raise GlusterCmdException((1, "", errors_list))
++    return "/n".join(outlist)
++
++def status():
++    """
++    Peer Status of Cluster
++
++    :returns: Output of peer status command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["status"]
++    return parse_peer_status(peer_execute_xml(cmd))
++
++
++def pool():
++    """
++    Cluster Pool Status
++
++    :returns: Pool list and status, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["pool", "list"]
++    return parse_pool_list(gluster_execute_xml(cmd))
+diff --git a/gfs/cli/quota.py b/gfs/cli/quota.py
+new file mode 100644
+index 0000000..94b40eb
+--- /dev/null
++++ b/gfs/cli/quota.py
+@@ -0,0 +1,187 @@
++# -*- coding: utf-8 -*-
++#
++#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
++#  This file is part of GlusterFS.
++#
++#  This file is licensed to you under your choice of the GNU Lesser
++#  General Public License, version 3 or any later version (LGPLv3 or
++#  later), or the GNU General Public License, version 2 (GPLv2), in all
++#  cases as published by the Free Software Foundation.
++#
++
++from .utils import quota_execute, quota_execute_xml, volume_execute
++from .parsers import parse_quota_list_paths, parse_quota_list_objects
++
++
++def inode_quota_enable(volname):
++    """
++    Enable Inode Quota
++
++    :param volname: Volume Name
++    :returns: Output of inode-quota Enable command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["inode-quota", volname, "enable"]
++    return volume_execute(cmd)
++
++
++def enable(volname):
++    """
++    Enable Quota
++
++    :param volname: Volume Name
++    :returns: Output of quota Enable command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "enable"]
++    return quota_execute(cmd)
++
++
++def disable(volname):
++    """
++    Disable Inode Quota
++
++    :param volname: Volume Name
++    :returns: Output of quota Disable command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "disable"]
++    return quota_execute(cmd)
++
++
++def list_paths(volname, paths=[]):
++    """
++    Get Quota List
++
++    :param volname: Volume Name
++    :param paths: Optional list of paths
++    :returns: Quota list of paths, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "list"] + paths
++    return parse_quota_list_paths(quota_execute_xml(cmd))
++
++
++def list_objects(volname, paths=[]):
++    """
++    Get Quota Objects List
++
++    :param volname: Volume Name
++    :param paths: Optional list of paths
++    :returns: Quota list of objects, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "list"] + paths
++    return parse_quota_list_objects(quota_execute_xml(cmd))
++
++
++def remove_path(volname, path):
++    """
++    Remove Path from Quota list
++
++    :param volname: Volume Name
++    :param path: Path to remove from quota
++    :returns: Output of Quota remove-path, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "remove-path", path]
++    return quota_execute(cmd)
++
++
++def remove_objects(volname, path):
++    """
++    Remove Objects for a given path
++
++    :param volname: Volume Name
++    :param path: Path to remove from quota
++    :returns: Output of Quota remove-objects, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "remove-objects", path]
++    return quota_execute(cmd)
++
++
++def default_soft_limit(volname, percent):
++    """
++    Set default soft limit
++
++    :param volname: Volume Name
++    :param percent: Percent of soft limit
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "default-soft-limit", "{0}".format(percent)]
++    return quota_execute(cmd)
++
++
++def limit_usage(volname, path, size, percent=None):
++    """
++    Limit quota usage
++
++    :param volname: Volume Name
++    :param path: Path to limit quota
++    :param size: Limit Size
++    :param percent: Percentage
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "limit-usage", path, "{0}".format(size)]
++    if percent is not None:
++        cmd += ["{0}".format(percent)]
++    return quota_execute(cmd)
++
++
++def limit_objects(volname, path, num, percent=None):
++    """
++    Limit objects
++
++    :param volname: Volume Name
++    :param path: Path to limit quota
++    :param num: Limit Number
++    :param percent: Percentage
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "limit-objects", path, "{0}".format(num)]
++    if percent is not None:
++        cmd += ["{0}".format(percent)]
++    return quota_execute(cmd)
++
++
++def alert_time(volname, alert_time):
++    """
++    Set Alert Time
++
++    :param volname: Volume Name
++    :param alert_time: Alert Time Value
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "alert-time", "{0}".format(alert_time)]
++    return quota_execute(cmd)
++
++
++def soft_timeout(volname, timeout):
++    """
++    Set Soft Timeout
++
++    :param volname: Volume Name
++    :param timeout: Timeout Value
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "soft-timeout", "{0}".format(timeout)]
++    return quota_execute(cmd)
++
++
++def hard_timeout(volname, timeout):
++    """
++    Set Hard Timeout
++
++    :param volname: Volume Name
++    :param timeout: Timeout Value
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "hard-timeout", "{0}".format(timeout)]
++    return quota_execute(cmd)
+diff --git a/gfs/cli/rebalance.py b/gfs/cli/rebalance.py
+new file mode 100644
+index 0000000..e7294fa
+--- /dev/null
++++ b/gfs/cli/rebalance.py
+@@ -0,0 +1,64 @@
++# -*- coding: utf-8 -*-
++#
++#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
++#  This file is part of GlusterFS.
++#
++#  This file is licensed to you under your choice of the GNU Lesser
++#  General Public License, version 3 or any later version (LGPLv3 or
++#  later), or the GNU General Public License, version 2 (GPLv2), in all
++#  cases as published by the Free Software Foundation.
++#
++
++from .utils import volume_execute, volume_execute_xml
++from .parsers import parse_rebalance_status
++
++
++def fix_layout_start(volname):
++    """
++    Fix Layout Rebalance Start
++
++    :param volname: Volume Name
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["rebalance", volname, "fix-layout", "start"]
++    return volume_execute(cmd)
++
++
++def start(volname, force=False):
++    """
++    Rebalance Start
++
++    :param volname: Volume Name
++    :param force: True|False Force start the rebalance
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["rebalance", volname, "start"]
++    if force:
++        cmd += ["force"]
++    return volume_execute(cmd)
++
++
++def stop(volname):
++    """
++    Rebalance Stop
++
++    :param volname: Volume Name
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["rebalance", volname, "stop"]
++    return volume_execute(cmd)
++
++
++def status(volname):
++    """
++    Rebalance Status
++
++    :param volname: Volume Name
++    :returns: Rebalance Status, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["rebalance", volname, "status"]
++    return parse_rebalance_status(volume_execute_xml(cmd))
+diff --git a/gfs/cli/snapshot.py b/gfs/cli/snapshot.py
+new file mode 100644
+index 0000000..85d5f88
+--- /dev/null
++++ b/gfs/cli/snapshot.py
+@@ -0,0 +1,203 @@
++# -*- coding: utf-8 -*-
++#
++#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
++#  This file is part of GlusterFS.
++#
++#  This file is licensed to you under your choice of the GNU Lesser
++#  General Public License, version 3 or any later version (LGPLv3 or
++#  later), or the GNU General Public License, version 2 (GPLv2), in all
++#  cases as published by the Free Software Foundation.
++#
++
++from .utils import snapshot_execute, snapshot_execute_xml
++from .parsers import (parse_snapshot_status,
++                      parse_snapshot_info,
++                      parse_snapshot_list)
++
++
++def activate(snapname, force=False):
++    """
++    Activate Snapshot
++
++    :param snapname: Snapshot Name
++    :param force: True|False Force Activate the snapshot
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["activate", snapname]
++
++    if force:
++        cmd += ["force"]
++
++    return snapshot_execute(cmd)
++
++
++def clone(clonename, snapname):
++    """
++    Clone the Snapshot
++
++    :param clonename: Snapshot Clone Name
++    :param snapname: Snapshot Name
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["clone", clonename, snapname]
++
++    return snapshot_execute(cmd)
++
++
++def create(volname, snapname, no_timestamp=False, description="", force=False):
++    """
++    Create Snapshot
++
++    :param volname: Volume Name
++    :param snapname: Snapshot Name
++    :param no_timestamp: True|False Do not add Timestamp to name
++    :param description: Description for Created Snapshot
++    :param force: True|False Force Create the snapshot
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["create", snapname, volname]
++
++    if no_timestamp:
++        cmd += ["no-timestamp"]
++
++    if description:
++        cmd += ["description", description]
++
++    if force:
++        cmd += ["force"]
++
++    return snapshot_execute(cmd)
++
++
++def deactivate(snapname):
++    """
++    Deactivate the Snapshot
++
++    :param snapname: Snapshot Name
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["deactivate", snapname]
++
++    return snapshot_execute(cmd)
++
++
++def delete(snapname=None, volname=None):
++    """
++    Delete Snapshot
++
++    :param snapname: Snapshot Name
++    :param volname: Volume Name
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["delete"]
++    if snapname is not None:
++        cmd += [snapname]
++
++    if volname is not None and snapname is None:
++        cmd += ["volume", volname]
++
++    return snapshot_execute(cmd)
++
++
++def info(snapname=None, volname=None):
++    """
++    Snapshot Info
++
++    :param snapname: Snapshot Name
++    :param volname: Volume Name
++    :returns: Snapshot Info, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["info"]
++    if snapname is not None:
++        cmd += [snapname]
++
++    if volname is not None and snapname is None:
++        cmd += ["volume", volname]
++
++    return parse_snapshot_info(snapshot_execute_xml(cmd))
++
++
++def snaplist(volname=None):
++    """
++    List of Snapshots
++
++    :param volname: Volume Name
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["list"]
++
++    if volname is not None:
++        cmd += [volname]
++
++    return parse_snapshot_list(snapshot_execute_xml(cmd))
++
++
++def restore(snapname):
++    """
++    Restore Snapshot
++
++    :param snapname: Snapshot Name
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["restore", snapname]
++    return snapshot_execute(cmd)
++
++
++def status(snapname=None, volname=None):
++    """
++    Snapshot Status
++
++    :param snapname: Snapshot Name
++    :param volname: Volume Name
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["status"]
++    if snapname is not None:
++        cmd += [snapname]
++
++    if volname is not None and snapname is None:
++        cmd += ["volume", volname]
++
++    return parse_snapshot_status(snapshot_execute_xml(cmd))
++
++
++def config(volname, snap_max_hard_limit=None,
++           snap_max_soft_limit=None, auto_delete=None,
++           activate_on_create=None):
++    """
++    Set Snapshot Config
++
++    :param volname: Volume Name
++    :param snap_max_hard_limit: Number of Snapshots hard limit
++    :param snap_max_soft_limit: Number of Snapshots soft limit
++    :param auto_delete: True|False Auto delete old snapshots
++    :param activate_on_create: True|False Activate Snapshot after Create
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["config", volname]
++
++    if snap_max_hard_limit is not None:
++        cmd += ["snap-max-hard-limit", "{0}".format(snap_max_hard_limit)]
++
++    if snap_max_soft_limit is not None:
++        cmd += ["snap-max-soft-limit", "{0}".format(snap_max_soft_limit)]
++
++    if auto_delete is not None:
++        auto_delete_arg = "enable" if auto_delete else "disable"
++        cmd += ["snap-max-hard-limit", auto_delete_arg]
++
++    if activate_on_create is not None:
++        activate_arg = "enable" if activate_on_create else "disable"
++        cmd += ["snap-max-hard-limit", activate_arg]
++
++    return snapshot_execute(cmd)
+diff --git a/gfs/cli/tier.py b/gfs/cli/tier.py
+new file mode 100644
+index 0000000..2fa1624
+--- /dev/null
++++ b/gfs/cli/tier.py
+@@ -0,0 +1,131 @@
++# -*- coding: utf-8 -*-
++#
++#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
++#  This file is part of GlusterFS.
++#
++#  This file is licensed to you under your choice of the GNU Lesser
++#  General Public License, version 3 or any later version (LGPLv3 or
++#  later), or the GNU General Public License, version 2 (GPLv2), in all
++#  cases as published by the Free Software Foundation.
++#
++
++from .utils import tier_execute, tier_execute_xml
++from .parsers import parse_tier_detach, parse_tier_status
++
++
++def status(volname):
++    """
++    Tier Status
++
++    :param volname: Volume Name
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "status"]
++    return parse_tier_status(tier_execute_xml(cmd))
++
++
++def start(volname, force=False):
++    """
++    Start Tier
++
++    :param volname: Volume Name
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "start"]
++    if force:
++        cmd += ["force"]
++
++    return tier_execute(cmd)
++
++
++def attach(volname, bricks, replica=None):
++    """
++    Attach Tier
++
++    :param volname: Volume Name
++    :param bricks: Tier Bricks to attach
++    :param replica: Replica number
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "attach"]
++    if replica is not None:
++        cmd += ["replica", "{0}".format(replica)]
++
++    cmd += bricks
++
++    return tier_execute(cmd)
++
++
++def detach_start(volname, bricks, force=False):
++    """
++    Detach Tier Start
++
++    :param volname: Volume Name
++    :param bricks: Tier Bricks to detach
++    :param force: True|False Force Detach the Tier
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "detach", bricks, "start"]
++
++    if force:
++        cmd += ["force"]
++
++    return tier_execute(cmd)
++
++
++def detach_stop(volname, bricks, force=False):
++    """
++    Detach Tier Stop
++
++    :param volname: Volume Name
++    :param bricks: Tier Bricks to detach
++    :param force: True|False Force Detach the Tier
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "detach", bricks, "stop"]
++
++    if force:
++        cmd += ["force"]
++
++    return tier_execute(cmd)
++
++
++def detach_commit(volname, bricks, force=False):
++    """
++    Detach Tier Commit
++
++    :param volname: Volume Name
++    :param bricks: Tier Bricks to detach
++    :param force: True|False Force Detach the Tier
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "detach", bricks, "commit"]
++
++    if force:
++        cmd += ["force"]
++
++    return tier_execute(cmd)
++
++
++def detach_status(volname, bricks, force=False):
++    """
++    Detach Tier Status
++
++    :param volname: Volume Name
++    :param bricks: Tier Bricks to attach
++    :param force: True|False Force Detach the Tier
++    :returns: Output of the command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = [volname, "detach", bricks, "status"]
++
++    if force:
++        cmd += ["force"]
++
++    return parse_tier_detach(tier_execute_xml(cmd))
+diff --git a/gfs/cli/utils.py b/gfs/cli/utils.py
+new file mode 100644
+index 0000000..e6966f1
+--- /dev/null
++++ b/gfs/cli/utils.py
+@@ -0,0 +1,215 @@
++# -*- coding: utf-8 -*-
++#
++#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
++#  This file is part of GlusterFS.
++#
++#  This file is licensed to you under your choice of the GNU Lesser
++#  General Public License, version 3 or any later version (LGPLv3 or
++#  later), or the GNU General Public License, version 2 (GPLv2), in all
++#  cases as published by the Free Software Foundation.
++#
++
++import subprocess
++from contextlib import contextmanager
++
++GLUSTERCMD = "gluster"
++GLUSTERD_SOCKET = None
++ssh = None
++SSH_HOST = None
++SSH_PEM_FILE = None
++prev_ssh_host = None
++prev_ssh_pem_file = None
++
++
++@contextmanager
++def ssh_connection(hostname, pem_file):
++    global SSH_HOST, SSH_PEM_FILE
++    SSH_HOST = hostname
++    SSH_PEM_FILE = pem_file
++    yield
++    SSH_HOST = None
++    SSH_PEM_FILE = None
++
++
++def execute(cmd):
++    global prev_ssh_host, prev_ssh_pem_file
++
++    c = []
++    c.append(GLUSTERCMD)
++
++    if GLUSTERD_SOCKET:
++        c.append("--glusterd-sock={0}".format(GLUSTERD_SOCKET))
++
++    c.append("--mode=script")
++    c += cmd
++
++    if SSH_HOST is not None and SSH_PEM_FILE is not None:
++        # Reconnect only if first time or previously connected to different
++        # host or using different pem key
++        if ssh is None or prev_ssh_host != SSH_HOST \
++           or prev_ssh_pem_file != SSH_PEM_FILE:
++            __connect_ssh()
++            prev_ssh_host = SSH_HOST
++            prev_ssh_pem_file = SSH_PEM_FILE
++
++        c = " ".join(c)
++        stdin, stdout, stderr = ssh.exec_command(c)
++        rc = stdout.channel.recv_exit_status()
++        return (rc, stdout.read().strip(), stderr.read().strip())
++    else:
++        p = subprocess.Popen(c, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
++        out, err = p.communicate()
++        return (p.returncode, out, err)
++
++
++class GlusterCmdException(Exception):
++    pass
++
++
++def set_ssh_pem_file(pem_file):
++    global USE_SSH, SSH_PEM_FILE
++    USE_SSH = True
++    SSH_PEM_FILE = pem_file
++
++
++def set_ssh_host(hostname):
++    global SSH_HOST
++    SSH_HOST = hostname
++
++
++def __connect_ssh():
++    global ssh
++
++    import paramiko
++
++    if ssh is None:
++        ssh = paramiko.SSHClient()
++        try:
++            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
++            ssh.connect(SSH_HOST, username="root", key_filename=SSH_PEM_FILE)
++        except paramiko.ssh_exception.AuthenticationException as e:
++            raise GlusterCmdException("Unable to establish SSH connection "
++                                      "to root@{0}:\n{1}".format(SSH_HOST, e))
++
++
++def set_gluster_path(path):
++    global GLUSTERCMD
++    GLUSTERCMD = path
++
++
++def set_gluster_socket(path):
++    global GLUSTERD_SOCKET
++    GLUSTERD_SOCKET = path
++
++
++def execute_or_raise(cmd):
++    rc, out, err = execute(cmd)
++    if rc != 0:
++        raise GlusterCmdException((rc, out, err))
++
++    return out.strip()
++
++
++def gluster_system_execute(cmd):
++    cmd.insert(0, "system::")
++    cmd.insert(1, "execute")
++    return execute_or_raise(cmd)
++
++
++def gluster_execute(cmd):
++    return execute_or_raise(cmd)
++
++
++def gluster_execute_xml(cmd):
++    cmd.append("--xml")
++    return execute_or_raise(cmd)
++
++
++def volume_execute(cmd):
++    cmd.insert(0, "volume")
++    return execute_or_raise(cmd)
++
++
++def peer_execute(cmd):
++    cmd.insert(0, "peer")
++    return execute_or_raise(cmd)
++
++
++def volume_execute_xml(cmd):
++    cmd.insert(0, "volume")
++    return gluster_execute_xml(cmd)
++
++
++def peer_execute_xml(cmd):
++    cmd.insert(0, "peer")
++    return gluster_execute_xml(cmd)
++
++
++def georep_execute(cmd):
++    cmd.insert(0, "volume")
++    cmd.insert(1, "geo-replication")
++    return execute_or_raise(cmd)
++
++
++def georep_execute_xml(cmd):
++    cmd.insert(0, "volume")
++    cmd.insert(1, "geo-replication")
++    return gluster_execute_xml(cmd)
++
++
++def bitrot_execute(cmd):
++    cmd.insert(0, "volume")
++    cmd.insert(1, "bitrot")
++    return execute_or_raise(cmd)
++
++
++def bitrot_execute_xml(cmd):
++    cmd.insert(0, "volume")
++    cmd.insert(1, "bitrot")
++    return gluster_execute_xml(cmd)
++
++
++def quota_execute(cmd):
++    cmd.insert(0, "volume")
++    cmd.insert(1, "quota")
++    return execute_or_raise(cmd)
++
++
++def quota_execute_xml(cmd):
++    cmd.insert(0, "volume")
++    cmd.insert(1, "quota")
++    return gluster_execute_xml(cmd)
++
++
++def heal_execute(cmd):
++    cmd.insert(0, "volume")
++    cmd.insert(1, "heal")
++    return execute_or_raise(cmd)
++
++
++def heal_execute_xml(cmd):
++    cmd.insert(0, "volume")
++    cmd.insert(1, "heal")
++    return gluster_execute_xml(cmd)
++
++
++def snapshot_execute(cmd):
++    cmd.insert(0, "snapshot")
++    return execute_or_raise(cmd)
++
++
++def snapshot_execute_xml(cmd):
++    cmd.insert(0, "snapshot")
++    return gluster_execute_xml(cmd)
++
++
++def tier_execute(cmd):
++    cmd.insert(0, "volume")
++    cmd.insert(1, "tier")
++    return execute_or_raise(cmd)
++
++
++def tier_execute_xml(cmd):
++    cmd.insert(0, "volume")
++    cmd.insert(1, "tier")
++    return gluster_execute_xml(cmd)
+diff --git a/gfs/cli/volume.py b/gfs/cli/volume.py
+new file mode 100644
+index 0000000..4d7d4d0
+--- /dev/null
++++ b/gfs/cli/volume.py
+@@ -0,0 +1,377 @@
++# -*- coding: utf-8 -*-
++#
++#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
++#  This file is part of GlusterFS.
++#
++#  This file is licensed to you under your choice of the GNU Lesser
++#  General Public License, version 3 or any later version (LGPLv3 or
++#  later), or the GNU General Public License, version 2 (GPLv2), in all
++#  cases as published by the Free Software Foundation.
++#
++
++from .utils import volume_execute, volume_execute_xml, GlusterCmdException
++from .parsers import (parse_volume_info,
++                      parse_volume_status,
++                      parse_volume_options,
++                      parse_volume_list,
++                      parse_volume_profile_info)
++
++# Following import are not used in this file, but imported to make
++# it available via volume.(noqa to ignore in pep8 check)
++from . import bitrot     # noqa
++from . import bricks     # noqa
++from . import heal       # noqa
++from . import quota      # noqa
++from . import rebalance  # noqa
++from . import tier       # noqa
++
++
++LOCK_KINDS = ["blocked", "granted", "all"]
++INFO_OPS = ["peek", "incremental", "cumulative", "clear"]
++
++
++def start(volname, force=False):
++    """
++    Start Gluster Volume
++
++    :param volname: Volume Name
++    :param force: (True|False) Start Volume with Force option
++    :returns: Output of Start command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["start", volname]
++    if force:
++        cmd += ["force"]
++
++    return volume_execute(cmd)
++
++
++def stop(volname, force=False):
++    """
++    Stop Gluster Volume
++
++    :param volname: Volume Name
++    :param force: (True|False) Stop Volume with Force option
++    :returns: Output of Stop command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["stop", volname]
++    if force:
++        cmd += ["force"]
++
++    return volume_execute(cmd)
++
++
++def restart(volname, force=False):
++    """
++    Restart Gluster Volume, Wrapper around two calls stop and start
++
++    :param volname: Volume Name
++    :param force: (True|False) Restart Volume with Force option
++    :returns: Output of Start command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["stop", volname]
++    if force:
++        cmd += ["force"]
++
++    volume_execute(cmd)
++
++    cmd = ["start", volname]
++    if force:
++        cmd += ["force"]
++
++    return volume_execute(cmd)
++
++
++def delete(volname):
++    """
++    Delete Gluster Volume
++
++    :param volname: Volume Name
++    :returns: Output of Delete command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["delete", volname]
++    return volume_execute(cmd)
++
++
++def create(volname, volbricks, replica=0, stripe=0, arbiter=0, disperse=0,
++           disperse_data=0, redundancy=0, transport="tcp", force=False):
++    """
++    Create Gluster Volume
++
++    :param volname: Volume Name
++    :param volbricks: List of Brick paths(HOSTNAME:PATH)
++    :param replica: Number of Replica bricks
++    :param stripe: Number of Stripe bricks
++    :param arbiter: Number of Arbiter bricks
++    :param disperse: Number of disperse bricks
++    :param disperse_data: Number of disperse data bricks
++    :param redundancy: Number of Redundancy bricks
++    :param transport: Transport mode(tcp|rdma|tcp,rdma)
++    :param force: (True|False) Create Volume with Force option
++    :returns: Output of Create command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["create", volname]
++    if replica != 0:
++        cmd += ["replica", "{0}".format(replica)]
++
++    if stripe != 0:
++        cmd += ["stripe", "{0}".format(stripe)]
++
++    if arbiter != 0:
++        cmd += ["arbiter", "{0}".format(arbiter)]
++
++    if disperse != 0:
++        cmd += ["disperse", "{0}".format(disperse)]
++
++    if disperse_data != 0:
++        cmd += ["disperse-data", "{0}".format(disperse_data)]
++
++    if redundancy != 0:
++        cmd += ["redundancy", "{0}".format(redundancy)]
++
++    if transport != "tcp":
++        cmd += ["transport", transport]
++
++    cmd += volbricks
++
++    if force:
++        cmd += ["force"]
++
++    return volume_execute(cmd)
++
++
++def info(volname=None):
++    """
++    Get Gluster Volume Info
++
++    :param volname: Volume Name
++    :returns: Returns Volume Info, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["info"]
++    if volname is not None:
++        cmd += [volname]
++
++    return parse_volume_info(volume_execute_xml(cmd))
++
++
++def status_detail(volname=None):
++    """
++    Get Gluster Volume Status
++
++    :param volname: Volume Name
++    :returns: Returns Volume Status, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["status"]
++    if volname is not None:
++        cmd += [volname, "detail"]
++    else:
++        cmd += ["all", "detail"]
++
++    return parse_volume_status(volume_execute_xml(cmd), info(volname))
++
++
++def optset(volname, opts):
++    """
++    Set Volume Options
++
++    :param volname: Volume Name
++    :param opts: Dict with config key as dict key and config value as value
++    :returns: Output of Volume Set command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["set", volname]
++    for key, value in opts.items():
++        cmd += [key, value]
++
++    return volume_execute(cmd)
++
++
++def optget(volname, opt="all"):
++    """
++    Get Volume Options
++
++    :param volname: Volume Name
++    :param opt: Option Name
++    :returns: List of Volume Options, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["get", volname, opt]
++    return parse_volume_options(volume_execute_xml(cmd))
++
++
++def optreset(volname, opt=None, force=False):
++    """
++    Reset Volume Options
++
++    :param volname: Volume Name
++    :param opt: Option name to reset, else reset all
++    :param force: Force reset options
++    :returns: Output of Volume Reset command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["reset", volname]
++
++    if opt is not None:
++        cmd += [opt]
++
++    if force:
++        cmd += ["force"]
++
++    return volume_execute(cmd)
++
++
++def vollist():
++    """
++    Volumes List
++
++    :returns: List of Volumes, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["list"]
++    return parse_volume_list(volume_execute_xml(cmd))
++
++
++def log_rotate(volname, brick):
++    """
++    Brick log rotate
++
++    :param volname: Volume Name
++    :param brick: Brick Path
++    :returns: Output of Log rotate command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["log", volname, "rotate", brick]
++    return volume_execute(cmd)
++
++
++def sync(hostname, volname=None):
++    """
++    Sync the volume information from a peer
++
++    :param hostname: Hostname to sync from
++    :param volname: Volume Name
++    :returns: Output of Sync command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["sync", hostname]
++    if volname is not None:
++        cmd += [volname]
++    return volume_execute(cmd)
++
++
++def clear_locks(volname, path, kind, inode_range=None,
++                entry_basename=None, posix_range=None):
++    """
++    Clear locks held on path
++
++    :param volname: Volume Name
++    :param path: Locked Path
++    :param kind: Lock Kind(blocked|granted|all)
++    :param inode_range: Inode Range
++    :param entry_basename: Entry Basename
++    :param posix_range: Posix Range
++    :returns: Output of Clear locks command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    if kind.lower() not in LOCK_KINDS:
++        raise GlusterCmdException((-1, "", "Invalid Lock Kind"))
++    cmd = ["clear-locks", volname, "kind", kind.lower()]
++
++    if inode_range is not None:
++        cmd += ["inode", inode_range]
++
++    if entry_basename is not None:
++        cmd += ["entry", entry_basename]
++
++    if posix_range is not None:
++        cmd += ["posix", posix_range]
++
++    return volume_execute(cmd)
++
++
++def barrier_enable(volname):
++    """
++    Enable Barrier
++
++    :param volname: Volume Name
++    :returns: Output of Barrier command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["barrier", volname, "enable"]
++    return volume_execute(cmd)
++
++
++def barrier_disable(volname):
++    """
++    Disable Barrier
++
++    :param volname: Volume Name
++    :returns: Output of Barrier command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["barrier", volname, "disable"]
++    return volume_execute(cmd)
++
++
++def profile_start(volname):
++    """
++    Start Profile
++
++    :param volname: Volume Name
++    :return: Output of Profile command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["profile", volname, "start"]
++    return volume_execute(cmd)
++
++
++def profile_stop(volname):
++    """
++    Stop Profile
++
++    :param volname: Volume Name
++    :return: Output of Profile command, raises
++     GlusterCmdException((rc, out, err)) on error
++    """
++    cmd = ["profile", volname, "stop"]
++    return volume_execute(cmd)
++
++
++def profile_info(volname, op, peek=False):
++    """
++    Get Profile info
++
++    :param volname: Volume Name
++    :param op: Operation type of info,
++    like peek, incremental, cumulative, clear
++    :param peek: Use peek or not, default is False
++    :return: Return profile info, raises
++    GlusterCmdException((rc, out, err)) on error
++    """
++
++    if op.lower() not in INFO_OPS:
++        raise GlusterCmdException((-1, "",
++                                   "Invalid Info Operation Type, use peek, incremental, cumulative, clear"))
++    cmd = ["profile", volname, "info", op.lower()]
++
++    if op.lower() == INFO_OPS[1] and peek:
++        cmd += ["peek"]
++
++    return parse_volume_profile_info(volume_execute_xml(cmd), op)
++
++# TODO: Pending Wrappers
++# volume statedump <VOLNAME> [nfs|quotad] [all|mem|iobuf|
++#     callpool|priv|fd|inode|history]... - perform statedump on bricks
++# volume status [all | <VOLNAME> [nfs|shd|<BRICK>|quotad]]
++#     [detail|clients|mem|inode|fd|callpool|tasks] - display status of
++#     all or specified volume(s)/brick
++# volume top <VOLNAME> {open|read|write|opendir|readdir|clear}
++#     [nfs|brick <brick>] [list-cnt <value>] |
++# volume top <VOLNAME> {read-perf|write-perf} [bs <size> count
++#     <count>] [brick <brick>] [list-cnt <value>] - volume top operations
+diff --git a/gfs/metrics/__init__.py b/gfs/metrics/__init__.py
+new file mode 100644
+index 0000000..b0c5236
+--- /dev/null
++++ b/gfs/metrics/__init__.py
+@@ -0,0 +1,21 @@
++# -*- coding: utf-8 -*-
++#
++#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
++#  This file is part of GlusterFS.
++#
++#  This file is licensed to you under your choice of the GNU Lesser
++#  General Public License, version 3 or any later version (LGPLv3 or
++#  later), or the GNU General Public License, version 2 (GPLv2), in all
++#  cases as published by the Free Software Foundation.
++#
++
++from .process import local_processes
++from .utilization import local_utilization
++from .diskstats import local_diskstats
++
++# Reexport
++__all__ = [
++    "local_processes",
++    "local_utilization",
++    "local_diskstats"
++]
+diff --git a/gfs/metrics/cmdlineparser.py b/gfs/metrics/cmdlineparser.py
+new file mode 100644
+index 0000000..cff83e3
+--- /dev/null
++++ b/gfs/metrics/cmdlineparser.py
+@@ -0,0 +1,69 @@
++from argparse import ArgumentParser
++import socket
++
++import utils
++
++
++def _hostname():
++    return socket.gethostname().split('.')[0]
++
++
++def parse_cmdline_glusterd(args):
++    return {
++        "name": "glusterd",
++        "node_id": utils.get_node_id(),
++        "hostname": _hostname()
++    }
++
++
++def parse_cmdline_glusterfsd(args):
++    parser = ArgumentParser()
++    parser.add_argument("-s", dest="server")
++    parser.add_argument("--volfile-id")
++    parser.add_argument("--brick-name")
++    pargs, unknown = parser.parse_known_args(args)
++
++    return {
++        "name": "glusterfsd",
++        "hostname": _hostname(),
++        "node_id": utils.get_node_id(),
++        "server": pargs.server,
++        "brick_path": pargs.brick_name,
++        "volname": pargs.volfile_id.split(".")[0]
++    }
++
++
++def parse_cmdline_glustershd(args):
++    # TODO: Parsing
++    pass
++
++
++def parse_cmdline_python(args):
++    if len(args) > 1 and "glustereventsd" in args[1]:
++        return parse_cmdline_glustereventsd(args)
++    elif len(args) > 1 and "gsyncd" in args[1]:
++        return parse_cmdline_gsyncd(args)
++
++
++def parse_cmdline_gsyncd(args):
++    data = {
++        "name": "gsyncd",
++        "hostname": _hostname()
++    }
++    if "--feedback-fd" in args:
++        data["role"] = "worker"
++    elif "--agent" in args:
++        data["role"] = "agent"
++    elif "--monitor" in args:
++        data["role"] = "monitor"
++    elif "--listen" in args:
++        data["role"] = "slave"
++
++    return data
++
++
++def parse_cmdline_glustereventsd(args):
++    return {
++        "name": "glustereventsd",
++        "hostname": _hostname()
++    }
+diff --git a/gfs/metrics/diskstats.py b/gfs/metrics/diskstats.py
+new file mode 100644
+index 0000000..a04391b
+--- /dev/null
++++ b/gfs/metrics/diskstats.py
+@@ -0,0 +1,119 @@
++import os
++import subprocess
++
++from utils import get_local_bricks
++
++
++default_diskstat = {
++    "major_number": 0,
++    "minor_number": 0,
++    "reads_completed": 0,
++    "reads_merged": 0,
++    "sectors_read": 0,
++    "time_spent_reading": 0,
++    "writes_completed": 0,
++    "writes_merged": 0,
++    "sectors_written": 0,
++    "time_spent_writing": 0,
++    "ios_currently_in_progress": 0,
++    "time_spent_doing_ios": 0,
++    "weighted_time_spent_doing_ios": 0
++}
++
++
++def local_diskstats(volname=None):
++    """
++    Collect Diskstats info of local bricks
++
++    :param volname: Volume Name
++    :returns: List of diskstats information
++        {
++            "volume": VOLUME_NAME,
++            "brick_index": BRICK_INDEX_IN_VOL_INFO,
++            "node_id": NODE_ID,
++            "brick": BRICK_NAME,
++            "fs": BRICK_FILESYSTEM,
++            "device": BRICK_DEVICE,
++            "major_number": MAJOR_NUMBER,
++            "minor_number": MINOR_NUMBER,
++            "reads_completed": READS_COMPLETED,
++            "reads_merged": READS_MERGED,
++            "sectors_read": SECTORS_READ,
++            "time_spent_reading": TIME_SPENT_READING,
++            "writes_completed": WRITES_COMPLETED,
++            "writes_merged": WRITES_MERGED,
++            "sectors_written": SECTORS_WRITTEN,
++            "time_spent_writing": TIME_SPENT_WRITING,
++            "ios_currently_in_progress": IOS_CURRENTLY_IN_PROGRESS,
++            "time_spent_doing_ios": TIME_SPENT_DOING_IOS,
++            "weighted_time_spent_doing_ios": WEIGHTED_TIME_SPENT_DOING_IOS
++        }
++    """
++    local_bricks = get_local_bricks(volname)
++    cmd = ["df", "--output=source"]
++
++    diskstat_data_raw = ""
++    with open("/proc/diskstats") as f:
++        diskstat_data_raw = f.read()
++
++    # /proc/diskstats fields
++    #  1 - major number
++    #  2 - minor mumber
++    #  3 - device name
++    #  4 - reads completed successfully
++    #  5 - reads merged
++    #  6 - sectors read
++    #  7 - time spent reading (ms)
++    #  8 - writes completed
++    #  9 - writes merged
++    # 10 - sectors written
++    # 11 - time spent writing (ms)
++    # 12 - I/Os currently in progress
++    # 13 - time spent doing I/Os (ms)
++    # 14 - weighted time spent doing I/Os (ms)
++    diskstat_data = {}
++    for d in diskstat_data_raw.strip().split("\n"):
++        d = d.split()
++        if not d:
++            continue
++
++        diskstat_data[d[2]] = {
++            "major_number": d[0],
++            "minor_number": d[1],
++            "reads_completed": d[3],
++            "reads_merged": d[4],
++            "sectors_read": d[5],
++            "time_spent_reading": d[6],
++            "writes_completed": d[7],
++            "writes_merged": d[8],
++            "sectors_written": d[9],
++            "time_spent_writing": d[10],
++            "ios_currently_in_progress": d[11],
++            "time_spent_doing_ios": d[12],
++            "weighted_time_spent_doing_ios": d[13]
++        }
++
++    for brick in local_bricks:
++        bpath = brick["brick"].split(":", 1)[-1]
++        p = subprocess.Popen(cmd + [bpath], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
++        out, _ = p.communicate()
++
++        # `df` command error
++        if p.returncode != 0:
++            brick["fs"] = "unknown"
++            brick["device"] = "unknown"
++            brick.update(default_diskstat)
++            continue
++
++        df_data = out.strip()
++        df_data = df_data.split("\n")[-1].strip()  # First line is header
++        brick["fs"] = df_data
++        if os.path.islink(df_data):
++            brick["device"] = os.readlink(df_data).split("/")[-1]
++        else:
++            brick["device"] = df_data.split("/")[-1]
++
++        brick.update(diskstat_data.get(brick["device"], default_diskstat))
++
++
++    return local_bricks
+diff --git a/gfs/metrics/process.py b/gfs/metrics/process.py
+new file mode 100644
+index 0000000..5ddf79b
+--- /dev/null
++++ b/gfs/metrics/process.py
+@@ -0,0 +1,84 @@
++import subprocess
++
++import cmdlineparser
++
++GLUSTER_PROCS = [
++    "glusterd",
++    "glusterfsd",
++    "glustershd",
++    "glusterfs",
++    "python",  # gsyncd, glustereventsd etc
++    "ssh",  # gsyncd related ssh connections
++]
++
++
++def get_cmdline(pid):
++    args = []
++    try:
++        with open("/proc/{0}/cmdline".format(pid), "r") as f:
++            args = f.read().strip("\x00").split("\x00")
++    except IOError:
++        pass
++
++    return args
++
++
++def local_processes():
++    # Run ps command and get all the details for all gluster processes
++    # ps --no-header -ww -o pid,pcpu,pmem,rsz,vsz,etimes,comm -C glusterd,..
++    # command can be used instead of comm, but if an argument has space then
++    # it is a problem
++    # for example `mytool "hello world" arg2` will be displayed as
++    # `mytool hello world arg2` in ps output
++    # Read cmdline from `/proc/<pid>/cmdline` to get full commands
++    # Use argparse to parse the output and form the key
++    # Example output of ps command:
++    # 6959  0.0  0.6 12840 713660  504076 glusterfs
++    details = []
++    cmd = ["ps",
++           "--no-header",  # No header in the output
++           "-ww",  # To set unlimited width to avoid crop
++           "-o",  # Output Format
++           "pid,pcpu,pmem,rsz,vsz,etimes,comm",
++           "-C",
++           ",".join(GLUSTER_PROCS)]
++
++    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
++    out, _ = p.communicate()
++    # No records in `ps` output
++    if p.returncode != 0:
++        return details
++
++    data = out.strip()
++
++    for line in data.split("\n"):
++        # Sample data:
++        # 6959  0.0  0.6 12840 713660  504076 glusterfs
++        try:
++            pid, pcpu, pmem, rsz, vsz, etimes, comm = line.strip().split()
++        except ValueError:
++            # May be bad ps output, for example
++            # 30916  0.0  0.0     0      0       7 python <defunct>
++            continue
++
++        args = get_cmdline(int(pid))
++        if not args:
++            # Unable to collect the cmdline, may be IO error and process died?
++            continue
++
++        cmdname = args[0].split("/")[-1]
++        func_name = "parse_cmdline_" + cmdname
++        details_func = getattr(cmdlineparser, func_name, None)
++
++        if details_func is not None:
++            data = details_func(args)
++            if data is not None:
++                data["percentage_cpu"] = float(pcpu)
++                data["percentage_memory"] = float(pmem)
++                data["resident_memory"] = int(rsz)
++                data["virtual_memory"] = int(vsz)
++                data["elapsed_time_sec"] = int(etimes)
++                data["pid"] = int(pid)
++                details.append(data)
++
++    return details
+diff --git a/gfs/metrics/utilization.py b/gfs/metrics/utilization.py
+new file mode 100644
+index 0000000..08dfb93
+--- /dev/null
++++ b/gfs/metrics/utilization.py
+@@ -0,0 +1,41 @@
++import os
++
++from utils import get_local_bricks
++
++
++def local_utilization(volname=None):
++    """
++    Collect Utilization details of local bricks
++
++    :param volname: Volume Name
++    :returns: List of utilization information
++        {               
++            "volume": VOLUME_NAME,
++            "brick_index": BRICK_INDEX_IN_VOL_INFO,
++            "node_id": NODE_ID,
++            "brick": BRICK_NAME,
++            "block_size": ST_F_FRSIZE,
++            "blocks_total": ST_F_BLOCKS,
++            "blocks_free": ST_F_BFREE,
++            "blocks_avail": ST_F_BAVAIL,
++            "inodes_total": ST_F_FILES,
++            "inodes_free": ST_F_FFREE,
++            "inodes_avail": ST_F_FAVAIL
++        }
++    """
++
++    local_bricks = get_local_bricks(volname)
++
++    for brick in local_bricks:
++        bpath = brick["brick"].split(":", 1)[-1]
++        st = os.statvfs(bpath)
++
++        brick["block_size"] = st.f_frsize
++        brick["blocks_total"] = st.f_blocks
++        brick["blocks_free"] = st.f_bfree
++        brick["blocks_avail"] = st.f_bavail
++        brick["inodes_total"] = st.f_files
++        brick["inodes_free"] = st.f_ffree
++        brick["inodes_avail"] = st.f_favail
++
++    return local_bricks
+diff --git a/gfs/metrics/utils.py b/gfs/metrics/utils.py
+new file mode 100644
+index 0000000..56d00a4
+--- /dev/null
++++ b/gfs/metrics/utils.py
+@@ -0,0 +1,40 @@
++from gluster.cli import volume
++
++UUID_FILE = "/var/lib/glusterd/glusterd.info"
++
++myuuid = None
++
++
++def get_node_id():
++    global myuuid
++
++    if myuuid is not None:
++        return myuuid
++
++    val = None
++    with open(UUID_FILE) as f:
++        for line in f:
++            if line.startswith("UUID="):
++                val = line.strip().split("=")[-1]
++                break
++
++    myuuid = val
++    return val
++
++
++def get_local_bricks(volname=None):
++    local_node_id = get_node_id()
++    volinfo = volume.info(volname)
++    bricks = []
++    for idx, vol in enumerate(volinfo):
++        for jdx, brick in enumerate(vol["bricks"]):
++            if brick["uuid"] != local_node_id:
++                continue
++
++            bricks.append({
++                "volume": vol["name"],
++                "brick_index": jdx,
++                "node_id": brick["uuid"],
++                "brick": brick["name"]})
++
++    return bricks
+diff --git a/gluster/__init__.py b/gluster/__init__.py
+deleted file mode 100644
+index e795df8..0000000
+--- a/gluster/__init__.py
++++ /dev/null
+@@ -1,12 +0,0 @@
+-# Copyright (c) 2016 Red Hat, Inc.
+-#
+-# This file is part of libgfapi-python project which is a
+-# subproject of GlusterFS ( www.gluster.org)
+-#
+-# This file is licensed to you under your choice of the GNU Lesser
+-# General Public License, version 3 or any later version (LGPLv3 or
+-# later), or the GNU General Public License, version 2 (GPLv2), in all
+-# cases as published by the Free Software Foundation.
+-
+-from pkgutil import extend_path
+-__path__ = extend_path(__path__, __name__)
+diff --git a/gluster/cli/__init__.py b/gluster/cli/__init__.py
+deleted file mode 100644
+index 23f3fc1..0000000
+--- a/gluster/cli/__init__.py
++++ /dev/null
+@@ -1,48 +0,0 @@
+-# -*- coding: utf-8 -*-
+-#
+-#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
+-#  This file is part of GlusterFS.
+-#
+-#  This file is licensed to you under your choice of the GNU Lesser
+-#  General Public License, version 3 or any later version (LGPLv3 or
+-#  later), or the GNU General Public License, version 2 (GPLv2), in all
+-#  cases as published by the Free Software Foundation.
+-#
+-
+-from . import volume
+-from . import bitrot
+-from . import bricks
+-from . import georep
+-from . import peer
+-from . import quota
+-from . import snapshot
+-from . import heal
+-from . import nfs_ganesha
+-from . import rebalance
+-from . import tier
+-
+-from .utils import (set_gluster_path,
+-                    set_gluster_socket,
+-                    set_ssh_host,
+-                    set_ssh_pem_file,
+-                    ssh_connection,
+-                    GlusterCmdException)
+-
+-# Reexport
+-__all__ = ["volume",
+-           "bitrot",
+-           "bricks",
+-           "georep",
+-           "peer",
+-           "quota",
+-           "snapshot",
+-           "heal",
+-           "nfs_ganesha",
+-           "rebalance",
+-           "tier",
+-           "set_gluster_path",
+-           "set_gluster_socket",
+-           "set_ssh_host",
+-           "set_ssh_pem_file",
+-           "ssh_connection",
+-           "GlusterCmdException"]
+diff --git a/gluster/cli/bitrot.py b/gluster/cli/bitrot.py
+deleted file mode 100644
+index 6c52251..0000000
+--- a/gluster/cli/bitrot.py
++++ /dev/null
+@@ -1,105 +0,0 @@
+-# -*- coding: utf-8 -*-
+-#
+-#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
+-#  This file is part of GlusterFS.
+-#
+-#  This file is licensed to you under your choice of the GNU Lesser
+-#  General Public License, version 3 or any later version (LGPLv3 or
+-#  later), or the GNU General Public License, version 2 (GPLv2), in all
+-#  cases as published by the Free Software Foundation.
+-#
+-from .utils import bitrot_execute, bitrot_execute_xml, GlusterCmdException
+-from .parsers import parse_bitrot_scrub_status
+-
+-THROTTLE_TYPES = ["lazy", "normal", "aggressive"]
+-FREQUENCY_TYPES = ["hourly", "daily", "weekly", "biweekly", "monthly"]
+-
+-
+-def enable(volname):
+-    """
+-    Enable Bitrot Feature
+-
+-    :param volname: Volume Name
+-    :returns: Output of Enable command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "enable"]
+-    return bitrot_execute(cmd)
+-
+-
+-def disable(volname):
+-    """
+-    Disable Bitrot Feature
+-
+-    :param volname: Volume Name
+-    :returns: Output of Disable command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "disable"]
+-    return bitrot_execute(cmd)
+-
+-
+-def scrub_throttle(volname, throttle_type):
+-    """
+-    Configure Scrub Throttle
+-
+-    :param volname: Volume Name
+-    :param throttle_type: lazy|normal|aggressive
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    if throttle_type.lower() not in THROTTLE_TYPES:
+-        raise GlusterCmdException((-1, "", "Invalid Scrub Throttle Type"))
+-    cmd = [volname, "scrub-throttle", throttle_type.lower()]
+-    return bitrot_execute(cmd)
+-
+-
+-def scrub_frequency(volname, freq):
+-    """
+-    Configure Scrub Frequency
+-
+-    :param volname: Volume Name
+-    :param freq: hourly|daily|weekly|biweekly|monthly
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    if freq.lower() not in FREQUENCY_TYPES:
+-        raise GlusterCmdException((-1, "", "Invalid Scrub Frequency"))
+-    cmd = [volname, "scrub-frequency", freq]
+-    return bitrot_execute(cmd)
+-
+-
+-def scrub_pause(volname):
+-    """
+-    Pause Bitrot Scrub
+-
+-    :param volname: Volume Name
+-    :returns: Output of Pause command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "scrub", "pause"]
+-    return bitrot_execute(cmd)
+-
+-
+-def scrub_resume(volname):
+-    """
+-    Resume Bitrot Scrub
+-
+-    :param volname: Volume Name
+-    :returns: Output of the Resume command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "scrub", "resume"]
+-    return bitrot_execute(cmd)
+-
+-
+-def scrub_status(volname):
+-    """
+-    Scrub Status
+-
+-    :param volname: Volume Name
+-    :returns: Scrub Status, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "scrub", "status"]
+-    return parse_bitrot_scrub_status(bitrot_execute_xml(cmd))
+diff --git a/gluster/cli/bricks.py b/gluster/cli/bricks.py
+deleted file mode 100644
+index 95f921f..0000000
+--- a/gluster/cli/bricks.py
++++ /dev/null
+@@ -1,152 +0,0 @@
+-# -*- coding: utf-8 -*-
+-#
+-#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
+-#  This file is part of GlusterFS.
+-#
+-#  This file is licensed to you under your choice of the GNU Lesser
+-#  General Public License, version 3 or any later version (LGPLv3 or
+-#  later), or the GNU General Public License, version 2 (GPLv2), in all
+-#  cases as published by the Free Software Foundation.
+-#
+-from .utils import volume_execute, volume_execute_xml
+-from .parsers import parse_remove_brick_status
+-
+-
+-def add(volname, bricks, stripe=None, replica=None, arbiter=None, force=False):
+-    """
+-    Add Bricks
+-
+-    :param volname: Volume Name
+-    :param bricks: List of Bricks
+-    :param stripe: Stripe Count
+-    :param replica: Replica Count
+-    :param arbiter: Arbiter Count
+-    :param force: True|False Force Add Bricks
+-    :returns: Output of add-brick command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["add-brick", volname]
+-    if stripe is not None:
+-        cmd += ["stripe", "{0}".format(stripe)]
+-
+-    if replica is not None:
+-        cmd += ["replica", "{0}".format(replica)]
+-
+-    if arbiter is not None:
+-        cmd += ["arbiter", "{0}".format(arbiter)]
+-
+-    cmd += bricks
+-
+-    if force:
+-        cmd += ["force"]
+-
+-    return volume_execute(cmd)
+-
+-
+-def remove_start(volname, bricks, replica=None, force=False):
+-    """
+-    Remove Bricks start
+-
+-    :param volname: Volume Name
+-    :param bricks: List of Bricks
+-    :param replica: Replica Count
+-    :param force: True|False Force Remove Bricks
+-    :returns: Output of remove-brick start command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["remove-brick", volname]
+-    if replica is not None:
+-        cmd += ["replica", "{0}".format(replica)]
+-
+-    cmd += bricks
+-    cmd += ["start"]
+-    if force:
+-        cmd += ["force"]
+-
+-    return volume_execute(cmd)
+-
+-
+-def remove_stop(volname, bricks, replica=None, force=False):
+-    """
+-    Remove Bricks stop
+-
+-    :param volname: Volume Name
+-    :param bricks: List of Bricks
+-    :param replica: Replica Count
+-    :param force: True|False Force Remove Bricks
+-    :returns: Output of remove-brick stop command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["remove-brick", volname]
+-    if replica is not None:
+-        cmd += ["replica", "{0}".format(replica)]
+-
+-    cmd += bricks
+-    cmd += ["stop"]
+-    if force:
+-        cmd += ["force"]
+-
+-    return volume_execute(cmd)
+-
+-
+-def remove_commit(volname, bricks, replica=None, force=False):
+-    """
+-    Remove Bricks Commit
+-
+-    :param volname: Volume Name
+-    :param bricks: List of Bricks
+-    :param replica: Replica Count
+-    :param force: True|False Force Remove Bricks
+-    :returns: Output of remove-brick commit command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["remove-brick", volname]
+-    if replica is not None:
+-        cmd += ["replica", "{0}".format(replica)]
+-
+-    cmd += bricks
+-    cmd += ["commit"]
+-    if force:
+-        cmd += ["force"]
+-
+-    return volume_execute(cmd)
+-
+-
+-def remove_status(volname, bricks, replica=None, force=False):
+-    """
+-    Remove Bricks status
+-
+-    :param volname: Volume Name
+-    :param bricks: List of Bricks
+-    :param replica: Replica Count
+-    :param force: True|False Force Remove Bricks
+-    :returns: Remove Bricks Status, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["remove-brick", volname]
+-    if replica is not None:
+-        cmd += ["replica", "{0}".format(replica)]
+-
+-    cmd += bricks
+-    cmd += ["status"]
+-    if force:
+-        cmd += ["force"]
+-
+-    return parse_remove_brick_status(volume_execute_xml(cmd))
+-
+-
+-def replace_commit(volname, source_brick, new_brick, force=False):
+-    """
+-    Replace Bricks
+-
+-    :param volname: Volume Name
+-    :param source_brick: Source Brick
+-    :param new_brick: New Replacement Brick
+-    :param force: True|False Force Replace Bricks
+-    :returns: Output of replace-brick command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["replace-brick", volname, source_brick, new_brick, "commit"]
+-    if force:
+-        cmd += ["force"]
+-    return volume_execute(cmd)
+diff --git a/gluster/cli/georep.py b/gluster/cli/georep.py
+deleted file mode 100644
+index 6f0af73..0000000
+--- a/gluster/cli/georep.py
++++ /dev/null
+@@ -1,278 +0,0 @@
+-# -*- coding: utf-8 -*-
+-#
+-#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
+-#  This file is part of GlusterFS.
+-#
+-#  This file is licensed to you under your choice of the GNU Lesser
+-#  General Public License, version 3 or any later version (LGPLv3 or
+-#  later), or the GNU General Public License, version 2 (GPLv2), in all
+-#  cases as published by the Free Software Foundation.
+-#
+-from .utils import georep_execute, georep_execute_xml, gluster_system_execute
+-from .parsers import parse_georep_config, parse_georep_status
+-from . import volume
+-
+-
+-def gsec_create(ssh_key_prefix=True):
+-    """
+-    Generate Geo-replication SSH Keys
+-
+-    :param ssh_key_prefix: True|False Command prefix in generated public keys
+-    :returns: Output of gsec_create command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["gsec_create"]
+-    if not ssh_key_prefix:
+-        cmd += ["container"]
+-
+-    return gluster_system_execute(cmd)
+-
+-
+-def create(volname, slave_host, slave_vol, slave_user="root",
+-           push_pem=True, no_verify=False, force=False, ssh_port=22):
+-    """
+-    Create Geo-replication Session
+-
+-    :param volname: Master Volume Name
+-    :param slave_host: Slave Hostname or IP
+-    :param slave_vol: Slave Volume
+-    :param slave_user: Slave User, default is "root"
+-    :param push_pem: True|False Push SSH keys to Slave
+-    :param no_verify: True|False Skip the Slave Verification
+-     process before create
+-    :param force: True|False Force Create Session
+-    :param ssh_port: SSH Port, Default is 22
+-    :returns: Output of Create command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname,
+-           "{0}@{1}::{2}".format(slave_user, slave_host, slave_vol),
+-           "create"]
+-
+-    if ssh_port != 22:
+-        cmd += ["ssh-port", "{0}".format(ssh_port)]
+-
+-    if push_pem:
+-        cmd += ["push-pem"]
+-
+-    if no_verify:
+-        cmd += ["no-verify"]
+-
+-    if force:
+-        cmd += ["force"]
+-
+-    return georep_execute(cmd)
+-
+-
+-def start(volname, slave_host, slave_vol, slave_user="root", force=False):
+-    """
+-    Start Geo-replication Session
+-
+-    :param volname: Master Volume Name
+-    :param slave_host: Slave Hostname or IP
+-    :param slave_vol: Slave Volume
+-    :param slave_user: Slave User, default is "root"
+-    :param force: True|False Force Start the Session
+-    :returns: Output of Start command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname,
+-           "{0}@{1}::{2}".format(slave_user, slave_host, slave_vol),
+-           "start"]
+-
+-    if force:
+-        cmd += ["force"]
+-
+-    return georep_execute(cmd)
+-
+-
+-def stop(volname, slave_host, slave_vol, slave_user="root", force=False):
+-    """
+-    Stop Geo-replication Session
+-
+-    :param volname: Master Volume Name
+-    :param slave_host: Slave Hostname or IP
+-    :param slave_vol: Slave Volume
+-    :param slave_user: Slave User, default is "root"
+-    :param force: True|False Force Stop the Session
+-    :returns: Output of Stop command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname,
+-           "{0}@{1}::{2}".format(slave_user, slave_host, slave_vol),
+-           "stop"]
+-
+-    if force:
+-        cmd += ["force"]
+-
+-    return georep_execute(cmd)
+-
+-
+-def restart(volname, slave_host, slave_vol, slave_user="root", force=False):
+-    """
+-    Restart Geo-replication Session
+-
+-    :param volname: Master Volume Name
+-    :param slave_host: Slave Hostname or IP
+-    :param slave_vol: Slave Volume
+-    :param slave_user: Slave User, default is "root"
+-    :param force: True|False Force Start the Session
+-    :returns: Output of Start command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    stop(volname, slave_host, slave_vol, slave_user, force=True)
+-    return start(volname, slave_host, slave_vol, slave_user, force)
+-
+-
+-def delete(volname, slave_host, slave_vol, slave_user="root",
+-           reset_sync_time=None):
+-    """
+-    Delete Geo-replication Session
+-
+-    :param volname: Master Volume Name
+-    :param slave_host: Slave Hostname or IP
+-    :param slave_vol: Slave Volume
+-    :param slave_user: Slave User, default is "root"
+-    :param reset_sync_time: True|False Reset Sync time on delete
+-    :returns: Output of Start command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname,
+-           "{0}@{1}::{2}".format(slave_user, slave_host, slave_vol),
+-           "delete"]
+-
+-    if reset_sync_time is not None:
+-        cmd += ["reset-sync-time"]
+-
+-    return georep_execute(cmd)
+-
+-
+-def pause(volname, slave_host, slave_vol, slave_user="root", force=False):
+-    """
+-    Pause Geo-replication Session
+-
+-    :param volname: Master Volume Name
+-    :param slave_host: Slave Hostname or IP
+-    :param slave_vol: Slave Volume
+-    :param slave_user: Slave User, default is "root"
+-    :param force: True|False Force Pause Session
+-    :returns: Output of Pause command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname,
+-           "{0}@{1}::{2}".format(slave_user, slave_host, slave_vol),
+-           "pause"]
+-
+-    if force:
+-        cmd += ["force"]
+-
+-    return georep_execute(cmd)
+-
+-
+-def resume(volname, slave_host, slave_vol, slave_user="root", force=False):
+-    """
+-    Resume Geo-replication Session
+-
+-    :param volname: Master Volume Name
+-    :param slave_host: Slave Hostname or IP
+-    :param slave_vol: Slave Volume
+-    :param slave_user: Slave User, default is "root"
+-    :param force: True|False Force Resume Session
+-    :returns: Output of Resume command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname,
+-           "{0}@{1}::{2}".format(slave_user, slave_host, slave_vol),
+-           "resume"]
+-
+-    if force:
+-        cmd += ["force"]
+-
+-    return georep_execute(cmd)
+-
+-
+-def config_set(volname, slave_host, slave_vol, key, value,
+-               slave_user="root"):
+-    """
+-    Set Config of a Geo-replication Session
+-
+-    :param volname: Master Volume Name
+-    :param slave_host: Slave Hostname or IP
+-    :param slave_vol: Slave Volume
+-    :param slave_user: Slave User, default is "root"
+-    :param key: Config Key
+-    :param value: Config Value
+-    :returns: Output of Config set command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname,
+-           "{0}@{1}::{2}".format(slave_user, slave_host, slave_vol),
+-           "config", key, value]
+-    return georep_execute(cmd)
+-
+-
+-def config_reset(volname, slave_host, slave_vol, key, slave_user="root"):
+-    """
+-    Reset configuration of Geo-replication Session
+-
+-    :param volname: Master Volume Name
+-    :param slave_host: Slave Hostname or IP
+-    :param slave_vol: Slave Volume
+-    :param slave_user: Slave User, default is "root"
+-    :param key: Config Key
+-    :returns: Output of Config reset command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname,
+-           "{0}@{1}::{2}".format(slave_user, slave_host, slave_vol),
+-           "config", "!{0}".format(key)]
+-    return georep_execute(cmd)
+-
+-
+-def config_get(volname, slave_host, slave_vol, key=None,
+-               slave_user="root"):
+-    """
+-    Get Configuration of Geo-replication Session
+-
+-    :param volname: Master Volume Name
+-    :param slave_host: Slave Hostname or IP
+-    :param slave_vol: Slave Volume
+-    :param slave_user: Slave User, default is "root"
+-    :param key: Config Key
+-    :returns: Geo-rep session Config Values, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname,
+-           "{0}@{1}::{2}".format(slave_user, slave_host, slave_vol),
+-           "config"]
+-
+-    if key is not None:
+-        cmd += [key]
+-
+-    return parse_georep_config(georep_execute_xml(cmd))
+-
+-
+-def status(volname=None, slave_host=None, slave_vol=None,
+-           slave_user="root"):
+-    """
+-    Status of Geo-replication Session
+-
+-    :param volname: Master Volume Name
+-    :param slave_host: Slave Hostname or IP
+-    :param slave_vol: Slave Volume
+-    :param slave_user: Slave User, default is "root"
+-    :returns: Geo-replication Status, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = []
+-
+-    if volname is not None:
+-        cmd += [volname]
+-
+-    if volname is not None and slave_host is not None and \
+-       slave_vol is not None:
+-        cmd += ["{0}@{1}::{2}".format(slave_user, slave_host, slave_vol)]
+-
+-    cmd += ["status"]
+-
+-    return parse_georep_status(georep_execute_xml(cmd), volume.info())
+diff --git a/gluster/cli/heal.py b/gluster/cli/heal.py
+deleted file mode 100644
+index 6e4e342..0000000
+--- a/gluster/cli/heal.py
++++ /dev/null
+@@ -1,111 +0,0 @@
+-# -*- coding: utf-8 -*-
+-#
+-#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
+-#  This file is part of GlusterFS.
+-#
+-#  This file is licensed to you under your choice of the GNU Lesser
+-#  General Public License, version 3 or any later version (LGPLv3 or
+-#  later), or the GNU General Public License, version 2 (GPLv2), in all
+-#  cases as published by the Free Software Foundation.
+-#
+-from .utils import heal_execute, heal_execute_xml, GlusterCmdException
+-from .parsers import parse_heal_statistics, parse_heal_info
+-
+-
+-HEAL_INFO_TYPES = ["healed", "heal-failed", "split-brain"]
+-
+-
+-def enable(volname):
+-    """
+-    Enable Volume Heal
+-
+-    :param volname: Volume Name
+-    :returns: Output of Enable command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "enable"]
+-    return heal_execute(cmd)
+-
+-
+-def disable(volname):
+-    """
+-    Disable Volume Heal
+-
+-    :param volname: Volume Name
+-    :returns: Output of Disable command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "disable"]
+-    return heal_execute(cmd)
+-
+-
+-def full(volname):
+-    """
+-    Full Volume Heal
+-
+-    :param volname: Volume Name
+-    :returns: Output of Full Heal command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "full"]
+-    return heal_execute(cmd)
+-
+-
+-def statistics(volname):
+-    """
+-    Get Statistics of Heal
+-
+-    :param volname: Volume Name
+-    :returns: Output of Statistics command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "statistics"]
+-    return parse_heal_statistics(heal_execute_xml(cmd))
+-
+-
+-def info(volname, info_type=None):
+-    """
+-    Get Volume Heal Info
+-
+-    :param volname: Volume Name
+-    :returns: Output of Heal Info command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "info"]
+-
+-    if info_type is not None:
+-        if info_type.lower() not in HEAL_INFO_TYPES:
+-            raise GlusterCmdException((-1, "", "Invalid Heal Info Types"))
+-
+-        cmd += [info_type.lower()]
+-
+-    return parse_heal_info(heal_execute_xml(cmd))
+-
+-
+-def split_brain(volname, bigger_file=None,
+-                latest_mtime=None, source_brick=None, path=None):
+-    """
+-    Split Brain Resolution
+-
+-    :param volname: Volume Name
+-    :param bigger_file: File Path of Bigger file
+-    :param latest_mtime: File Path of Latest mtime
+-    :param source_brick: Source Brick for Good Copy
+-    :param path: Resolution of this path/file
+-    :returns: Output of Split-brain command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "split-brain"]
+-    if bigger_file is not None:
+-        cmd += ["bigger-file", bigger_file]
+-
+-    if latest_mtime is not None:
+-        cmd += ["latest-mtime", latest_mtime]
+-
+-    if source_brick is not None:
+-        cmd += ["source-brick", source_brick]
+-
+-    if path is not None:
+-        cmd += [path]
+-
+-    return heal_execute(cmd)
+diff --git a/gluster/cli/nfs_ganesha.py b/gluster/cli/nfs_ganesha.py
+deleted file mode 100644
+index 9c7c463..0000000
+--- a/gluster/cli/nfs_ganesha.py
++++ /dev/null
+@@ -1,33 +0,0 @@
+-# -*- coding: utf-8 -*-
+-#
+-#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
+-#  This file is part of GlusterFS.
+-#
+-#  This file is licensed to you under your choice of the GNU Lesser
+-#  General Public License, version 3 or any later version (LGPLv3 or
+-#  later), or the GNU General Public License, version 2 (GPLv2), in all
+-#  cases as published by the Free Software Foundation.
+-#
+-from .utils import gluster_execute
+-
+-
+-def enable():
+-    """
+-    Enable NFS Ganesha
+-
+-    :returns: Output of Enable command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["nfs-ganesha", "enable"]
+-    return gluster_execute(cmd)
+-
+-
+-def disable():
+-    """
+-    Disable NFS Ganesha
+-
+-    :returns: Output of Disable command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["nfs-ganesha", "disable"]
+-    return gluster_execute(cmd)
+diff --git a/gluster/cli/parsers.py b/gluster/cli/parsers.py
+deleted file mode 100644
+index 3d18c3d..0000000
+--- a/gluster/cli/parsers.py
++++ /dev/null
+@@ -1,481 +0,0 @@
+-# -*- coding: utf-8 -*-
+-#
+-#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
+-#  This file is part of GlusterFS.
+-#
+-#  This file is licensed to you under your choice of the GNU Lesser
+-#  General Public License, version 3 or any later version (LGPLv3 or
+-#  later), or the GNU General Public License, version 2 (GPLv2), in all
+-#  cases as published by the Free Software Foundation.
+-#
+-import xml.etree.cElementTree as etree
+-
+-ParseError = etree.ParseError if hasattr(etree, 'ParseError') else SyntaxError
+-
+-
+-class GlusterCmdOutputParseError(Exception):
+-    pass
+-
+-
+-def _parse_a_vol(volume_el):
+-    value = {
+-        'name': volume_el.find('name').text,
+-        'uuid': volume_el.find('id').text,
+-        'type': volume_el.find('typeStr').text.upper().replace('-', '_'),
+-        'status': volume_el.find('statusStr').text,
+-        'num_bricks': int(volume_el.find('brickCount').text),
+-        'distribute': int(volume_el.find('distCount').text),
+-        'stripe': int(volume_el.find('stripeCount').text),
+-        'replica': int(volume_el.find('replicaCount').text),
+-        'transport': volume_el.find('transport').text,
+-        'bricks': [],
+-        'options': []
+-    }
+-
+-    if value['transport'] == '0':
+-        value['transport'] = 'TCP'
+-    elif value['transport'] == '1':
+-        value['transport'] = 'RDMA'
+-    else:
+-        value['transport'] = 'TCP,RDMA'
+-
+-    for b in volume_el.findall('bricks/brick'):
+-        value['bricks'].append({"name": b.find("name").text,
+-                                "uuid": b.find("hostUuid").text})
+-
+-    for o in volume_el.findall('options/option'):
+-        value['options'].append({"name": o.find('name').text,
+-                                 "value": o.find('value').text})
+-
+-    return value
+-
+-
+-def parse_volume_info(info):
+-    tree = etree.fromstring(info)
+-    volumes = []
+-    for el in tree.findall('volInfo/volumes/volume'):
+-        try:
+-            volumes.append(_parse_a_vol(el))
+-        except (ParseError, AttributeError, ValueError) as e:
+-            raise GlusterCmdOutputParseError(e)
+-
+-    return volumes
+-
+-
+-def _parse_a_node(node_el):
+-    brick_path = (node_el.find('hostname').text + ":" +
+-                  node_el.find('path').text)
+-    value = {
+-        'name': brick_path,
+-        'uuid': node_el.find('peerid').text,
+-        'online': True if node_el.find('status').text == "1" else False,
+-        'pid': node_el.find('pid').text,
+-        'size_total': node_el.find('sizeTotal').text,
+-        'size_free': node_el.find('sizeFree').text,
+-        'device': node_el.find('device').text,
+-        'block_size': node_el.find('blockSize').text,
+-        'mnt_options': node_el.find('mntOptions').text,
+-        'fs_name': node_el.find('fsName').text,
+-    }
+-
+-    # ISSUE #14 glusterfs 3.6.5 does not have 'ports' key 
+-    # in vol status detail xml output
+-    if node_el.find('ports'):
+-        value['ports'] = {
+-            "tcp": node_el.find('ports').find("tcp").text,
+-            "rdma": node_el.find('ports').find("rdma").text
+-        }
+-    else:
+-        value['ports'] = { 
+-            "tcp": node_el.find('port') ,
+-            "rdma": None
+-        }
+-
+-
+-    return value
+-
+-
+-def _parse_volume_status(data):
+-    tree = etree.fromstring(data)
+-    nodes = []
+-    for el in tree.findall('volStatus/volumes/volume/node'):
+-        try:
+-            nodes.append(_parse_a_node(el))
+-        except (ParseError, AttributeError, ValueError) as e:
+-            raise GlusterCmdOutputParseError(e)
+-
+-    return nodes
+-
+-
+-def parse_volume_status(status_data, volinfo):
+-    nodes_data = _parse_volume_status(status_data)
+-    tmp_brick_status = {}
+-    for node in nodes_data:
+-        tmp_brick_status[node["name"]] = node
+-
+-    volumes = []
+-    for v in volinfo:
+-        volumes.append(v.copy())
+-        volumes[-1]["bricks"] = []
+-
+-        for b in v["bricks"]:
+-            brick_status_data = tmp_brick_status.get(b["name"], None)
+-            if brick_status_data is None:
+-                # Default Status
+-                volumes[-1]["bricks"].append({
+-                    "name": b["name"],
+-                    "uuid": b["uuid"],
+-                    "online": False,
+-                    "ports": {"tcp": "N/A", "rdma": "N/A"},
+-                    "pid": "N/A",
+-                    "size_total": "N/A",
+-                    "size_free": "N/A",
+-                    "device": "N/A",
+-                    "block_size": "N/A",
+-                    "mnt_options": "N/A",
+-                    "fs_name": "N/A"
+-                })
+-            else:
+-                volumes[-1]["bricks"].append(brick_status_data.copy())
+-
+-    return volumes
+-
+-
+-def _parse_profile_info_clear(el):
+-    clear = {
+-        'volname': el.find('volname').text,
+-        'bricks': []
+-    }
+-
+-    for b in el.findall('brick'):
+-        clear['bricks'].append({'brick_name': b.find('brickName').text,
+-                                'clear_stats': b.find('clearStats').text})
+-
+-    return clear
+-
+-
+-def _bytes_size(size):
+-    traditional = [
+-        (1024**5, 'PB'),
+-        (1024**4, 'TB'),
+-        (1024**3, 'GB'),
+-        (1024**2, 'MB'),
+-        (1024**1, 'KB'),
+-        (1024**0, 'B')
+-    ]
+-
+-    for factor, suffix in traditional:
+-        if size > factor:
+-            break
+-    return str(int(size / factor)) + suffix
+-
+-
+-def _parse_profile_block_stats(b_el):
+-    stats = []
+-    for b in b_el.findall('block'):
+-        size = _bytes_size(int(b.find('size').text))
+-        stats.append({size: {'reads': int(b.find('reads').text),
+-                             'writes': int(b.find('writes').text)}})
+-    return stats
+-
+-
+-def _parse_profile_fop_stats(fop_el):
+-    stats = []
+-    for f in fop_el.findall('fop'):
+-        name = f.find('name').text
+-        stats.append({name: {'hits': int(f.find('hits').text),
+-                             'max_latency': float(f.find('maxLatency').text),
+-                             'min_latency': float(f.find('minLatency').text),
+-                             'avg_latency': float(f.find('avgLatency').text),
+-                             }})
+-    return stats
+-
+-
+-def _parse_profile_bricks(brick_el):
+-    cumulative_block_stats = []
+-    cumulative_fop_stats = []
+-    cumulative_total_read_bytes = 0
+-    cumulative_total_write_bytes = 0
+-    cumulative_total_duration = 0
+-
+-    interval_block_stats = []
+-    interval_fop_stats = []
+-    interval_total_read_bytes = 0
+-    interval_total_write_bytes = 0
+-    interval_total_duration = 0
+-
+-    brick_name = brick_el.find('brickName').text
+-
+-    if brick_el.find('cumulativeStats') is not None:
+-        cumulative_block_stats = _parse_profile_block_stats(brick_el.find('cumulativeStats/blockStats'))
+-        cumulative_fop_stats = _parse_profile_fop_stats(brick_el.find('cumulativeStats/fopStats'))
+-        cumulative_total_read_bytes = int(brick_el.find('cumulativeStats').find('totalRead').text)
+-        cumulative_total_write_bytes = int(brick_el.find('cumulativeStats').find('totalWrite').text)
+-        cumulative_total_duration = int(brick_el.find('cumulativeStats').find('duration').text)
+-
+-    if brick_el.find('intervalStats') is not None:
+-        interval_block_stats = _parse_profile_block_stats(brick_el.find('intervalStats/blockStats'))
+-        interval_fop_stats = _parse_profile_fop_stats(brick_el.find('intervalStats/fopStats'))
+-        interval_total_read_bytes = int(brick_el.find('intervalStats').find('totalRead').text)
+-        interval_total_write_bytes = int(brick_el.find('intervalStats').find('totalWrite').text)
+-        interval_total_duration = int(brick_el.find('intervalStats').find('duration').text)
+-
+-    profile_brick = {
+-        'brick_name': brick_name,
+-        'cumulative_block_stats': cumulative_block_stats,
+-        'cumulative_fop_stats': cumulative_fop_stats,
+-        'cumulative_total_read_bytes': cumulative_total_read_bytes,
+-        'cumulative_total_write_bytes': cumulative_total_write_bytes,
+-        'cumulative_total_duration': cumulative_total_duration,
+-        'interval_block_stats': interval_block_stats,
+-        'interval_fop_stats': interval_fop_stats,
+-        'interval_total_read_bytes': interval_total_read_bytes,
+-        'interval_total_write_bytes': interval_total_write_bytes,
+-        'interval_total_duration': interval_total_duration,
+-    }
+-
+-    return profile_brick
+-
+-
+-def _parse_profile_info(el):
+-    profile = {
+-        'volname': el.find('volname').text,
+-        'bricks': []
+-    }
+-
+-    for b in el.findall('brick'):
+-        profile['bricks'].append(_parse_profile_bricks(b))
+-
+-    return profile
+-
+-
+-def parse_volume_profile_info(info, op):
+-    xml = etree.fromstring(info)
+-    profiles = []
+-    for el in xml.findall('volProfile'):
+-        try:
+-            if op == "clear":
+-                profiles.append(_parse_profile_info_clear(el))
+-            else:
+-                profiles.append(_parse_profile_info(el))
+-
+-        except (ParseError, AttributeError, ValueError) as e:
+-            raise GlusterCmdOutputParseError(e)
+-
+-    return profiles
+-
+-
+-def parse_volume_options(data):
+-    raise NotImplementedError("Volume Options")
+-
+-
+-def parse_georep_status(data, volinfo):
+-    """
+-    Merge Geo-rep status and Volume Info to get Offline Status
+-    and to sort the status in the same order as of Volume Info
+-    """
+-    session_keys = set()
+-    gstatus = {}
+-
+-    try:
+-        tree = etree.fromstring(data)
+-        # Get All Sessions
+-        for volume_el in tree.findall("geoRep/volume"):
+-            sessions_el = volume_el.find("sessions")
+-            # Master Volume name if multiple Volumes
+-            mvol = volume_el.find("name").text
+-
+-            # For each session, collect the details
+-            for session in sessions_el.findall("session"):
+-                session_slave = "{0}:{1}".format(mvol, session.find(
+-                    "session_slave").text)
+-                session_keys.add(session_slave)
+-                gstatus[session_slave] = {}
+-
+-                for pair in session.findall('pair'):
+-                    master_brick = "{0}:{1}".format(
+-                        pair.find("master_node").text,
+-                        pair.find("master_brick").text
+-                    )
+-
+-                    gstatus[session_slave][master_brick] = {
+-                        "mastervol": mvol,
+-                        "slavevol": pair.find("slave").text.split("::")[-1],
+-                        "master_node": pair.find("master_node").text,
+-                        "master_brick": pair.find("master_brick").text,
+-                        "slave_user": pair.find("slave_user").text,
+-                        "slave": pair.find("slave").text,
+-                        "slave_node": pair.find("slave_node").text,
+-                        "status": pair.find("status").text,
+-                        "crawl_status": pair.find("crawl_status").text,
+-                        "entry": pair.find("entry").text,
+-                        "data": pair.find("data").text,
+-                        "meta": pair.find("meta").text,
+-                        "failures": pair.find("failures").text,
+-                        "checkpoint_completed": pair.find(
+-                            "checkpoint_completed").text,
+-                        "master_node_uuid": pair.find("master_node_uuid").text,
+-                        "last_synced": pair.find("last_synced").text,
+-                        "checkpoint_time": pair.find("checkpoint_time").text,
+-                        "checkpoint_completion_time":
+-                        pair.find("checkpoint_completion_time").text
+-                    }
+-    except (ParseError, AttributeError, ValueError) as e:
+-        raise GlusterCmdOutputParseError(e)
+-
+-    # Get List of Bricks for each Volume
+-    all_bricks = {}
+-    for vi in volinfo:
+-        all_bricks[vi["name"]] = vi["bricks"]
+-
+-    # For Each session Get Bricks info for the Volume and Populate
+-    # Geo-rep status for that Brick
+-    out = []
+-    for session in session_keys:
+-        mvol, _, slave = session.split(":", 2)
+-        slave = slave.replace("ssh://", "")
+-        master_bricks = all_bricks[mvol]
+-        out.append([])
+-        for brick in master_bricks:
+-            bname = brick["name"]
+-            if gstatus.get(session) and gstatus[session].get(bname, None):
+-                out[-1].append(gstatus[session][bname])
+-            else:
+-                # Offline Status
+-                node, brick_path = bname.split(":")
+-                if "@" not in slave:
+-                    slave_user = "root"
+-                else:
+-                    slave_user, _ = slave.split("@")
+-
+-                out[-1].append({
+-                    "mastervol": mvol,
+-                    "slavevol": slave.split("::")[-1],
+-                    "master_node": node,
+-                    "master_brick": brick_path,
+-                    "slave_user": slave_user,
+-                    "slave": slave,
+-                    "slave_node": "N/A",
+-                    "status": "Offline",
+-                    "crawl_status": "N/A",
+-                    "entry": "N/A",
+-                    "data": "N/A",
+-                    "meta": "N/A",
+-                    "failures": "N/A",
+-                    "checkpoint_completed": "N/A",
+-                    "master_node_uuid": brick["uuid"],
+-                    "last_synced": "N/A",
+-                    "checkpoint_time": "N/A",
+-                    "checkpoint_completion_time": "N/A"
+-                })
+-    return out
+-
+-
+-def parse_bitrot_scrub_status(data):
+-    raise NotImplementedError("Bitrot Scrub Status")
+-
+-
+-def parse_rebalance_status(data):
+-    raise NotImplementedError("Rebalance Status")
+-
+-
+-def parse_quota_list_paths(data):
+-    raise NotImplementedError("Quota List Paths")
+-
+-
+-def parse_quota_list_objects(data):
+-    raise NotImplementedError("Quota List Objects")
+-
+-
+-def parse_georep_config(data):
+-    raise NotImplementedError("Georep Config")
+-
+-
+-def parse_remove_brick_status(data):
+-    raise NotImplementedError("Remove Brick Status")
+-
+-
+-def parse_tier_detach(data):
+-    raise NotImplementedError("Tier detach Status")
+-
+-
+-def parse_tier_status(data):
+-    raise NotImplementedError("Tier Status")
+-
+-def parse_volume_list(data):
+-    xml = etree.fromstring(data)
+-    volumes = []
+-    for el in xml.findall('volList/volume'):
+-        volumes.append(el.text)
+-    return volumes
+-
+-def parse_heal_info(data):
+-    xml = etree.fromstring(data)
+-    healinfo = []
+-    for el in xml.findall('healInfo/bricks/brick'):
+-        healinfo.append({
+-            'name': el.find('name').text,
+-            'status': el.find('status').text,
+-            'host_uuid': el.attrib['hostUuid'],
+-            'nr_entries': el.find('numberOfEntries').text
+-        })
+-    return healinfo
+-
+-
+-
+-def parse_heal_statistics(data):
+-    raise NotImplementedError("Heal Statistics")
+-
+-
+-def parse_snapshot_status(data):
+-    raise NotImplementedError("Snapshot Status")
+-
+-
+-def parse_snapshot_info(data):
+-    raise NotImplementedError("Snapshot Info")
+-
+-
+-def parse_snapshot_list(data):
+-    xml = etree.fromstring(data)
+-    snapshots = []
+-    for el in xml.findall('snapList/snapshot'):
+-      snapshots.append(el.text)
+-    return snapshots
+-
+-def _parse_a_peer(peer):
+-    value = {
+-        'uuid': peer.find('uuid').text,
+-        'hostname': peer.find('hostname').text,
+-        'connected': peer.find('connected').text
+-    }
+-
+-    if value['connected'] == '0':
+-        value['connected'] = "Disconnected"
+-    elif value['connected'] == '1':
+-        value['connected'] = "Connected"
+-
+-    return value
+-
+-
+-def parse_peer_status(data):
+-    tree = etree.fromstring(data)
+-    peers = []
+-    for el in tree.findall('peerStatus/peer'):
+-        try:
+-            peers.append(_parse_a_peer(el))
+-        except (ParseError, AttributeError, ValueError) as e:
+-            raise GlusterCmdOutputParseError(e)
+-
+-    return peers
+-
+-
+-def parse_pool_list(data):
+-    tree = etree.fromstring(data)
+-    pools = []
+-    for el in tree.findall('peerStatus/peer'):
+-        try:
+-            pools.append(_parse_a_peer(el))
+-        except (ParseError, AttributeError, ValueError) as e:
+-            raise GlusterCmdOutputParseError(e)
+-
+-    return pools
+diff --git a/gluster/cli/peer.py b/gluster/cli/peer.py
+deleted file mode 100644
+index 96eb4ff..0000000
+--- a/gluster/cli/peer.py
++++ /dev/null
+@@ -1,97 +0,0 @@
+-# -*- coding: utf-8 -*-
+-#
+-#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
+-#  This file is part of GlusterFS.
+-#
+-#  This file is licensed to you under your choice of the GNU Lesser
+-#  General Public License, version 3 or any later version (LGPLv3 or
+-#  later), or the GNU General Public License, version 2 (GPLv2), in all
+-#  cases as published by the Free Software Foundation.
+-#
+-
+-from .utils import peer_execute, peer_execute_xml, gluster_execute_xml, GlusterCmdException
+-from .parsers import parse_peer_status, parse_pool_list
+-
+-
+-def probe(host):
+-    """
+-    Add Host to Cluster
+-
+-    :param host: Hostname or IP
+-    :returns: Output of peer probe command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["probe", host]
+-    return peer_execute(cmd)
+-
+-
+-def attach(host):
+-    """
+-    Add Host to Cluster, alias for probe
+-
+-    :param host: Hostname or IP
+-    :returns: Output of peer probe command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    return probe(host)
+-
+-
+-def detach(host):
+-    """
+-    Remove Host from Cluster
+-
+-    :param host: Hostname or IP
+-    :returns: Output of peer detach command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["detach", host]
+-    return peer_execute(cmd)
+-
+-def detach_all():
+-    """
+-    Removes All Hosts from Cluster
+-
+-    :returns: Output of peer detach command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    peers = parse_peer_status(peer_execute_xml(["status"]))
+-    errors_list = []
+-    outlist = []
+-    if len(peers) > 0:
+-        for peer in peers:
+-            host = peer["hostname"]
+-            if peer["connected"] == "Connected":
+-                cmd = ["detach",host]
+-                try:
+-                    result = peer_execute(cmd)
+-                    out = str(host)+" "+result
+-                    outlist.append(out)
+-                except Exception as err:
+-                    errors_list.append(err)
+-            else:
+-                err = str(host)+" is not connected"
+-                errors_list.append(err)
+-    if len(errors_list):
+-        raise GlusterCmdException((1, "", errors_list))
+-    return "/n".join(outlist)
+-
+-def status():
+-    """
+-    Peer Status of Cluster
+-
+-    :returns: Output of peer status command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["status"]
+-    return parse_peer_status(peer_execute_xml(cmd))
+-
+-
+-def pool():
+-    """
+-    Cluster Pool Status
+-
+-    :returns: Pool list and status, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["pool", "list"]
+-    return parse_pool_list(gluster_execute_xml(cmd))
+diff --git a/gluster/cli/quota.py b/gluster/cli/quota.py
+deleted file mode 100644
+index 94b40eb..0000000
+--- a/gluster/cli/quota.py
++++ /dev/null
+@@ -1,187 +0,0 @@
+-# -*- coding: utf-8 -*-
+-#
+-#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
+-#  This file is part of GlusterFS.
+-#
+-#  This file is licensed to you under your choice of the GNU Lesser
+-#  General Public License, version 3 or any later version (LGPLv3 or
+-#  later), or the GNU General Public License, version 2 (GPLv2), in all
+-#  cases as published by the Free Software Foundation.
+-#
+-
+-from .utils import quota_execute, quota_execute_xml, volume_execute
+-from .parsers import parse_quota_list_paths, parse_quota_list_objects
+-
+-
+-def inode_quota_enable(volname):
+-    """
+-    Enable Inode Quota
+-
+-    :param volname: Volume Name
+-    :returns: Output of inode-quota Enable command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["inode-quota", volname, "enable"]
+-    return volume_execute(cmd)
+-
+-
+-def enable(volname):
+-    """
+-    Enable Quota
+-
+-    :param volname: Volume Name
+-    :returns: Output of quota Enable command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "enable"]
+-    return quota_execute(cmd)
+-
+-
+-def disable(volname):
+-    """
+-    Disable Inode Quota
+-
+-    :param volname: Volume Name
+-    :returns: Output of quota Disable command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "disable"]
+-    return quota_execute(cmd)
+-
+-
+-def list_paths(volname, paths=[]):
+-    """
+-    Get Quota List
+-
+-    :param volname: Volume Name
+-    :param paths: Optional list of paths
+-    :returns: Quota list of paths, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "list"] + paths
+-    return parse_quota_list_paths(quota_execute_xml(cmd))
+-
+-
+-def list_objects(volname, paths=[]):
+-    """
+-    Get Quota Objects List
+-
+-    :param volname: Volume Name
+-    :param paths: Optional list of paths
+-    :returns: Quota list of objects, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "list"] + paths
+-    return parse_quota_list_objects(quota_execute_xml(cmd))
+-
+-
+-def remove_path(volname, path):
+-    """
+-    Remove Path from Quota list
+-
+-    :param volname: Volume Name
+-    :param path: Path to remove from quota
+-    :returns: Output of Quota remove-path, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "remove-path", path]
+-    return quota_execute(cmd)
+-
+-
+-def remove_objects(volname, path):
+-    """
+-    Remove Objects for a given path
+-
+-    :param volname: Volume Name
+-    :param path: Path to remove from quota
+-    :returns: Output of Quota remove-objects, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "remove-objects", path]
+-    return quota_execute(cmd)
+-
+-
+-def default_soft_limit(volname, percent):
+-    """
+-    Set default soft limit
+-
+-    :param volname: Volume Name
+-    :param percent: Percent of soft limit
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "default-soft-limit", "{0}".format(percent)]
+-    return quota_execute(cmd)
+-
+-
+-def limit_usage(volname, path, size, percent=None):
+-    """
+-    Limit quota usage
+-
+-    :param volname: Volume Name
+-    :param path: Path to limit quota
+-    :param size: Limit Size
+-    :param percent: Percentage
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "limit-usage", path, "{0}".format(size)]
+-    if percent is not None:
+-        cmd += ["{0}".format(percent)]
+-    return quota_execute(cmd)
+-
+-
+-def limit_objects(volname, path, num, percent=None):
+-    """
+-    Limit objects
+-
+-    :param volname: Volume Name
+-    :param path: Path to limit quota
+-    :param num: Limit Number
+-    :param percent: Percentage
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "limit-objects", path, "{0}".format(num)]
+-    if percent is not None:
+-        cmd += ["{0}".format(percent)]
+-    return quota_execute(cmd)
+-
+-
+-def alert_time(volname, alert_time):
+-    """
+-    Set Alert Time
+-
+-    :param volname: Volume Name
+-    :param alert_time: Alert Time Value
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "alert-time", "{0}".format(alert_time)]
+-    return quota_execute(cmd)
+-
+-
+-def soft_timeout(volname, timeout):
+-    """
+-    Set Soft Timeout
+-
+-    :param volname: Volume Name
+-    :param timeout: Timeout Value
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "soft-timeout", "{0}".format(timeout)]
+-    return quota_execute(cmd)
+-
+-
+-def hard_timeout(volname, timeout):
+-    """
+-    Set Hard Timeout
+-
+-    :param volname: Volume Name
+-    :param timeout: Timeout Value
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "hard-timeout", "{0}".format(timeout)]
+-    return quota_execute(cmd)
+diff --git a/gluster/cli/rebalance.py b/gluster/cli/rebalance.py
+deleted file mode 100644
+index e7294fa..0000000
+--- a/gluster/cli/rebalance.py
++++ /dev/null
+@@ -1,64 +0,0 @@
+-# -*- coding: utf-8 -*-
+-#
+-#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
+-#  This file is part of GlusterFS.
+-#
+-#  This file is licensed to you under your choice of the GNU Lesser
+-#  General Public License, version 3 or any later version (LGPLv3 or
+-#  later), or the GNU General Public License, version 2 (GPLv2), in all
+-#  cases as published by the Free Software Foundation.
+-#
+-
+-from .utils import volume_execute, volume_execute_xml
+-from .parsers import parse_rebalance_status
+-
+-
+-def fix_layout_start(volname):
+-    """
+-    Fix Layout Rebalance Start
+-
+-    :param volname: Volume Name
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["rebalance", volname, "fix-layout", "start"]
+-    return volume_execute(cmd)
+-
+-
+-def start(volname, force=False):
+-    """
+-    Rebalance Start
+-
+-    :param volname: Volume Name
+-    :param force: True|False Force start the rebalance
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["rebalance", volname, "start"]
+-    if force:
+-        cmd += ["force"]
+-    return volume_execute(cmd)
+-
+-
+-def stop(volname):
+-    """
+-    Rebalance Stop
+-
+-    :param volname: Volume Name
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["rebalance", volname, "stop"]
+-    return volume_execute(cmd)
+-
+-
+-def status(volname):
+-    """
+-    Rebalance Status
+-
+-    :param volname: Volume Name
+-    :returns: Rebalance Status, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["rebalance", volname, "status"]
+-    return parse_rebalance_status(volume_execute_xml(cmd))
+diff --git a/gluster/cli/snapshot.py b/gluster/cli/snapshot.py
+deleted file mode 100644
+index 85d5f88..0000000
+--- a/gluster/cli/snapshot.py
++++ /dev/null
+@@ -1,203 +0,0 @@
+-# -*- coding: utf-8 -*-
+-#
+-#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
+-#  This file is part of GlusterFS.
+-#
+-#  This file is licensed to you under your choice of the GNU Lesser
+-#  General Public License, version 3 or any later version (LGPLv3 or
+-#  later), or the GNU General Public License, version 2 (GPLv2), in all
+-#  cases as published by the Free Software Foundation.
+-#
+-
+-from .utils import snapshot_execute, snapshot_execute_xml
+-from .parsers import (parse_snapshot_status,
+-                      parse_snapshot_info,
+-                      parse_snapshot_list)
+-
+-
+-def activate(snapname, force=False):
+-    """
+-    Activate Snapshot
+-
+-    :param snapname: Snapshot Name
+-    :param force: True|False Force Activate the snapshot
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["activate", snapname]
+-
+-    if force:
+-        cmd += ["force"]
+-
+-    return snapshot_execute(cmd)
+-
+-
+-def clone(clonename, snapname):
+-    """
+-    Clone the Snapshot
+-
+-    :param clonename: Snapshot Clone Name
+-    :param snapname: Snapshot Name
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["clone", clonename, snapname]
+-
+-    return snapshot_execute(cmd)
+-
+-
+-def create(volname, snapname, no_timestamp=False, description="", force=False):
+-    """
+-    Create Snapshot
+-
+-    :param volname: Volume Name
+-    :param snapname: Snapshot Name
+-    :param no_timestamp: True|False Do not add Timestamp to name
+-    :param description: Description for Created Snapshot
+-    :param force: True|False Force Create the snapshot
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["create", snapname, volname]
+-
+-    if no_timestamp:
+-        cmd += ["no-timestamp"]
+-
+-    if description:
+-        cmd += ["description", description]
+-
+-    if force:
+-        cmd += ["force"]
+-
+-    return snapshot_execute(cmd)
+-
+-
+-def deactivate(snapname):
+-    """
+-    Deactivate the Snapshot
+-
+-    :param snapname: Snapshot Name
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["deactivate", snapname]
+-
+-    return snapshot_execute(cmd)
+-
+-
+-def delete(snapname=None, volname=None):
+-    """
+-    Delete Snapshot
+-
+-    :param snapname: Snapshot Name
+-    :param volname: Volume Name
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["delete"]
+-    if snapname is not None:
+-        cmd += [snapname]
+-
+-    if volname is not None and snapname is None:
+-        cmd += ["volume", volname]
+-
+-    return snapshot_execute(cmd)
+-
+-
+-def info(snapname=None, volname=None):
+-    """
+-    Snapshot Info
+-
+-    :param snapname: Snapshot Name
+-    :param volname: Volume Name
+-    :returns: Snapshot Info, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["info"]
+-    if snapname is not None:
+-        cmd += [snapname]
+-
+-    if volname is not None and snapname is None:
+-        cmd += ["volume", volname]
+-
+-    return parse_snapshot_info(snapshot_execute_xml(cmd))
+-
+-
+-def snaplist(volname=None):
+-    """
+-    List of Snapshots
+-
+-    :param volname: Volume Name
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["list"]
+-
+-    if volname is not None:
+-        cmd += [volname]
+-
+-    return parse_snapshot_list(snapshot_execute_xml(cmd))
+-
+-
+-def restore(snapname):
+-    """
+-    Restore Snapshot
+-
+-    :param snapname: Snapshot Name
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["restore", snapname]
+-    return snapshot_execute(cmd)
+-
+-
+-def status(snapname=None, volname=None):
+-    """
+-    Snapshot Status
+-
+-    :param snapname: Snapshot Name
+-    :param volname: Volume Name
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["status"]
+-    if snapname is not None:
+-        cmd += [snapname]
+-
+-    if volname is not None and snapname is None:
+-        cmd += ["volume", volname]
+-
+-    return parse_snapshot_status(snapshot_execute_xml(cmd))
+-
+-
+-def config(volname, snap_max_hard_limit=None,
+-           snap_max_soft_limit=None, auto_delete=None,
+-           activate_on_create=None):
+-    """
+-    Set Snapshot Config
+-
+-    :param volname: Volume Name
+-    :param snap_max_hard_limit: Number of Snapshots hard limit
+-    :param snap_max_soft_limit: Number of Snapshots soft limit
+-    :param auto_delete: True|False Auto delete old snapshots
+-    :param activate_on_create: True|False Activate Snapshot after Create
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["config", volname]
+-
+-    if snap_max_hard_limit is not None:
+-        cmd += ["snap-max-hard-limit", "{0}".format(snap_max_hard_limit)]
+-
+-    if snap_max_soft_limit is not None:
+-        cmd += ["snap-max-soft-limit", "{0}".format(snap_max_soft_limit)]
+-
+-    if auto_delete is not None:
+-        auto_delete_arg = "enable" if auto_delete else "disable"
+-        cmd += ["snap-max-hard-limit", auto_delete_arg]
+-
+-    if activate_on_create is not None:
+-        activate_arg = "enable" if activate_on_create else "disable"
+-        cmd += ["snap-max-hard-limit", activate_arg]
+-
+-    return snapshot_execute(cmd)
+diff --git a/gluster/cli/tier.py b/gluster/cli/tier.py
+deleted file mode 100644
+index 2fa1624..0000000
+--- a/gluster/cli/tier.py
++++ /dev/null
+@@ -1,131 +0,0 @@
+-# -*- coding: utf-8 -*-
+-#
+-#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
+-#  This file is part of GlusterFS.
+-#
+-#  This file is licensed to you under your choice of the GNU Lesser
+-#  General Public License, version 3 or any later version (LGPLv3 or
+-#  later), or the GNU General Public License, version 2 (GPLv2), in all
+-#  cases as published by the Free Software Foundation.
+-#
+-
+-from .utils import tier_execute, tier_execute_xml
+-from .parsers import parse_tier_detach, parse_tier_status
+-
+-
+-def status(volname):
+-    """
+-    Tier Status
+-
+-    :param volname: Volume Name
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "status"]
+-    return parse_tier_status(tier_execute_xml(cmd))
+-
+-
+-def start(volname, force=False):
+-    """
+-    Start Tier
+-
+-    :param volname: Volume Name
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "start"]
+-    if force:
+-        cmd += ["force"]
+-
+-    return tier_execute(cmd)
+-
+-
+-def attach(volname, bricks, replica=None):
+-    """
+-    Attach Tier
+-
+-    :param volname: Volume Name
+-    :param bricks: Tier Bricks to attach
+-    :param replica: Replica number
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "attach"]
+-    if replica is not None:
+-        cmd += ["replica", "{0}".format(replica)]
+-
+-    cmd += bricks
+-
+-    return tier_execute(cmd)
+-
+-
+-def detach_start(volname, bricks, force=False):
+-    """
+-    Detach Tier Start
+-
+-    :param volname: Volume Name
+-    :param bricks: Tier Bricks to detach
+-    :param force: True|False Force Detach the Tier
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "detach", bricks, "start"]
+-
+-    if force:
+-        cmd += ["force"]
+-
+-    return tier_execute(cmd)
+-
+-
+-def detach_stop(volname, bricks, force=False):
+-    """
+-    Detach Tier Stop
+-
+-    :param volname: Volume Name
+-    :param bricks: Tier Bricks to detach
+-    :param force: True|False Force Detach the Tier
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "detach", bricks, "stop"]
+-
+-    if force:
+-        cmd += ["force"]
+-
+-    return tier_execute(cmd)
+-
+-
+-def detach_commit(volname, bricks, force=False):
+-    """
+-    Detach Tier Commit
+-
+-    :param volname: Volume Name
+-    :param bricks: Tier Bricks to detach
+-    :param force: True|False Force Detach the Tier
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "detach", bricks, "commit"]
+-
+-    if force:
+-        cmd += ["force"]
+-
+-    return tier_execute(cmd)
+-
+-
+-def detach_status(volname, bricks, force=False):
+-    """
+-    Detach Tier Status
+-
+-    :param volname: Volume Name
+-    :param bricks: Tier Bricks to attach
+-    :param force: True|False Force Detach the Tier
+-    :returns: Output of the command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = [volname, "detach", bricks, "status"]
+-
+-    if force:
+-        cmd += ["force"]
+-
+-    return parse_tier_detach(tier_execute_xml(cmd))
+diff --git a/gluster/cli/utils.py b/gluster/cli/utils.py
+deleted file mode 100644
+index e6966f1..0000000
+--- a/gluster/cli/utils.py
++++ /dev/null
+@@ -1,215 +0,0 @@
+-# -*- coding: utf-8 -*-
+-#
+-#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
+-#  This file is part of GlusterFS.
+-#
+-#  This file is licensed to you under your choice of the GNU Lesser
+-#  General Public License, version 3 or any later version (LGPLv3 or
+-#  later), or the GNU General Public License, version 2 (GPLv2), in all
+-#  cases as published by the Free Software Foundation.
+-#
+-
+-import subprocess
+-from contextlib import contextmanager
+-
+-GLUSTERCMD = "gluster"
+-GLUSTERD_SOCKET = None
+-ssh = None
+-SSH_HOST = None
+-SSH_PEM_FILE = None
+-prev_ssh_host = None
+-prev_ssh_pem_file = None
+-
+-
+-@contextmanager
+-def ssh_connection(hostname, pem_file):
+-    global SSH_HOST, SSH_PEM_FILE
+-    SSH_HOST = hostname
+-    SSH_PEM_FILE = pem_file
+-    yield
+-    SSH_HOST = None
+-    SSH_PEM_FILE = None
+-
+-
+-def execute(cmd):
+-    global prev_ssh_host, prev_ssh_pem_file
+-
+-    c = []
+-    c.append(GLUSTERCMD)
+-
+-    if GLUSTERD_SOCKET:
+-        c.append("--glusterd-sock={0}".format(GLUSTERD_SOCKET))
+-
+-    c.append("--mode=script")
+-    c += cmd
+-
+-    if SSH_HOST is not None and SSH_PEM_FILE is not None:
+-        # Reconnect only if first time or previously connected to different
+-        # host or using different pem key
+-        if ssh is None or prev_ssh_host != SSH_HOST \
+-           or prev_ssh_pem_file != SSH_PEM_FILE:
+-            __connect_ssh()
+-            prev_ssh_host = SSH_HOST
+-            prev_ssh_pem_file = SSH_PEM_FILE
+-
+-        c = " ".join(c)
+-        stdin, stdout, stderr = ssh.exec_command(c)
+-        rc = stdout.channel.recv_exit_status()
+-        return (rc, stdout.read().strip(), stderr.read().strip())
+-    else:
+-        p = subprocess.Popen(c, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+-        out, err = p.communicate()
+-        return (p.returncode, out, err)
+-
+-
+-class GlusterCmdException(Exception):
+-    pass
+-
+-
+-def set_ssh_pem_file(pem_file):
+-    global USE_SSH, SSH_PEM_FILE
+-    USE_SSH = True
+-    SSH_PEM_FILE = pem_file
+-
+-
+-def set_ssh_host(hostname):
+-    global SSH_HOST
+-    SSH_HOST = hostname
+-
+-
+-def __connect_ssh():
+-    global ssh
+-
+-    import paramiko
+-
+-    if ssh is None:
+-        ssh = paramiko.SSHClient()
+-        try:
+-            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+-            ssh.connect(SSH_HOST, username="root", key_filename=SSH_PEM_FILE)
+-        except paramiko.ssh_exception.AuthenticationException as e:
+-            raise GlusterCmdException("Unable to establish SSH connection "
+-                                      "to root@{0}:\n{1}".format(SSH_HOST, e))
+-
+-
+-def set_gluster_path(path):
+-    global GLUSTERCMD
+-    GLUSTERCMD = path
+-
+-
+-def set_gluster_socket(path):
+-    global GLUSTERD_SOCKET
+-    GLUSTERD_SOCKET = path
+-
+-
+-def execute_or_raise(cmd):
+-    rc, out, err = execute(cmd)
+-    if rc != 0:
+-        raise GlusterCmdException((rc, out, err))
+-
+-    return out.strip()
+-
+-
+-def gluster_system_execute(cmd):
+-    cmd.insert(0, "system::")
+-    cmd.insert(1, "execute")
+-    return execute_or_raise(cmd)
+-
+-
+-def gluster_execute(cmd):
+-    return execute_or_raise(cmd)
+-
+-
+-def gluster_execute_xml(cmd):
+-    cmd.append("--xml")
+-    return execute_or_raise(cmd)
+-
+-
+-def volume_execute(cmd):
+-    cmd.insert(0, "volume")
+-    return execute_or_raise(cmd)
+-
+-
+-def peer_execute(cmd):
+-    cmd.insert(0, "peer")
+-    return execute_or_raise(cmd)
+-
+-
+-def volume_execute_xml(cmd):
+-    cmd.insert(0, "volume")
+-    return gluster_execute_xml(cmd)
+-
+-
+-def peer_execute_xml(cmd):
+-    cmd.insert(0, "peer")
+-    return gluster_execute_xml(cmd)
+-
+-
+-def georep_execute(cmd):
+-    cmd.insert(0, "volume")
+-    cmd.insert(1, "geo-replication")
+-    return execute_or_raise(cmd)
+-
+-
+-def georep_execute_xml(cmd):
+-    cmd.insert(0, "volume")
+-    cmd.insert(1, "geo-replication")
+-    return gluster_execute_xml(cmd)
+-
+-
+-def bitrot_execute(cmd):
+-    cmd.insert(0, "volume")
+-    cmd.insert(1, "bitrot")
+-    return execute_or_raise(cmd)
+-
+-
+-def bitrot_execute_xml(cmd):
+-    cmd.insert(0, "volume")
+-    cmd.insert(1, "bitrot")
+-    return gluster_execute_xml(cmd)
+-
+-
+-def quota_execute(cmd):
+-    cmd.insert(0, "volume")
+-    cmd.insert(1, "quota")
+-    return execute_or_raise(cmd)
+-
+-
+-def quota_execute_xml(cmd):
+-    cmd.insert(0, "volume")
+-    cmd.insert(1, "quota")
+-    return gluster_execute_xml(cmd)
+-
+-
+-def heal_execute(cmd):
+-    cmd.insert(0, "volume")
+-    cmd.insert(1, "heal")
+-    return execute_or_raise(cmd)
+-
+-
+-def heal_execute_xml(cmd):
+-    cmd.insert(0, "volume")
+-    cmd.insert(1, "heal")
+-    return gluster_execute_xml(cmd)
+-
+-
+-def snapshot_execute(cmd):
+-    cmd.insert(0, "snapshot")
+-    return execute_or_raise(cmd)
+-
+-
+-def snapshot_execute_xml(cmd):
+-    cmd.insert(0, "snapshot")
+-    return gluster_execute_xml(cmd)
+-
+-
+-def tier_execute(cmd):
+-    cmd.insert(0, "volume")
+-    cmd.insert(1, "tier")
+-    return execute_or_raise(cmd)
+-
+-
+-def tier_execute_xml(cmd):
+-    cmd.insert(0, "volume")
+-    cmd.insert(1, "tier")
+-    return gluster_execute_xml(cmd)
+diff --git a/gluster/cli/volume.py b/gluster/cli/volume.py
+deleted file mode 100644
+index 4d7d4d0..0000000
+--- a/gluster/cli/volume.py
++++ /dev/null
+@@ -1,377 +0,0 @@
+-# -*- coding: utf-8 -*-
+-#
+-#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
+-#  This file is part of GlusterFS.
+-#
+-#  This file is licensed to you under your choice of the GNU Lesser
+-#  General Public License, version 3 or any later version (LGPLv3 or
+-#  later), or the GNU General Public License, version 2 (GPLv2), in all
+-#  cases as published by the Free Software Foundation.
+-#
+-
+-from .utils import volume_execute, volume_execute_xml, GlusterCmdException
+-from .parsers import (parse_volume_info,
+-                      parse_volume_status,
+-                      parse_volume_options,
+-                      parse_volume_list,
+-                      parse_volume_profile_info)
+-
+-# Following import are not used in this file, but imported to make
+-# it available via volume.(noqa to ignore in pep8 check)
+-from . import bitrot     # noqa
+-from . import bricks     # noqa
+-from . import heal       # noqa
+-from . import quota      # noqa
+-from . import rebalance  # noqa
+-from . import tier       # noqa
+-
+-
+-LOCK_KINDS = ["blocked", "granted", "all"]
+-INFO_OPS = ["peek", "incremental", "cumulative", "clear"]
+-
+-
+-def start(volname, force=False):
+-    """
+-    Start Gluster Volume
+-
+-    :param volname: Volume Name
+-    :param force: (True|False) Start Volume with Force option
+-    :returns: Output of Start command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["start", volname]
+-    if force:
+-        cmd += ["force"]
+-
+-    return volume_execute(cmd)
+-
+-
+-def stop(volname, force=False):
+-    """
+-    Stop Gluster Volume
+-
+-    :param volname: Volume Name
+-    :param force: (True|False) Stop Volume with Force option
+-    :returns: Output of Stop command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["stop", volname]
+-    if force:
+-        cmd += ["force"]
+-
+-    return volume_execute(cmd)
+-
+-
+-def restart(volname, force=False):
+-    """
+-    Restart Gluster Volume, Wrapper around two calls stop and start
+-
+-    :param volname: Volume Name
+-    :param force: (True|False) Restart Volume with Force option
+-    :returns: Output of Start command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["stop", volname]
+-    if force:
+-        cmd += ["force"]
+-
+-    volume_execute(cmd)
+-
+-    cmd = ["start", volname]
+-    if force:
+-        cmd += ["force"]
+-
+-    return volume_execute(cmd)
+-
+-
+-def delete(volname):
+-    """
+-    Delete Gluster Volume
+-
+-    :param volname: Volume Name
+-    :returns: Output of Delete command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["delete", volname]
+-    return volume_execute(cmd)
+-
+-
+-def create(volname, volbricks, replica=0, stripe=0, arbiter=0, disperse=0,
+-           disperse_data=0, redundancy=0, transport="tcp", force=False):
+-    """
+-    Create Gluster Volume
+-
+-    :param volname: Volume Name
+-    :param volbricks: List of Brick paths(HOSTNAME:PATH)
+-    :param replica: Number of Replica bricks
+-    :param stripe: Number of Stripe bricks
+-    :param arbiter: Number of Arbiter bricks
+-    :param disperse: Number of disperse bricks
+-    :param disperse_data: Number of disperse data bricks
+-    :param redundancy: Number of Redundancy bricks
+-    :param transport: Transport mode(tcp|rdma|tcp,rdma)
+-    :param force: (True|False) Create Volume with Force option
+-    :returns: Output of Create command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["create", volname]
+-    if replica != 0:
+-        cmd += ["replica", "{0}".format(replica)]
+-
+-    if stripe != 0:
+-        cmd += ["stripe", "{0}".format(stripe)]
+-
+-    if arbiter != 0:
+-        cmd += ["arbiter", "{0}".format(arbiter)]
+-
+-    if disperse != 0:
+-        cmd += ["disperse", "{0}".format(disperse)]
+-
+-    if disperse_data != 0:
+-        cmd += ["disperse-data", "{0}".format(disperse_data)]
+-
+-    if redundancy != 0:
+-        cmd += ["redundancy", "{0}".format(redundancy)]
+-
+-    if transport != "tcp":
+-        cmd += ["transport", transport]
+-
+-    cmd += volbricks
+-
+-    if force:
+-        cmd += ["force"]
+-
+-    return volume_execute(cmd)
+-
+-
+-def info(volname=None):
+-    """
+-    Get Gluster Volume Info
+-
+-    :param volname: Volume Name
+-    :returns: Returns Volume Info, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["info"]
+-    if volname is not None:
+-        cmd += [volname]
+-
+-    return parse_volume_info(volume_execute_xml(cmd))
+-
+-
+-def status_detail(volname=None):
+-    """
+-    Get Gluster Volume Status
+-
+-    :param volname: Volume Name
+-    :returns: Returns Volume Status, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["status"]
+-    if volname is not None:
+-        cmd += [volname, "detail"]
+-    else:
+-        cmd += ["all", "detail"]
+-
+-    return parse_volume_status(volume_execute_xml(cmd), info(volname))
+-
+-
+-def optset(volname, opts):
+-    """
+-    Set Volume Options
+-
+-    :param volname: Volume Name
+-    :param opts: Dict with config key as dict key and config value as value
+-    :returns: Output of Volume Set command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["set", volname]
+-    for key, value in opts.items():
+-        cmd += [key, value]
+-
+-    return volume_execute(cmd)
+-
+-
+-def optget(volname, opt="all"):
+-    """
+-    Get Volume Options
+-
+-    :param volname: Volume Name
+-    :param opt: Option Name
+-    :returns: List of Volume Options, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["get", volname, opt]
+-    return parse_volume_options(volume_execute_xml(cmd))
+-
+-
+-def optreset(volname, opt=None, force=False):
+-    """
+-    Reset Volume Options
+-
+-    :param volname: Volume Name
+-    :param opt: Option name to reset, else reset all
+-    :param force: Force reset options
+-    :returns: Output of Volume Reset command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["reset", volname]
+-
+-    if opt is not None:
+-        cmd += [opt]
+-
+-    if force:
+-        cmd += ["force"]
+-
+-    return volume_execute(cmd)
+-
+-
+-def vollist():
+-    """
+-    Volumes List
+-
+-    :returns: List of Volumes, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["list"]
+-    return parse_volume_list(volume_execute_xml(cmd))
+-
+-
+-def log_rotate(volname, brick):
+-    """
+-    Brick log rotate
+-
+-    :param volname: Volume Name
+-    :param brick: Brick Path
+-    :returns: Output of Log rotate command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["log", volname, "rotate", brick]
+-    return volume_execute(cmd)
+-
+-
+-def sync(hostname, volname=None):
+-    """
+-    Sync the volume information from a peer
+-
+-    :param hostname: Hostname to sync from
+-    :param volname: Volume Name
+-    :returns: Output of Sync command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["sync", hostname]
+-    if volname is not None:
+-        cmd += [volname]
+-    return volume_execute(cmd)
+-
+-
+-def clear_locks(volname, path, kind, inode_range=None,
+-                entry_basename=None, posix_range=None):
+-    """
+-    Clear locks held on path
+-
+-    :param volname: Volume Name
+-    :param path: Locked Path
+-    :param kind: Lock Kind(blocked|granted|all)
+-    :param inode_range: Inode Range
+-    :param entry_basename: Entry Basename
+-    :param posix_range: Posix Range
+-    :returns: Output of Clear locks command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    if kind.lower() not in LOCK_KINDS:
+-        raise GlusterCmdException((-1, "", "Invalid Lock Kind"))
+-    cmd = ["clear-locks", volname, "kind", kind.lower()]
+-
+-    if inode_range is not None:
+-        cmd += ["inode", inode_range]
+-
+-    if entry_basename is not None:
+-        cmd += ["entry", entry_basename]
+-
+-    if posix_range is not None:
+-        cmd += ["posix", posix_range]
+-
+-    return volume_execute(cmd)
+-
+-
+-def barrier_enable(volname):
+-    """
+-    Enable Barrier
+-
+-    :param volname: Volume Name
+-    :returns: Output of Barrier command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["barrier", volname, "enable"]
+-    return volume_execute(cmd)
+-
+-
+-def barrier_disable(volname):
+-    """
+-    Disable Barrier
+-
+-    :param volname: Volume Name
+-    :returns: Output of Barrier command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["barrier", volname, "disable"]
+-    return volume_execute(cmd)
+-
+-
+-def profile_start(volname):
+-    """
+-    Start Profile
+-
+-    :param volname: Volume Name
+-    :return: Output of Profile command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["profile", volname, "start"]
+-    return volume_execute(cmd)
+-
+-
+-def profile_stop(volname):
+-    """
+-    Stop Profile
+-
+-    :param volname: Volume Name
+-    :return: Output of Profile command, raises
+-     GlusterCmdException((rc, out, err)) on error
+-    """
+-    cmd = ["profile", volname, "stop"]
+-    return volume_execute(cmd)
+-
+-
+-def profile_info(volname, op, peek=False):
+-    """
+-    Get Profile info
+-
+-    :param volname: Volume Name
+-    :param op: Operation type of info,
+-    like peek, incremental, cumulative, clear
+-    :param peek: Use peek or not, default is False
+-    :return: Return profile info, raises
+-    GlusterCmdException((rc, out, err)) on error
+-    """
+-
+-    if op.lower() not in INFO_OPS:
+-        raise GlusterCmdException((-1, "",
+-                                   "Invalid Info Operation Type, use peek, incremental, cumulative, clear"))
+-    cmd = ["profile", volname, "info", op.lower()]
+-
+-    if op.lower() == INFO_OPS[1] and peek:
+-        cmd += ["peek"]
+-
+-    return parse_volume_profile_info(volume_execute_xml(cmd), op)
+-
+-# TODO: Pending Wrappers
+-# volume statedump <VOLNAME> [nfs|quotad] [all|mem|iobuf|
+-#     callpool|priv|fd|inode|history]... - perform statedump on bricks
+-# volume status [all | <VOLNAME> [nfs|shd|<BRICK>|quotad]]
+-#     [detail|clients|mem|inode|fd|callpool|tasks] - display status of
+-#     all or specified volume(s)/brick
+-# volume top <VOLNAME> {open|read|write|opendir|readdir|clear}
+-#     [nfs|brick <brick>] [list-cnt <value>] |
+-# volume top <VOLNAME> {read-perf|write-perf} [bs <size> count
+-#     <count>] [brick <brick>] [list-cnt <value>] - volume top operations
+diff --git a/gluster/metrics/__init__.py b/gluster/metrics/__init__.py
+deleted file mode 100644
+index b0c5236..0000000
+--- a/gluster/metrics/__init__.py
++++ /dev/null
+@@ -1,21 +0,0 @@
+-# -*- coding: utf-8 -*-
+-#
+-#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
+-#  This file is part of GlusterFS.
+-#
+-#  This file is licensed to you under your choice of the GNU Lesser
+-#  General Public License, version 3 or any later version (LGPLv3 or
+-#  later), or the GNU General Public License, version 2 (GPLv2), in all
+-#  cases as published by the Free Software Foundation.
+-#
+-
+-from .process import local_processes
+-from .utilization import local_utilization
+-from .diskstats import local_diskstats
+-
+-# Reexport
+-__all__ = [
+-    "local_processes",
+-    "local_utilization",
+-    "local_diskstats"
+-]
+diff --git a/gluster/metrics/cmdlineparser.py b/gluster/metrics/cmdlineparser.py
+deleted file mode 100644
+index cff83e3..0000000
+--- a/gluster/metrics/cmdlineparser.py
++++ /dev/null
+@@ -1,69 +0,0 @@
+-from argparse import ArgumentParser
+-import socket
+-
+-import utils
+-
+-
+-def _hostname():
+-    return socket.gethostname().split('.')[0]
+-
+-
+-def parse_cmdline_glusterd(args):
+-    return {
+-        "name": "glusterd",
+-        "node_id": utils.get_node_id(),
+-        "hostname": _hostname()
+-    }
+-
+-
+-def parse_cmdline_glusterfsd(args):
+-    parser = ArgumentParser()
+-    parser.add_argument("-s", dest="server")
+-    parser.add_argument("--volfile-id")
+-    parser.add_argument("--brick-name")
+-    pargs, unknown = parser.parse_known_args(args)
+-
+-    return {
+-        "name": "glusterfsd",
+-        "hostname": _hostname(),
+-        "node_id": utils.get_node_id(),
+-        "server": pargs.server,
+-        "brick_path": pargs.brick_name,
+-        "volname": pargs.volfile_id.split(".")[0]
+-    }
+-
+-
+-def parse_cmdline_glustershd(args):
+-    # TODO: Parsing
+-    pass
+-
+-
+-def parse_cmdline_python(args):
+-    if len(args) > 1 and "glustereventsd" in args[1]:
+-        return parse_cmdline_glustereventsd(args)
+-    elif len(args) > 1 and "gsyncd" in args[1]:
+-        return parse_cmdline_gsyncd(args)
+-
+-
+-def parse_cmdline_gsyncd(args):
+-    data = {
+-        "name": "gsyncd",
+-        "hostname": _hostname()
+-    }
+-    if "--feedback-fd" in args:
+-        data["role"] = "worker"
+-    elif "--agent" in args:
+-        data["role"] = "agent"
+-    elif "--monitor" in args:
+-        data["role"] = "monitor"
+-    elif "--listen" in args:
+-        data["role"] = "slave"
+-
+-    return data
+-
+-
+-def parse_cmdline_glustereventsd(args):
+-    return {
+-        "name": "glustereventsd",
+-        "hostname": _hostname()
+-    }
+diff --git a/gluster/metrics/diskstats.py b/gluster/metrics/diskstats.py
+deleted file mode 100644
+index a04391b..0000000
+--- a/gluster/metrics/diskstats.py
++++ /dev/null
+@@ -1,119 +0,0 @@
+-import os
+-import subprocess
+-
+-from utils import get_local_bricks
+-
+-
+-default_diskstat = {
+-    "major_number": 0,
+-    "minor_number": 0,
+-    "reads_completed": 0,
+-    "reads_merged": 0,
+-    "sectors_read": 0,
+-    "time_spent_reading": 0,
+-    "writes_completed": 0,
+-    "writes_merged": 0,
+-    "sectors_written": 0,
+-    "time_spent_writing": 0,
+-    "ios_currently_in_progress": 0,
+-    "time_spent_doing_ios": 0,
+-    "weighted_time_spent_doing_ios": 0
+-}
+-
+-
+-def local_diskstats(volname=None):
+-    """
+-    Collect Diskstats info of local bricks
+-
+-    :param volname: Volume Name
+-    :returns: List of diskstats information
+-        {
+-            "volume": VOLUME_NAME,
+-            "brick_index": BRICK_INDEX_IN_VOL_INFO,
+-            "node_id": NODE_ID,
+-            "brick": BRICK_NAME,
+-            "fs": BRICK_FILESYSTEM,
+-            "device": BRICK_DEVICE,
+-            "major_number": MAJOR_NUMBER,
+-            "minor_number": MINOR_NUMBER,
+-            "reads_completed": READS_COMPLETED,
+-            "reads_merged": READS_MERGED,
+-            "sectors_read": SECTORS_READ,
+-            "time_spent_reading": TIME_SPENT_READING,
+-            "writes_completed": WRITES_COMPLETED,
+-            "writes_merged": WRITES_MERGED,
+-            "sectors_written": SECTORS_WRITTEN,
+-            "time_spent_writing": TIME_SPENT_WRITING,
+-            "ios_currently_in_progress": IOS_CURRENTLY_IN_PROGRESS,
+-            "time_spent_doing_ios": TIME_SPENT_DOING_IOS,
+-            "weighted_time_spent_doing_ios": WEIGHTED_TIME_SPENT_DOING_IOS
+-        }
+-    """
+-    local_bricks = get_local_bricks(volname)
+-    cmd = ["df", "--output=source"]
+-
+-    diskstat_data_raw = ""
+-    with open("/proc/diskstats") as f:
+-        diskstat_data_raw = f.read()
+-
+-    # /proc/diskstats fields
+-    #  1 - major number
+-    #  2 - minor mumber
+-    #  3 - device name
+-    #  4 - reads completed successfully
+-    #  5 - reads merged
+-    #  6 - sectors read
+-    #  7 - time spent reading (ms)
+-    #  8 - writes completed
+-    #  9 - writes merged
+-    # 10 - sectors written
+-    # 11 - time spent writing (ms)
+-    # 12 - I/Os currently in progress
+-    # 13 - time spent doing I/Os (ms)
+-    # 14 - weighted time spent doing I/Os (ms)
+-    diskstat_data = {}
+-    for d in diskstat_data_raw.strip().split("\n"):
+-        d = d.split()
+-        if not d:
+-            continue
+-
+-        diskstat_data[d[2]] = {
+-            "major_number": d[0],
+-            "minor_number": d[1],
+-            "reads_completed": d[3],
+-            "reads_merged": d[4],
+-            "sectors_read": d[5],
+-            "time_spent_reading": d[6],
+-            "writes_completed": d[7],
+-            "writes_merged": d[8],
+-            "sectors_written": d[9],
+-            "time_spent_writing": d[10],
+-            "ios_currently_in_progress": d[11],
+-            "time_spent_doing_ios": d[12],
+-            "weighted_time_spent_doing_ios": d[13]
+-        }
+-
+-    for brick in local_bricks:
+-        bpath = brick["brick"].split(":", 1)[-1]
+-        p = subprocess.Popen(cmd + [bpath], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+-        out, _ = p.communicate()
+-
+-        # `df` command error
+-        if p.returncode != 0:
+-            brick["fs"] = "unknown"
+-            brick["device"] = "unknown"
+-            brick.update(default_diskstat)
+-            continue
+-
+-        df_data = out.strip()
+-        df_data = df_data.split("\n")[-1].strip()  # First line is header
+-        brick["fs"] = df_data
+-        if os.path.islink(df_data):
+-            brick["device"] = os.readlink(df_data).split("/")[-1]
+-        else:
+-            brick["device"] = df_data.split("/")[-1]
+-
+-        brick.update(diskstat_data.get(brick["device"], default_diskstat))
+-
+-
+-    return local_bricks
+diff --git a/gluster/metrics/process.py b/gluster/metrics/process.py
+deleted file mode 100644
+index 5ddf79b..0000000
+--- a/gluster/metrics/process.py
++++ /dev/null
+@@ -1,84 +0,0 @@
+-import subprocess
+-
+-import cmdlineparser
+-
+-GLUSTER_PROCS = [
+-    "glusterd",
+-    "glusterfsd",
+-    "glustershd",
+-    "glusterfs",
+-    "python",  # gsyncd, glustereventsd etc
+-    "ssh",  # gsyncd related ssh connections
+-]
+-
+-
+-def get_cmdline(pid):
+-    args = []
+-    try:
+-        with open("/proc/{0}/cmdline".format(pid), "r") as f:
+-            args = f.read().strip("\x00").split("\x00")
+-    except IOError:
+-        pass
+-
+-    return args
+-
+-
+-def local_processes():
+-    # Run ps command and get all the details for all gluster processes
+-    # ps --no-header -ww -o pid,pcpu,pmem,rsz,vsz,etimes,comm -C glusterd,..
+-    # command can be used instead of comm, but if an argument has space then
+-    # it is a problem
+-    # for example `mytool "hello world" arg2` will be displayed as
+-    # `mytool hello world arg2` in ps output
+-    # Read cmdline from `/proc/<pid>/cmdline` to get full commands
+-    # Use argparse to parse the output and form the key
+-    # Example output of ps command:
+-    # 6959  0.0  0.6 12840 713660  504076 glusterfs
+-    details = []
+-    cmd = ["ps",
+-           "--no-header",  # No header in the output
+-           "-ww",  # To set unlimited width to avoid crop
+-           "-o",  # Output Format
+-           "pid,pcpu,pmem,rsz,vsz,etimes,comm",
+-           "-C",
+-           ",".join(GLUSTER_PROCS)]
+-
+-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+-    out, _ = p.communicate()
+-    # No records in `ps` output
+-    if p.returncode != 0:
+-        return details
+-
+-    data = out.strip()
+-
+-    for line in data.split("\n"):
+-        # Sample data:
+-        # 6959  0.0  0.6 12840 713660  504076 glusterfs
+-        try:
+-            pid, pcpu, pmem, rsz, vsz, etimes, comm = line.strip().split()
+-        except ValueError:
+-            # May be bad ps output, for example
+-            # 30916  0.0  0.0     0      0       7 python <defunct>
+-            continue
+-
+-        args = get_cmdline(int(pid))
+-        if not args:
+-            # Unable to collect the cmdline, may be IO error and process died?
+-            continue
+-
+-        cmdname = args[0].split("/")[-1]
+-        func_name = "parse_cmdline_" + cmdname
+-        details_func = getattr(cmdlineparser, func_name, None)
+-
+-        if details_func is not None:
+-            data = details_func(args)
+-            if data is not None:
+-                data["percentage_cpu"] = float(pcpu)
+-                data["percentage_memory"] = float(pmem)
+-                data["resident_memory"] = int(rsz)
+-                data["virtual_memory"] = int(vsz)
+-                data["elapsed_time_sec"] = int(etimes)
+-                data["pid"] = int(pid)
+-                details.append(data)
+-
+-    return details
+diff --git a/gluster/metrics/utilization.py b/gluster/metrics/utilization.py
+deleted file mode 100644
+index 08dfb93..0000000
+--- a/gluster/metrics/utilization.py
++++ /dev/null
+@@ -1,41 +0,0 @@
+-import os
+-
+-from utils import get_local_bricks
+-
+-
+-def local_utilization(volname=None):
+-    """
+-    Collect Utilization details of local bricks
+-
+-    :param volname: Volume Name
+-    :returns: List of utilization information
+-        {               
+-            "volume": VOLUME_NAME,
+-            "brick_index": BRICK_INDEX_IN_VOL_INFO,
+-            "node_id": NODE_ID,
+-            "brick": BRICK_NAME,
+-            "block_size": ST_F_FRSIZE,
+-            "blocks_total": ST_F_BLOCKS,
+-            "blocks_free": ST_F_BFREE,
+-            "blocks_avail": ST_F_BAVAIL,
+-            "inodes_total": ST_F_FILES,
+-            "inodes_free": ST_F_FFREE,
+-            "inodes_avail": ST_F_FAVAIL
+-        }
+-    """
+-
+-    local_bricks = get_local_bricks(volname)
+-
+-    for brick in local_bricks:
+-        bpath = brick["brick"].split(":", 1)[-1]
+-        st = os.statvfs(bpath)
+-
+-        brick["block_size"] = st.f_frsize
+-        brick["blocks_total"] = st.f_blocks
+-        brick["blocks_free"] = st.f_bfree
+-        brick["blocks_avail"] = st.f_bavail
+-        brick["inodes_total"] = st.f_files
+-        brick["inodes_free"] = st.f_ffree
+-        brick["inodes_avail"] = st.f_favail
+-
+-    return local_bricks
+diff --git a/gluster/metrics/utils.py b/gluster/metrics/utils.py
+deleted file mode 100644
+index 56d00a4..0000000
+--- a/gluster/metrics/utils.py
++++ /dev/null
+@@ -1,40 +0,0 @@
+-from gluster.cli import volume
+-
+-UUID_FILE = "/var/lib/glusterd/glusterd.info"
+-
+-myuuid = None
+-
+-
+-def get_node_id():
+-    global myuuid
+-
+-    if myuuid is not None:
+-        return myuuid
+-
+-    val = None
+-    with open(UUID_FILE) as f:
+-        for line in f:
+-            if line.startswith("UUID="):
+-                val = line.strip().split("=")[-1]
+-                break
+-
+-    myuuid = val
+-    return val
+-
+-
+-def get_local_bricks(volname=None):
+-    local_node_id = get_node_id()
+-    volinfo = volume.info(volname)
+-    bricks = []
+-    for idx, vol in enumerate(volinfo):
+-        for jdx, brick in enumerate(vol["bricks"]):
+-            if brick["uuid"] != local_node_id:
+-                continue
+-
+-            bricks.append({
+-                "volume": vol["name"],
+-                "brick_index": jdx,
+-                "node_id": brick["uuid"],
+-                "brick": brick["name"]})
+-
+-    return bricks
