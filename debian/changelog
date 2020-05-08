@@ -1,7 +1,0 @@
-glustercli (0.6.2-202005061009~truenas+1) bullseye-truenas-unstable; urgency=medium
-
-  [ Caleb ]
-  * fix peer.detach_all method
-  * prepare for debian apt packaging
-
- -- Caleb <yocalebo@gmail.com>  Mon, 06 Apr 2020 09:28:16 -0400
