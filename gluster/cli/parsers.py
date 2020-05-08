@@ -63,8 +63,7 @@ def parse_volume_info(info):
 
 
 def _parse_a_node(node_el):
-    brick_path = (node_el.find('hostname').text + ":" +
-                  node_el.find('path').text)
+    brick_path = (node_el.find('hostname').text + ":" + node_el.find('path').text)
     value = {
         'name': brick_path,
         'uuid': node_el.find('peerid').text,
@@ -78,7 +77,7 @@ def _parse_a_node(node_el):
         'fs_name': node_el.find('fsName').text,
     }
 
-    # ISSUE #14 glusterfs 3.6.5 does not have 'ports' key 
+    # ISSUE #14 glusterfs 3.6.5 does not have 'ports' key
     # in vol status detail xml output
     if node_el.find('ports'):
         value['ports'] = {
@@ -86,11 +85,10 @@ def _parse_a_node(node_el):
             "rdma": node_el.find('ports').find("rdma").text
         }
     else:
-        value['ports'] = { 
-            "tcp": node_el.find('port') ,
+        value['ports'] = {
+            "tcp": node_el.find('port'),
             "rdma": None
         }
-
 
     return value
 
@@ -441,12 +439,14 @@ def parse_tier_detach(data):
 def parse_tier_status(data):
     raise NotImplementedError("Tier Status")
 
+
 def parse_volume_list(data):
     xml = etree.fromstring(data)
     volumes = []
     for el in xml.findall('volList/volume'):
         volumes.append(el.text)
     return volumes
+
 
 def parse_heal_info(data):
     xml = etree.fromstring(data)
@@ -459,7 +459,6 @@ def parse_heal_info(data):
             'nr_entries': el.find('numberOfEntries').text
         })
     return healinfo
-
 
 
 def parse_heal_statistics(data):
@@ -478,8 +477,9 @@ def parse_snapshot_list(data):
     xml = etree.fromstring(data)
     snapshots = []
     for el in xml.findall('snapList/snapshot'):
-      snapshots.append(el.text)
+        snapshots.append(el.text)
     return snapshots
+
 
 def _parse_a_peer(peer):
     value = {
