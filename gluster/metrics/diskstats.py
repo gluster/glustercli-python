@@ -115,5 +115,4 @@ def local_diskstats(volname=None):
 
         brick.update(diskstat_data.get(brick["device"], default_diskstat))
 
-
     return local_bricks
