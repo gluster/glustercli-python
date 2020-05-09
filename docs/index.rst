@@ -1,8 +1,7 @@
 glustercli-python
 ==================
 
-This is the official python bindings for `GlusterFS <http://www.gluster.org>`_
-CLI.
+Python bindings for `GlusterFS <http://www.gluster.org>`_ CLI.
 
 Hello World
 -----------

@@ -1,13 +1,5 @@
 # -*- coding: utf-8 -*-
-#
-#  Copyright (c) 2016 Red Hat, Inc. <http://www.redhat.com>
-#  This file is part of GlusterFS.
-#
-#  This file is licensed to you under your choice of the GNU Lesser
-#  General Public License, version 3 or any later version (LGPLv3 or
-#  later), or the GNU General Public License, version 2 (GPLv2), in all
-#  cases as published by the Free Software Foundation.
-#
+
 from .utils import georep_execute, georep_execute_xml, gluster_system_execute
 from .parsers import parse_georep_config, parse_georep_status
 from . import volume
