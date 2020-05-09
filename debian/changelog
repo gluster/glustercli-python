@@ -1,0 +1,6 @@
+glustercli (0.7) experimental; urgency=medium
+
+  [ Caleb St. John ]
+  * initial debian package
+
+ -- Caleb <yocalebo@gmail.com>  Sat, 09 May 2020 08:47:46 -0400
