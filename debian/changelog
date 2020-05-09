@@ -1,4 +1,4 @@
-glustercli (0.7+c9bf3ee-1) experimental; urgency=medium
+glustercli (0.7-1) experimental; urgency=medium
 
   [ Caleb St. John ]
   * initial debian package
