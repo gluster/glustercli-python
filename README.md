@@ -18,6 +18,12 @@ volume.start("gv1")
 volume.info("gv1")
 ```
 
+## Install
+
+```
+sudo pip3 install glustercli
+```
+
 ## Documentation
 
 See [Documentation](docs/README.md)
