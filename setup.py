@@ -2,7 +2,7 @@ import os
 import re
 from setuptools import setup
 
-VERSION = "0.7.1"
+VERSION = "0.7"
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
@@ -12,7 +12,7 @@ setup(
     name='glustercli',
     version=VERSION,
     description='Python bindings for GlusterFS CLI and Metrics collection',
-    long_description=read('README.rst'),
+    long_description=read('README.md'),
     license='GPLv2 or LGPLv3+',
     author='Aravinda Vishwanathapura',
     author_email='aravinda@kadalu.io',
