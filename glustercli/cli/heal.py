@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from glustercli.cli.utils import heal_execute, heal_execute_xml, GlusterCmdException
+from glustercli.cli.utils import heal_execute, heal_execute_xml, \
+    GlusterCmdException
 from glustercli.cli.parsers import parse_heal_statistics, parse_heal_info
 
 

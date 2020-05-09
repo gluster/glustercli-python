@@ -31,13 +31,13 @@ def _parse_a_vol(volume_el):
     else:
         value['transport'] = 'TCP,RDMA'
 
-    for b in volume_el.findall('bricks/brick'):
-        value['bricks'].append({"name": b.find("name").text,
-                                "uuid": b.find("hostUuid").text})
+    for brick in volume_el.findall('bricks/brick'):
+        value['bricks'].append({"name": brick.find("name").text,
+                                "uuid": brick.find("hostUuid").text})
 
-    for o in volume_el.findall('options/option'):
-        value['options'].append({"name": o.find('name').text,
-                                 "value": o.find('value').text})
+    for opt in volume_el.findall('options/option'):
+        value['options'].append({"name": opt.find('name').text,
+                                 "value": opt.find('value').text})
 
     return value
 
@@ -45,11 +45,11 @@ def _parse_a_vol(volume_el):
 def parse_volume_info(info):
     tree = etree.fromstring(info)
     volumes = []
-    for el in tree.findall('volInfo/volumes/volume'):
+    for volume_el in tree.findall('volInfo/volumes/volume'):
         try:
-            volumes.append(_parse_a_vol(el))
-        except (ParseError, AttributeError, ValueError) as e:
-            raise GlusterCmdOutputParseError(e)
+            volumes.append(_parse_a_vol(volume_el))
+        except (ParseError, AttributeError, ValueError) as err:
+            raise GlusterCmdOutputParseError(err)
 
     return volumes
 
@@ -88,11 +88,11 @@ def _parse_a_node(node_el):
 def _parse_volume_status(data):
     tree = etree.fromstring(data)
     nodes = []
-    for el in tree.findall('volStatus/volumes/volume/node'):
+    for node_el in tree.findall('volStatus/volumes/volume/node'):
         try:
-            nodes.append(_parse_a_node(el))
-        except (ParseError, AttributeError, ValueError) as e:
-            raise GlusterCmdOutputParseError(e)
+            nodes.append(_parse_a_node(node_el))
+        except (ParseError, AttributeError, ValueError) as err:
+            raise GlusterCmdOutputParseError(err)
 
     return nodes
 
@@ -104,17 +104,17 @@ def parse_volume_status(status_data, volinfo):
         tmp_brick_status[node["name"]] = node
 
     volumes = []
-    for v in volinfo:
-        volumes.append(v.copy())
+    for vol in volinfo:
+        volumes.append(vol.copy())
         volumes[-1]["bricks"] = []
 
-        for b in v["bricks"]:
-            brick_status_data = tmp_brick_status.get(b["name"], None)
+        for brick in vol["bricks"]:
+            brick_status_data = tmp_brick_status.get(brick["name"], None)
             if brick_status_data is None:
                 # Default Status
                 volumes[-1]["bricks"].append({
-                    "name": b["name"],
-                    "uuid": b["uuid"],
+                    "name": brick["name"],
+                    "uuid": brick["uuid"],
                     "online": False,
                     "ports": {"tcp": "N/A", "rdma": "N/A"},
                     "pid": "N/A",
@@ -131,15 +131,15 @@ def parse_volume_status(status_data, volinfo):
     return volumes
 
 
-def _parse_profile_info_clear(el):
+def _parse_profile_info_clear(volume_el):
     clear = {
-        'volname': el.find('volname').text,
+        'volname': volume_el.find('volname').text,
         'bricks': []
     }
 
-    for b in el.findall('brick'):
-        clear['bricks'].append({'brick_name': b.find('brickName').text,
-                                'clear_stats': b.find('clearStats').text})
+    for brick_el in volume_el.findall('brick'):
+        clear['bricks'].append({'brick_name': brick_el.find('brickName').text,
+                                'clear_stats': brick_el.find('clearStats').text})
 
     return clear
 
@@ -162,22 +162,27 @@ def _bytes_size(size):
 
 def _parse_profile_block_stats(b_el):
     stats = []
-    for b in b_el.findall('block'):
-        size = _bytes_size(int(b.find('size').text))
-        stats.append({size: {'reads': int(b.find('reads').text),
-                             'writes': int(b.find('writes').text)}})
+    for block_el in b_el.findall('block'):
+        size = _bytes_size(int(block_el.find('size').text))
+        stats.append({size: {'reads': int(block_el.find('reads').text),
+                             'writes': int(block_el.find('writes').text)}})
     return stats
 
 
 def _parse_profile_fop_stats(fop_el):
     stats = []
-    for f in fop_el.findall('fop'):
-        name = f.find('name').text
-        stats.append({name: {'hits': int(f.find('hits').text),
-                             'max_latency': float(f.find('maxLatency').text),
-                             'min_latency': float(f.find('minLatency').text),
-                             'avg_latency': float(f.find('avgLatency').text),
-                             }})
+    for fop in fop_el.findall('fop'):
+        name = fop.find('name').text
+        stats.append(
+            {
+                name: {
+                    'hits': int(fop.find('hits').text),
+                    'max_latency': float(fop.find('maxLatency').text),
+                    'min_latency': float(fop.find('minLatency').text),
+                    'avg_latency': float(fop.find('avgLatency').text),
+                }
+            }
+        )
     return stats
 
 
@@ -197,18 +202,28 @@ def _parse_profile_bricks(brick_el):
     brick_name = brick_el.find('brickName').text
 
     if brick_el.find('cumulativeStats') is not None:
-        cumulative_block_stats = _parse_profile_block_stats(brick_el.find('cumulativeStats/blockStats'))
-        cumulative_fop_stats = _parse_profile_fop_stats(brick_el.find('cumulativeStats/fopStats'))
-        cumulative_total_read_bytes = int(brick_el.find('cumulativeStats').find('totalRead').text)
-        cumulative_total_write_bytes = int(brick_el.find('cumulativeStats').find('totalWrite').text)
-        cumulative_total_duration = int(brick_el.find('cumulativeStats').find('duration').text)
+        cumulative_block_stats = _parse_profile_block_stats(
+            brick_el.find('cumulativeStats/blockStats'))
+        cumulative_fop_stats = _parse_profile_fop_stats(
+            brick_el.find('cumulativeStats/fopStats'))
+        cumulative_total_read_bytes = int(
+            brick_el.find('cumulativeStats').find('totalRead').text)
+        cumulative_total_write_bytes = int(
+            brick_el.find('cumulativeStats').find('totalWrite').text)
+        cumulative_total_duration = int(
+            brick_el.find('cumulativeStats').find('duration').text)
 
     if brick_el.find('intervalStats') is not None:
-        interval_block_stats = _parse_profile_block_stats(brick_el.find('intervalStats/blockStats'))
-        interval_fop_stats = _parse_profile_fop_stats(brick_el.find('intervalStats/fopStats'))
-        interval_total_read_bytes = int(brick_el.find('intervalStats').find('totalRead').text)
-        interval_total_write_bytes = int(brick_el.find('intervalStats').find('totalWrite').text)
-        interval_total_duration = int(brick_el.find('intervalStats').find('duration').text)
+        interval_block_stats = _parse_profile_block_stats(
+            brick_el.find('intervalStats/blockStats'))
+        interval_fop_stats = _parse_profile_fop_stats(
+            brick_el.find('intervalStats/fopStats'))
+        interval_total_read_bytes = int(
+            brick_el.find('intervalStats').find('totalRead').text)
+        interval_total_write_bytes = int(
+            brick_el.find('intervalStats').find('totalWrite').text)
+        interval_total_duration = int(
+            brick_el.find('intervalStats').find('duration').text)
 
     profile_brick = {
         'brick_name': brick_name,
@@ -227,30 +242,30 @@ def _parse_profile_bricks(brick_el):
     return profile_brick
 
 
-def _parse_profile_info(el):
+def _parse_profile_info(volume_el):
     profile = {
-        'volname': el.find('volname').text,
+        'volname': volume_el.find('volname').text,
         'bricks': []
     }
 
-    for b in el.findall('brick'):
-        profile['bricks'].append(_parse_profile_bricks(b))
+    for brick_el in volume_el.findall('brick'):
+        profile['bricks'].append(_parse_profile_bricks(brick_el))
 
     return profile
 
 
-def parse_volume_profile_info(info, op):
+def parse_volume_profile_info(info, opt):
     xml = etree.fromstring(info)
     profiles = []
-    for el in xml.findall('volProfile'):
+    for prof_el in xml.findall('volProfile'):
         try:
-            if op == "clear":
-                profiles.append(_parse_profile_info_clear(el))
+            if opt == "clear":
+                profiles.append(_parse_profile_info_clear(prof_el))
             else:
-                profiles.append(_parse_profile_info(el))
+                profiles.append(_parse_profile_info(prof_el))
 
-        except (ParseError, AttributeError, ValueError) as e:
-            raise GlusterCmdOutputParseError(e)
+        except (ParseError, AttributeError, ValueError) as err:
+            raise GlusterCmdOutputParseError(err)
 
     return profiles
 
@@ -310,13 +325,13 @@ def parse_georep_status(data, volinfo):
                         "checkpoint_completion_time":
                         pair.find("checkpoint_completion_time").text
                     }
-    except (ParseError, AttributeError, ValueError) as e:
-        raise GlusterCmdOutputParseError(e)
+    except (ParseError, AttributeError, ValueError) as err:
+        raise GlusterCmdOutputParseError(err)
 
     # Get List of Bricks for each Volume
     all_bricks = {}
-    for vi in volinfo:
-        all_bricks[vi["name"]] = vi["bricks"]
+    for vol in volinfo:
+        all_bricks[vol["name"]] = vol["bricks"]
 
     # For Each session Get Bricks info for the Volume and Populate
     # Geo-rep status for that Brick
@@ -384,10 +399,11 @@ def parse_georep_config(data):
 def parse_remove_brick_status(status):
     tree = etree.fromstring(status)
 
-    result = {'nodes': [], 'aggregate': _parse_remove_aggregate(tree.find('volRemoveBrick/aggregate'))}
+    result = {'nodes': [], 'aggregate': _parse_remove_aggregate(
+        tree.find('volRemoveBrick/aggregate'))}
 
-    for el in tree.findall('volRemoveBrick/node'):
-        result['nodes'].append(_parse_remove_node(el))
+    for node_el in tree.findall('volRemoveBrick/node'):
+        result['nodes'].append(_parse_remove_node(node_el))
 
     return result
 
@@ -435,20 +451,20 @@ def parse_tier_status(data):
 def parse_volume_list(data):
     xml = etree.fromstring(data)
     volumes = []
-    for el in xml.findall('volList/volume'):
-        volumes.append(el.text)
+    for volume_el in xml.findall('volList/volume'):
+        volumes.append(volume_el.text)
     return volumes
 
 
 def parse_heal_info(data):
     xml = etree.fromstring(data)
     healinfo = []
-    for el in xml.findall('healInfo/bricks/brick'):
+    for brick_el in xml.findall('healInfo/bricks/brick'):
         healinfo.append({
-            'name': el.find('name').text,
-            'status': el.find('status').text,
-            'host_uuid': el.attrib['hostUuid'],
-            'nr_entries': el.find('numberOfEntries').text
+            'name': brick_el.find('name').text,
+            'status': brick_el.find('status').text,
+            'host_uuid': brick_el.attrib['hostUuid'],
+            'nr_entries': brick_el.find('numberOfEntries').text
         })
     return healinfo
 
@@ -468,8 +484,8 @@ def parse_snapshot_info(data):
 def parse_snapshot_list(data):
     xml = etree.fromstring(data)
     snapshots = []
-    for el in xml.findall('snapList/snapshot'):
-        snapshots.append(el.text)
+    for snap_el in xml.findall('snapList/snapshot'):
+        snapshots.append(snap_el.text)
     return snapshots
 
 
@@ -491,11 +507,11 @@ def _parse_a_peer(peer):
 def parse_peer_status(data):
     tree = etree.fromstring(data)
     peers = []
-    for el in tree.findall('peerStatus/peer'):
+    for peer_el in tree.findall('peerStatus/peer'):
         try:
-            peers.append(_parse_a_peer(el))
-        except (ParseError, AttributeError, ValueError) as e:
-            raise GlusterCmdOutputParseError(e)
+            peers.append(_parse_a_peer(peer_el))
+        except (ParseError, AttributeError, ValueError) as err:
+            raise GlusterCmdOutputParseError(err)
 
     return peers
 
@@ -503,10 +519,10 @@ def parse_peer_status(data):
 def parse_pool_list(data):
     tree = etree.fromstring(data)
     pools = []
-    for el in tree.findall('peerStatus/peer'):
+    for peer_el in tree.findall('peerStatus/peer'):
         try:
-            pools.append(_parse_a_peer(el))
-        except (ParseError, AttributeError, ValueError) as e:
-            raise GlusterCmdOutputParseError(e)
+            pools.append(_parse_a_peer(peer_el))
+        except (ParseError, AttributeError, ValueError) as err:
+            raise GlusterCmdOutputParseError(err)
 
     return pools

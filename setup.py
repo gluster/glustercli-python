@@ -18,6 +18,7 @@ setup(
     author_email='aravinda@kadalu.io',
     url='https://github.com/gluster/glustercli-python',
     packages=["glustercli", "glustercli.cli", "glustercli.metrics"],
+    install_requires=["paramiko"],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

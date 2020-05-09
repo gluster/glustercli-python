@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from glustercli.cli.utils import bitrot_execute, bitrot_execute_xml, GlusterCmdException
+from glustercli.cli.utils import bitrot_execute, bitrot_execute_xml, \
+    GlusterCmdException
 from glustercli.cli.parsers import parse_bitrot_scrub_status
 
 THROTTLE_TYPES = ["lazy", "normal", "aggressive"]

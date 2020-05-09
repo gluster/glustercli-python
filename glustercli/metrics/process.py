@@ -1,6 +1,6 @@
 import subprocess
 
-glustercli.metrics import cmdlineparser
+from glustercli.metrics import cmdlineparser
 
 GLUSTER_PROCS = [
     "glusterd",
@@ -15,8 +15,8 @@ GLUSTER_PROCS = [
 def get_cmdline(pid):
     args = []
     try:
-        with open("/proc/{0}/cmdline".format(pid), "r") as f:
-            args = f.read().strip("\x00").split("\x00")
+        with open("/proc/{0}/cmdline".format(pid), "r") as cmdline_file:
+            args = cmdline_file.read().strip("\x00").split("\x00")
     except IOError:
         pass
 
@@ -43,10 +43,12 @@ def local_processes():
            "-C",
            ",".join(GLUSTER_PROCS)]
 
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, _ = p.communicate()
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            universal_newlines=True)
+    out, _ = proc.communicate()
     # No records in `ps` output
-    if p.returncode != 0:
+    if proc.returncode != 0:
         return details
 
     data = out.strip()
@@ -55,7 +57,7 @@ def local_processes():
         # Sample data:
         # 6959  0.0  0.6 12840 713660  504076 glusterfs
         try:
-            pid, pcpu, pmem, rsz, vsz, etimes, comm = line.strip().split()
+            pid, pcpu, pmem, rsz, vsz, etimes, _ = line.strip().split()
         except ValueError:
             # May be bad ps output, for example
             # 30916  0.0  0.0     0      0       7 python <defunct>

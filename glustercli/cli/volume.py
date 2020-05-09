@@ -10,11 +10,11 @@ from glustercli.cli.parsers import (parse_volume_info,
 
 # Following import are not used in this file, but imported to make
 # it available via volume.(noqa to ignore in pep8 check)
-from glustercli.cli import bitrot     # noqa
-from glustercli.cli import bricks     # noqa
-from glustercli.cli import heal       # noqa
-from glustercli.cli import quota      # noqa
-from glustercli.cli import rebalance  # noqa
+from glustercli.cli import bitrot     # noqa # pylint: disable=unused-import
+from glustercli.cli import bricks     # noqa # pylint: disable=unused-import
+from glustercli.cli import heal       # noqa # pylint: disable=unused-import
+from glustercli.cli import quota      # noqa # pylint: disable=unused-import
+from glustercli.cli import rebalance  # noqa # pylint: disable=unused-import
 
 
 LOCK_KINDS = ["blocked", "granted", "all"]
@@ -87,6 +87,7 @@ def delete(volname):
     return volume_execute(cmd)
 
 
+# noqa # pylint: disable=too-many-arguments
 def create(volname, volbricks, replica=0, stripe=0, arbiter=0, disperse=0,
            disperse_data=0, redundancy=0, transport="tcp", force=False):
     """
@@ -256,6 +257,7 @@ def sync(hostname, volname=None):
     return volume_execute(cmd)
 
 
+# noqa # pylint: disable=too-many-arguments
 def clear_locks(volname, path, kind, inode_range=None,
                 entry_basename=None, posix_range=None):
     """
@@ -334,27 +336,31 @@ def profile_stop(volname):
     return volume_execute(cmd)
 
 
-def profile_info(volname, op, peek=False):
+def profile_info(volname, opt, peek=False):
     """
     Get Profile info
 
     :param volname: Volume Name
-    :param op: Operation type of info,
+    :param opt: Operation type of info,
      like peek, incremental, cumulative, clear
     :param peek: Use peek or not, default is False
     :return: Return profile info, raises
      GlusterCmdException((rc, out, err)) on error
     """
 
-    if op.lower() not in INFO_OPS:
-        raise GlusterCmdException((-1, "",
-                                   "Invalid Info Operation Type, use peek, incremental, cumulative, clear"))
-    cmd = ["profile", volname, "info", op.lower()]
+    if opt.lower() not in INFO_OPS:
+        raise GlusterCmdException((
+            -1,
+            "",
+            "Invalid Info Operation Type, use peek, "
+            "incremental, cumulative, clear"
+        ))
+    cmd = ["profile", volname, "info", opt.lower()]
 
-    if op.lower() == INFO_OPS[1] and peek:
+    if opt.lower() == INFO_OPS[1] and peek:
         cmd += ["peek"]
 
-    return parse_volume_profile_info(volume_execute_xml(cmd), op)
+    return parse_volume_profile_info(volume_execute_xml(cmd), opt)
 
 # TODO: Pending Wrappers
 # volume statedump <VOLNAME> [nfs|quotad] [all|mem|iobuf|

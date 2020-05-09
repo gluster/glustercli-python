@@ -4,7 +4,8 @@ from glustercli.cli.utils import volume_execute, volume_execute_xml
 from glustercli.cli.parsers import parse_remove_brick_status
 
 
-def add(volname, bricks, stripe=None, replica=None, arbiter=None, force=False):
+def add(volname, bricks, stripe=None, replica=None,
+        arbiter=None, force=False):
     """
     Add Bricks
 

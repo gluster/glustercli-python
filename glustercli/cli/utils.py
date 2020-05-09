@@ -25,14 +25,14 @@ def ssh_connection(hostname, pem_file):
 def execute(cmd):
     global prev_ssh_host, prev_ssh_pem_file
 
-    c = []
-    c.append(GLUSTERCMD)
+    cmd_args = []
+    cmd_args.append(GLUSTERCMD)
 
     if GLUSTERD_SOCKET:
-        c.append("--glusterd-sock={0}".format(GLUSTERD_SOCKET))
+        cmd_args.append("--glusterd-sock={0}".format(GLUSTERD_SOCKET))
 
-    c.append("--mode=script")
-    c += cmd
+    cmd_args.append("--mode=script")
+    cmd_args += cmd
 
     if SSH_HOST is not None and SSH_PEM_FILE is not None:
         # Reconnect only if first time or previously connected to different
@@ -43,16 +43,16 @@ def execute(cmd):
             prev_ssh_host = SSH_HOST
             prev_ssh_pem_file = SSH_PEM_FILE
 
-        c = " ".join(c)
-        stdin, stdout, stderr = ssh.exec_command(c)
-        rc = stdout.channel.recv_exit_status()
-        return (rc, stdout.read().strip(), stderr.read().strip())
-    else:
-        p = subprocess.Popen(c, stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE,
-                             universal_newlines=True)
-        out, err = p.communicate()
-        return (p.returncode, out, err)
+        cmd_args = " ".join(cmd_args)
+        _, stdout, stderr = ssh.exec_command(cmd_args)
+        returncode = stdout.channel.recv_exit_status()
+        return (returncode, stdout.read().strip(), stderr.read().strip())
+
+    proc = subprocess.Popen(cmd_args, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            universal_newlines=True)
+    out, err = proc.communicate()
+    return (proc.returncode, out, err)
 
 
 class GlusterCmdException(Exception):
@@ -73,16 +73,17 @@ def set_ssh_host(hostname):
 def __connect_ssh():
     global ssh
 
-    import paramiko
+    import paramiko  # noqa # pylint: disable=import-outside-toplevel
 
     if ssh is None:
         ssh = paramiko.SSHClient()
         try:
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(SSH_HOST, username="root", key_filename=SSH_PEM_FILE)
-        except paramiko.ssh_exception.AuthenticationException as e:
+        except paramiko.ssh_exception.AuthenticationException as err:
             raise GlusterCmdException("Unable to establish SSH connection "
-                                      "to root@{0}:\n{1}".format(SSH_HOST, e))
+                                      "to root@{0}:\n{1}".format(
+                                          SSH_HOST, err))
 
 
 def set_gluster_path(path):
@@ -96,9 +97,9 @@ def set_gluster_socket(path):
 
 
 def execute_or_raise(cmd):
-    rc, out, err = execute(cmd)
-    if rc != 0:
-        raise GlusterCmdException((rc, out, err))
+    returncode, out, err = execute(cmd)
+    if returncode != 0:
+        raise GlusterCmdException((returncode, out, err))
 
     return out.strip()
 

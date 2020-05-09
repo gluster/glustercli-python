@@ -4,7 +4,7 @@ import subprocess
 from glustercli.metrics.utils import get_local_bricks
 
 
-default_diskstat = {
+DEFAULT_DISKSTAT = {
     "major_number": 0,
     "minor_number": 0,
     "reads_completed": 0,
@@ -53,8 +53,8 @@ def local_diskstats(volname=None):
     cmd = ["df", "--output=source"]
 
     diskstat_data_raw = ""
-    with open("/proc/diskstats") as f:
-        diskstat_data_raw = f.read()
+    with open("/proc/diskstats") as stat_file:
+        diskstat_data_raw = stat_file.read()
 
     # /proc/diskstats fields
     #  1 - major number
@@ -72,37 +72,40 @@ def local_diskstats(volname=None):
     # 13 - time spent doing I/Os (ms)
     # 14 - weighted time spent doing I/Os (ms)
     diskstat_data = {}
-    for d in diskstat_data_raw.strip().split("\n"):
-        d = d.split()
-        if not d:
+    for row in diskstat_data_raw.strip().split("\n"):
+        row = row.split()
+        if not row:
             continue
 
-        diskstat_data[d[2]] = {
-            "major_number": d[0],
-            "minor_number": d[1],
-            "reads_completed": d[3],
-            "reads_merged": d[4],
-            "sectors_read": d[5],
-            "time_spent_reading": d[6],
-            "writes_completed": d[7],
-            "writes_merged": d[8],
-            "sectors_written": d[9],
-            "time_spent_writing": d[10],
-            "ios_currently_in_progress": d[11],
-            "time_spent_doing_ios": d[12],
-            "weighted_time_spent_doing_ios": d[13]
+        diskstat_data[row[2]] = {
+            "major_number": row[0],
+            "minor_number": row[1],
+            "reads_completed": row[3],
+            "reads_merged": row[4],
+            "sectors_read": row[5],
+            "time_spent_reading": row[6],
+            "writes_completed": row[7],
+            "writes_merged": row[8],
+            "sectors_written": row[9],
+            "time_spent_writing": row[10],
+            "ios_currently_in_progress": row[11],
+            "time_spent_doing_ios": row[12],
+            "weighted_time_spent_doing_ios": row[13]
         }
 
     for brick in local_bricks:
         bpath = brick["brick"].split(":", 1)[-1]
-        p = subprocess.Popen(cmd + [bpath], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, _ = p.communicate()
+        proc = subprocess.Popen(cmd + [bpath],
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                                universal_newlines=True)
+        out, _ = proc.communicate()
 
         # `df` command error
-        if p.returncode != 0:
+        if proc.returncode != 0:
             brick["fs"] = "unknown"
             brick["device"] = "unknown"
-            brick.update(default_diskstat)
+            brick.update(DEFAULT_DISKSTAT)
             continue
 
         df_data = out.strip()
@@ -113,6 +116,6 @@ def local_diskstats(volname=None):
         else:
             brick["device"] = df_data.split("/")[-1]
 
-        brick.update(diskstat_data.get(brick["device"], default_diskstat))
+        brick.update(diskstat_data.get(brick["device"], DEFAULT_DISKSTAT))
 
     return local_bricks

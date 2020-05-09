@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from glustercli.cli.utils import peer_execute, peer_execute_xml, gluster_execute_xml, GlusterCmdException
+from glustercli.cli.utils import peer_execute, peer_execute_xml, \
+    gluster_execute_xml, GlusterCmdException
 from glustercli.cli.parsers import parse_peer_status, parse_pool_list
 
 
@@ -49,21 +50,21 @@ def detach_all():
     peers = parse_peer_status(peer_execute_xml(["status"]))
     errors_list = []
     outlist = []
-    if len(peers) > 0:
+    if peers:
         for peer in peers:
             host = peer["hostname"]
             if peer["connected"] == "Connected":
                 cmd = ["detach", host]
                 try:
                     result = peer_execute(cmd)
-                    out = str(host) + " " + result.decode()
+                    out = host + " " + result
                     outlist.append(out)
                 except Exception as err:
                     errors_list.append(err)
             else:
-                err = str(host) + " is not connected"
+                err = host + " is not connected"
                 errors_list.append(err)
-    if len(errors_list):
+    if errors_list:
         raise GlusterCmdException((1, "", errors_list))
     return "\n".join(outlist)
 

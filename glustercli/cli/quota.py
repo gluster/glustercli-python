@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from glustercli.cli.utils import quota_execute, quota_execute_xml, volume_execute
-from glustercli.cli.parsers import parse_quota_list_paths, parse_quota_list_objects
+from glustercli.cli.utils import quota_execute, quota_execute_xml, \
+    volume_execute
+from glustercli.cli.parsers import parse_quota_list_paths, \
+    parse_quota_list_objects
 
 
 def inode_quota_enable(volname):
@@ -40,6 +42,7 @@ def disable(volname):
     return quota_execute(cmd)
 
 
+# noqa # pylint: disable=dangerous-default-value
 def list_paths(volname, paths=[]):
     """
     Get Quota List
@@ -53,6 +56,7 @@ def list_paths(volname, paths=[]):
     return parse_quota_list_paths(quota_execute_xml(cmd))
 
 
+# noqa # pylint: disable=dangerous-default-value
 def list_objects(volname, paths=[]):
     """
     Get Quota Objects List
@@ -139,7 +143,7 @@ def limit_objects(volname, path, num, percent=None):
     return quota_execute(cmd)
 
 
-def alert_time(volname, alert_time):
+def alert_time(volname, a_time):
     """
     Set Alert Time
 
@@ -148,7 +152,7 @@ def alert_time(volname, alert_time):
     :returns: Output of the command, raises
      GlusterCmdException((rc, out, err)) on error
     """
-    cmd = [volname, "alert-time", "{0}".format(alert_time)]
+    cmd = [volname, "alert-time", "{0}".format(a_time)]
     return quota_execute(cmd)
 
 

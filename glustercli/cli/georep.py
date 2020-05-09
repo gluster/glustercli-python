@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from glustercli.cli.utils import georep_execute, georep_execute_xml, gluster_system_execute
-from glustercli.cli.parsers import parse_georep_config, parse_georep_status
+from glustercli.cli.utils import georep_execute, georep_execute_xml, \
+    gluster_system_execute
+from glustercli.cli.parsers import parse_georep_config, \
+    parse_georep_status
 from glustercli.cli import volume
 
 
@@ -20,6 +22,7 @@ def gsec_create(ssh_key_prefix=True):
     return gluster_system_execute(cmd)
 
 
+# noqa # pylint: disable=too-many-arguments
 def create(volname, slave_host, slave_vol, slave_user="root",
            push_pem=True, no_verify=False, force=False, ssh_port=22):
     """

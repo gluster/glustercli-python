@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 import socket
 
-import utils
+from glustercli.metrics import utils
 
 
 def _hostname():
@@ -21,7 +21,7 @@ def parse_cmdline_glusterfsd(args):
     parser.add_argument("-s", dest="server")
     parser.add_argument("--volfile-id")
     parser.add_argument("--brick-name")
-    pargs, unknown = parser.parse_known_args(args)
+    pargs, _ = parser.parse_known_args(args)
 
     return {
         "name": "glusterfsd",
@@ -41,8 +41,11 @@ def parse_cmdline_glustershd(args):
 def parse_cmdline_python(args):
     if len(args) > 1 and "glustereventsd" in args[1]:
         return parse_cmdline_glustereventsd(args)
-    elif len(args) > 1 and "gsyncd" in args[1]:
+
+    if len(args) > 1 and "gsyncd" in args[1]:
         return parse_cmdline_gsyncd(args)
+
+    return {}
 
 
 def parse_cmdline_gsyncd(args):
