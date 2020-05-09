@@ -47,6 +47,7 @@ def detach(host):
     cmd = ["detach", host]
     return peer_execute(cmd)
 
+
 def detach_all():
     """
     Removes All Hosts from Cluster
@@ -61,19 +62,20 @@ def detach_all():
         for peer in peers:
             host = peer["hostname"]
             if peer["connected"] == "Connected":
-                cmd = ["detach",host]
+                cmd = ["detach", host]
                 try:
                     result = peer_execute(cmd)
-                    out = str(host)+" "+result
+                    out = str(host) + " " + result.decode()
                     outlist.append(out)
                 except Exception as err:
                     errors_list.append(err)
             else:
-                err = str(host)+" is not connected"
+                err = str(host) + " is not connected"
                 errors_list.append(err)
     if len(errors_list):
         raise GlusterCmdException((1, "", errors_list))
-    return "/n".join(outlist)
+    return "\n".join(outlist)
+
 
 def status():
     """
