@@ -1,8 +1,8 @@
 import os
 import re
-from setuptools import setup, find_packages
+from setuptools import setup
 
-VERSION = 0.6
+VERSION = "0.7"
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
@@ -12,12 +12,13 @@ setup(
     name='glustercli',
     version=VERSION,
     description='Python bindings for GlusterFS CLI and Metrics collection',
-    long_description=read('README.rst'),
+    long_description=read('README.md'),
     license='GPLv2 or LGPLv3+',
     author='Aravinda Vishwanathapura',
     author_email='aravinda@kadalu.io',
     url='https://github.com/gluster/glustercli-python',
-    packages=find_packages(),
+    packages=["glustercli", "glustercli.cli", "glustercli.metrics"],
+    install_requires=["paramiko"],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
