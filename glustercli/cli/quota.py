@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from .utils import quota_execute, quota_execute_xml, volume_execute
-from .parsers import parse_quota_list_paths, parse_quota_list_objects
+from glustercli.cli.utils import quota_execute, quota_execute_xml, volume_execute
+from glustercli.cli.parsers import parse_quota_list_paths, parse_quota_list_objects
 
 
 def inode_quota_enable(volname):

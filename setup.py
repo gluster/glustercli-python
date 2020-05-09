@@ -1,8 +1,8 @@
 import os
 import re
-from setuptools import setup, find_packages
+from setuptools import setup
 
-VERSION = 0.6
+VERSION = "0.7.1"
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
@@ -17,7 +17,7 @@ setup(
     author='Aravinda Vishwanathapura',
     author_email='aravinda@kadalu.io',
     url='https://github.com/gluster/glustercli-python',
-    packages=find_packages(),
+    packages=["glustercli", "glustercli.cli", "glustercli.metrics"],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

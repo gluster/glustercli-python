@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from .utils import snapshot_execute, snapshot_execute_xml
-from .parsers import (parse_snapshot_status,
-                      parse_snapshot_info,
-                      parse_snapshot_list)
+from glustercli.cli.utils import snapshot_execute, snapshot_execute_xml
+from glustercli.cli.parsers import (parse_snapshot_status,
+                                    parse_snapshot_info,
+                                    parse_snapshot_list)
 
 
 def activate(snapname, force=False):

@@ -1,6 +1,6 @@
 import subprocess
 
-import cmdlineparser
+glustercli.metrics import cmdlineparser
 
 GLUSTER_PROCS = [
     "glusterd",

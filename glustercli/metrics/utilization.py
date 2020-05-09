@@ -1,6 +1,6 @@
 import os
 
-from utils import get_local_bricks
+from glustercli.metrics.utils import get_local_bricks
 
 
 def local_utilization(volname=None):

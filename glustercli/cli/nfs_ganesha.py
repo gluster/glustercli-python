@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .utils import gluster_execute
+from glustercli.cli.utils import gluster_execute
 
 
 def enable():

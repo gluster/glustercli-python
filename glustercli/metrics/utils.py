@@ -1,4 +1,4 @@
-from gluster.cli import volume
+from glustercli.cli import volume
 
 UUID_FILE = "/var/lib/glusterd/glusterd.info"
 

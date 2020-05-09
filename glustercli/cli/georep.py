@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from .utils import georep_execute, georep_execute_xml, gluster_system_execute
-from .parsers import parse_georep_config, parse_georep_status
-from . import volume
+from glustercli.cli.utils import georep_execute, georep_execute_xml, gluster_system_execute
+from glustercli.cli.parsers import parse_georep_config, parse_georep_status
+from glustercli.cli import volume
 
 
 def gsec_create(ssh_key_prefix=True):

@@ -48,7 +48,9 @@ def execute(cmd):
         rc = stdout.channel.recv_exit_status()
         return (rc, stdout.read().strip(), stderr.read().strip())
     else:
-        p = subprocess.Popen(c, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen(c, stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE,
+                             universal_newlines=True)
         out, err = p.communicate()
         return (p.returncode, out, err)
 

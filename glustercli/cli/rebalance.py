@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from .utils import volume_execute, volume_execute_xml
-from .parsers import parse_rebalance_status
+from glustercli.cli.utils import volume_execute, volume_execute_xml
+from glustercli.cli.parsers import parse_rebalance_status
 
 
 def fix_layout_start(volname):

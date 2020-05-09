@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from .utils import peer_execute, peer_execute_xml, gluster_execute_xml, GlusterCmdException
-from .parsers import parse_peer_status, parse_pool_list
+from glustercli.cli.utils import peer_execute, peer_execute_xml, gluster_execute_xml, GlusterCmdException
+from glustercli.cli.parsers import parse_peer_status, parse_pool_list
 
 
 def probe(host):

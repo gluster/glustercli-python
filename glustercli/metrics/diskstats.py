@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-from utils import get_local_bricks
+from glustercli.metrics.utils import get_local_bricks
 
 
 default_diskstat = {

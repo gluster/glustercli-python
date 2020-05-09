@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from .utils import heal_execute, heal_execute_xml, GlusterCmdException
-from .parsers import parse_heal_statistics, parse_heal_info
+from glustercli.cli.utils import heal_execute, heal_execute_xml, GlusterCmdException
+from glustercli.cli.parsers import parse_heal_statistics, parse_heal_info
 
 
 HEAL_INFO_TYPES = ["healed", "heal-failed", "split-brain"]
