@@ -1,35 +1,20 @@
-#!/usr/bin/python
-#
-# Copyright (c) 2016 Red Hat, Inc.
-#
-# This file is part of libgfapi-python project which is a
-# subproject of GlusterFS ( www.gluster.org)
-#
-# This file is licensed to you under your choice of the GNU Lesser
-# General Public License, version 3 or any later version (LGPLv3 or
-# later), or the GNU General Public License, version 2 (GPLv2), in all
-# cases as published by the Free Software Foundation.
-
 import os
 import re
-from setuptools import setup, find_packages
+from setuptools import setup
 
-VERSION = 0.6
-
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+VERSION = "0.7"
 
 
 setup(
     name='glustercli',
     version=VERSION,
     description='Python bindings for GlusterFS CLI and Metrics collection',
-    long_description=read('README.rst'),
     license='GPLv2 or LGPLv3+',
-    author='Red Hat, Inc.',
-    author_email='gluster-devel@gluster.org',
-    url='http://www.gluster.org',
-    packages=find_packages(),
+    author='Aravinda Vishwanathapura',
+    author_email='aravinda@kadalu.io',
+    url='https://github.com/gluster/glustercli-python',
+    packages=["glustercli", "glustercli.cli", "glustercli.metrics"],
+    install_requires=["paramiko"],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
