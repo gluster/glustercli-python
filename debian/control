@@ -1,0 +1,24 @@
+Source: glustercli
+Maintainer: Caleb <yocalebo@gmail.com>
+Section: python
+Priority: optional
+Build-Depends: dh-python, python3-setuptools, python3-all, debhelper (>= 12)
+Standards-Version: 4.3.0
+
+
+
+
+
+Package: python3-glustercli
+Architecture: all
+Depends: ${misc:Depends}, ${python3:Depends}
+Description: Python bindings for GlusterFS CLI and Metrics collection
+ glustercli-python
+ ------------------
+ .
+ This is the official python bindings for the
+ `GlusterFS <http://www.gluster.org/>`_ CLI.
+ .
+ Complete API reference and documentation can be found at
+ `ReadTheDocs <http://glustercli-python.readthedocs.io/>`_.
+ .
