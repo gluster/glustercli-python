@@ -136,11 +136,12 @@ def create(volname, volbricks, replica=0, stripe=0, arbiter=0, disperse=0,
     return volume_execute(cmd)
 
 
-def info(volname=None):
+def info(volname=None, group_subvols=False):
     """
     Get Gluster Volume Info
 
     :param volname: Volume Name
+    :param group_subvols: Show Subvolume Information in Groups
     :returns: Returns Volume Info, raises
      GlusterCmdException((rc, out, err)) on error
     """
@@ -148,14 +149,16 @@ def info(volname=None):
     if volname is not None:
         cmd += [volname]
 
-    return parse_volume_info(volume_execute_xml(cmd))
+    return parse_volume_info(volume_execute_xml(cmd),
+                             group_subvols=group_subvols)
 
 
-def status_detail(volname=None):
+def status_detail(volname=None, group_subvols=False):
     """
     Get Gluster Volume Status
 
     :param volname: Volume Name
+    :param group_subvols: Show Subvolume Information in Groups
     :returns: Returns Volume Status, raises
      GlusterCmdException((rc, out, err)) on error
     """
@@ -165,7 +168,9 @@ def status_detail(volname=None):
     else:
         cmd += ["all", "detail"]
 
-    return parse_volume_status(volume_execute_xml(cmd), info(volname))
+    return parse_volume_status(volume_execute_xml(cmd),
+                               info(volname),
+                               group_subvols=group_subvols)
 
 
 def optset(volname, opts):
