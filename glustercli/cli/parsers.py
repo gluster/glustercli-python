@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import copy
 import xml.etree.cElementTree as etree
 
 ParseError = etree.ParseError if hasattr(etree, 'ParseError') else SyntaxError
@@ -19,6 +19,8 @@ def _parse_a_vol(volume_el):
         'distribute': int(volume_el.find('distCount').text),
         'stripe': int(volume_el.find('stripeCount').text),
         'replica': int(volume_el.find('replicaCount').text),
+        'disperse': int(volume_el.find('disperseCount').text),
+        'disperse_redundancy': int(volume_el.find('redundancyCount').text),
         'transport': volume_el.find('transport').text,
         'bricks': [],
         'options': []
@@ -32,8 +34,15 @@ def _parse_a_vol(volume_el):
         value['transport'] = 'TCP,RDMA'
 
     for brick in volume_el.findall('bricks/brick'):
-        value['bricks'].append({"name": brick.find("name").text,
-                                "uuid": brick.find("hostUuid").text})
+        brick_type = "Brick"
+        if brick.find("isArbiter").text == '1':
+            brick_type = "Arbiter"
+
+        value['bricks'].append({
+            "name": brick.find("name").text,
+            "uuid": brick.find("hostUuid").text,
+            "type": brick_type
+        })
 
     for opt in volume_el.findall('options/option'):
         value['options'].append({"name": opt.find('name').text,
@@ -42,7 +51,47 @@ def _parse_a_vol(volume_el):
     return value
 
 
-def parse_volume_info(info):
+def _get_subvol_bricks_count(replica_count, disperse_count):
+    if replica_count > 1:
+        return replica_count
+
+    if disperse_count > 0:
+        return disperse_count
+
+    return 1
+
+
+def _group_subvols(volumes):
+    out_volumes = copy.deepcopy(volumes)
+    for idx, vol in enumerate(volumes):
+        # Remove Bricks information from the output
+        # and include subvols
+        del out_volumes[idx]["bricks"]
+        out_volumes[idx]["subvols"] = []
+        subvol_type = vol["type"].split("_")[-1]
+        subvol_bricks_count = _get_subvol_bricks_count(vol["replica"],
+                                                       vol["disperse"])
+
+        number_of_subvols = int(len(vol["bricks"]) / subvol_bricks_count)
+
+        for sidx in range(number_of_subvols):
+            subvol = {
+                "name": "%s-%s-%s" % (vol["name"], subvol_type.lower(), sidx),
+                "replica": vol["replica"],
+                "disperse": vol["disperse"],
+                "type": subvol_type,
+                "bricks": []
+            }
+            for bidx in range(subvol_bricks_count):
+                subvol["bricks"].append(
+                    vol["bricks"][sidx*subvol_bricks_count + bidx]
+                )
+            out_volumes[idx]["subvols"].append(subvol)
+
+    return out_volumes
+
+
+def parse_volume_info(info, group_subvols=False):
     tree = etree.fromstring(info)
     volumes = []
     for volume_el in tree.findall('volInfo/volumes/volume'):
@@ -50,6 +99,9 @@ def parse_volume_info(info):
             volumes.append(_parse_a_vol(volume_el))
         except (ParseError, AttributeError, ValueError) as err:
             raise GlusterCmdOutputParseError(err)
+
+    if group_subvols:
+        return _group_subvols(volumes)
 
     return volumes
 
@@ -97,7 +149,7 @@ def _parse_volume_status(data):
     return nodes
 
 
-def parse_volume_status(status_data, volinfo):
+def parse_volume_status(status_data, volinfo, group_subvols=False):
     nodes_data = _parse_volume_status(status_data)
     tmp_brick_status = {}
     for node in nodes_data:
@@ -127,6 +179,9 @@ def parse_volume_status(status_data, volinfo):
                 })
             else:
                 volumes[-1]["bricks"].append(brick_status_data.copy())
+
+    if group_subvols:
+        return _group_subvols(volumes)
 
     return volumes
 

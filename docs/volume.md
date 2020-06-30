@@ -85,24 +85,26 @@ Create Gluster Volume
 
 ## info
 ```python
-info(volname=None)
+info(volname=None, group_subvols=False)
 ```
 
 Get Gluster Volume Info
 
 :param volname: Volume Name
+:param group_subvols: Show Subvolume Information in Groups
 :returns: Returns Volume Info, raises
  GlusterCmdException((rc, out, err)) on error
 
 
 ## status_detail
 ```python
-status_detail(volname=None)
+status_detail(volname=None, group_subvols=False)
 ```
 
 Get Gluster Volume Status
 
 :param volname: Volume Name
+:param group_subvols: Show Subvolume Information in Groups
 :returns: Returns Volume Status, raises
  GlusterCmdException((rc, out, err)) on error
 
