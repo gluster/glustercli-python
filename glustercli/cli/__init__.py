@@ -10,6 +10,7 @@ from glustercli.cli import snapshot
 from glustercli.cli import heal
 from glustercli.cli import nfs_ganesha
 from glustercli.cli import rebalance
+from glustercli.cli.gluster_version import glusterfs_version
 
 from glustercli.cli.utils import (set_gluster_path,
                                   set_gluster_socket,

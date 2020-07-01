@@ -16,6 +16,10 @@ volume.start("gv1")
 
 # Read Volume Info
 volume.info("gv1")
+
+# Get GlusterFS version
+from glustercli.cli import glusterfs_version
+print(glusterfs_version())
 ```
 
 ## Install
