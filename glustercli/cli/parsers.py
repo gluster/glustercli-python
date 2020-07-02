@@ -9,6 +9,120 @@ class GlusterCmdOutputParseError(Exception):
     pass
 
 
+HEALTH_UP = "up"
+HEALTH_DOWN = "down"
+HEALTH_PARTIAL = "partial"
+HEALTH_DEGRADED = "degraded"
+
+STATE_CREATED = "Created"
+STATE_STARTED = "Started"
+STATE_STOPPED = "Stopped"
+
+TYPE_REPLICATE = "REPLICATE"
+TYPE_DISPERSE = "DISPERSE"
+
+
+def _subvol_health(subvol):
+    up_bricks = 0
+    for brick in subvol["bricks"]:
+        if brick["online"]:
+            up_bricks += 1
+
+    health = HEALTH_UP
+    if len(subvol["bricks"]) != up_bricks:
+        health = HEALTH_DOWN
+        if subvol["type"] == TYPE_REPLICATE and \
+          up_bricks >= (subvol["replica"]/2 + 1):
+            health = HEALTH_PARTIAL
+
+        # If down bricks are less than or equal to redudancy count
+        # then Volume is UP but some bricks are down
+        if subvol["type"] == TYPE_DISPERSE and \
+          (subvol["bricks"].length - up_bricks) <= subvol["disperseRedundancy"]:
+            health = HEALTH_PARTIAL
+
+    return health
+
+
+def _update_volume_health(volumes):
+    # Note: vol is edited inside loop
+    for vol in volumes:
+        if vol["status"] != STATE_STARTED:
+            continue
+
+        vol["health"] = HEALTH_UP
+        up_subvols = 0
+
+        # Note: subvol is edited inside loop
+        for subvol in vol["subvols"]:
+            subvol["health"] = _subvol_health(subvol)
+
+            if subvol["health"] == HEALTH_DOWN:
+                vol["health"] = HEALTH_DEGRADED
+
+            if subvol["health"] == HEALTH_PARTIAL and \
+              vol["health"] != HEALTH_DEGRADED:
+                vol["health"] = subvol["health"]
+
+            if subvol["health"] != HEALTH_DOWN:
+                up_subvols += 1
+
+        if up_subvols == 0:
+            vol["health"] = HEALTH_DOWN
+
+
+def _update_volume_utilization(volumes):
+    # Note: modifies volume inside loop
+    for vol in volumes:
+        vol["size_total"] = 0
+        vol["size_free"] = 0
+        vol["size_used"] = 0
+        vol["inodes_total"] = 0
+        vol["inodes_free"] = 0
+        vol["inodes_used"] = 0
+
+        # Note: modifies subvol inside loop
+        for subvol in vol["subvols"]:
+            effective_capacity_used = 0
+            effective_capacity_total = 0
+            effective_inodes_used = 0
+            effective_inodes_total = 0
+
+            for brick in subvol["bricks"]:
+                if brick["type"] != "Arbiter":
+                    if brick["size_used"] >= effective_capacity_used:
+                        effective_capacity_used = brick["size_used"]
+
+                    if effective_capacity_total == 0 or \
+                      brick["size_total"] <= effective_capacity_total:
+                        effective_capacity_total = brick["size_total"]
+
+                    if brick["inodes_used"] >= effective_inodes_used:
+                        effective_inodes_used = brick["inodes_used"]
+
+                    if effective_inodes_total == 0 or \
+                      brick["inodes_total"] <= effective_inodes_total:
+                        effective_inodes_total = brick["inodes_total"]
+
+            if subvol["type"] == TYPE_DISPERSE:
+                # Subvol Size = Sum of size of Data bricks
+                effective_capacity_used = effective_capacity_used * (
+                    subvol["disperse"] - subvol["disperse_redundancy"])
+                effective_capacity_total = effective_capacity_total * (
+                    subvol["disperse"] - subvol["disperse_redundancy"])
+                effective_inodes_used = effective_inodes_used * (
+                    subvol["disperse"] - subvol["disperse_redundancy"])
+                effective_inodes_total = effective_inodes_total * (
+                    subvol["disperse"] - subvol["disperse_redundancy"])
+
+            vol["size_total"] += effective_capacity_total
+            vol["size_used"] += effective_capacity_used
+            vol["size_free"] = vol["size_total"] - vol["size_used"]
+            vol["inodes_total"] += effective_inodes_total
+            vol["inodes_used"] += effective_inodes_used
+            vol["inodes_free"] = vol["inodes_total"] - vol["inodes_used"]
+
+
 def _parse_a_vol(volume_el):
     value = {
         'name': volume_el.find('name').text,
@@ -113,13 +227,17 @@ def _parse_a_node(node_el):
         'uuid': node_el.find('peerid').text,
         'online': True if node_el.find('status').text == "1" else False,
         'pid': node_el.find('pid').text,
-        'size_total': node_el.find('sizeTotal').text,
-        'size_free': node_el.find('sizeFree').text,
+        'size_total': int(node_el.find('sizeTotal').text),
+        'size_free': int(node_el.find('sizeFree').text),
+        'inodes_total': int(node_el.find('inodesTotal').text),
+        'inodes_free': int(node_el.find('inodesFree').text),
         'device': node_el.find('device').text,
         'block_size': node_el.find('blockSize').text,
         'mnt_options': node_el.find('mntOptions').text,
         'fs_name': node_el.find('fsName').text,
     }
+    value['size_used'] = value['size_total'] - value['size_free']
+    value['inodes_used'] = value['inodes_total'] - value['inodes_free']
 
     # ISSUE #14 glusterfs 3.6.5 does not have 'ports' key
     # in vol status detail xml output
@@ -167,11 +285,16 @@ def parse_volume_status(status_data, volinfo, group_subvols=False):
                 volumes[-1]["bricks"].append({
                     "name": brick["name"],
                     "uuid": brick["uuid"],
+                    "type": brick["type"],
                     "online": False,
                     "ports": {"tcp": "N/A", "rdma": "N/A"},
                     "pid": "N/A",
-                    "size_total": "N/A",
-                    "size_free": "N/A",
+                    "size_total": 0,
+                    "size_free": 0,
+                    "size_used": 0,
+                    "inodes_total": 0,
+                    "inodes_free": 0,
+                    "inodes_used": 0,
                     "device": "N/A",
                     "block_size": "N/A",
                     "mnt_options": "N/A",
@@ -179,9 +302,13 @@ def parse_volume_status(status_data, volinfo, group_subvols=False):
                 })
             else:
                 volumes[-1]["bricks"].append(brick_status_data.copy())
+                volumes[-1]["bricks"][-1]["type"] = brick["type"]
 
     if group_subvols:
-        return _group_subvols(volumes)
+        grouped_vols = _group_subvols(volumes)
+        _update_volume_utilization(grouped_vols)
+        _update_volume_health(grouped_vols)
+        return grouped_vols
 
     return volumes
 
