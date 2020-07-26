@@ -566,8 +566,21 @@ def parse_rebalance_status(data):
     raise NotImplementedError("Rebalance Status")
 
 
-def parse_quota_list_paths(data):
-    raise NotImplementedError("Quota List Paths")
+def parse_quota_list_paths(quotainfo):
+    volquota = etree.fromstring(quotainfo)
+    quota_list = []
+
+    for limit in volquota.findall('volQuota/limit'):
+        quota_list.append({
+            'path': limit.find('path').text,
+            'hard_limit': limit.find('hard_limit').text,
+            'soft_limit_percent': limit.find('soft_limit_percent').text,
+            'used_space': limit.find('used_space').text,
+            'avail_space': limit.find('avail_space').text,
+            'sl_exceeded': limit.find('sl_exceeded').text,
+            'hl_exceeded': limit.find('hl_exceeded').text
+        })
+    return quota_list
 
 
 def parse_quota_list_objects(data):
