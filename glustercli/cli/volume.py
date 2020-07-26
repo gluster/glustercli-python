@@ -157,14 +157,31 @@ def status_detail(volname=None, group_subvols=False):
     """
     Get Gluster Volume Status
 
-    :param volname: Volume Name
+    :param volname: Volume Name or List of volumes
     :param group_subvols: Show Subvolume Information in Groups
     :returns: Returns Volume Status, raises
      GlusterCmdException((rc, out, err)) on error
     """
     cmd = ["status"]
     if volname is not None:
-        cmd += [volname, "detail"]
+        if type(volname) == list:
+            volumes = []
+            volinfo = {}
+            # volinfolist = info()
+
+            for vi in info():
+                volinfo[vi['name']] = vi
+
+            for v in volname:
+                cmd += [v, "detail"]
+                volumes.append(parse_volume_status(volume_execute_xml(cmd),
+                                                   [volinfo[v]],
+                                                   group_subvols=\
+                                                   group_subvols).pop())
+                cmd = ["status"]
+            return(volumes)
+        else:
+            cmd += [volname, "detail"]
     else:
         cmd += ["all", "detail"]
 
