@@ -167,7 +167,6 @@ def status_detail(volname=None, group_subvols=False):
         if type(volname) == list:
             volumes = []
             volinfo = {}
-            # volinfolist = info()
 
             for vi in info():
                 volinfo[vi['name']] = vi
