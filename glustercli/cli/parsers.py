@@ -38,7 +38,7 @@ def _subvol_health(subvol):
         # If down bricks are less than or equal to redudancy count
         # then Volume is UP but some bricks are down
         if subvol["type"] == TYPE_DISPERSE and \
-          (subvol["bricks"].length - up_bricks) <= subvol["disperseRedundancy"]:
+          (subvol["bricks"].length - up_bricks) <= subvol["disperse_redundancy"]:
             health = HEALTH_PARTIAL
 
     return health
@@ -193,6 +193,7 @@ def _group_subvols(volumes):
                 "name": "%s-%s-%s" % (vol["name"], subvol_type.lower(), sidx),
                 "replica": vol["replica"],
                 "disperse": vol["disperse"],
+                "disperse_redundancy": vol["disperse_redundancy"],
                 "type": subvol_type,
                 "bricks": []
             }
