@@ -136,6 +136,7 @@ def _parse_a_vol(volume_el):
         'disperse': int(volume_el.find('disperseCount').text),
         'disperse_redundancy': int(volume_el.find('redundancyCount').text),
         'transport': volume_el.find('transport').text,
+        'snapshot_count': int(volume_el.find('snapshotCount').text),
         'bricks': [],
         'options': []
     }
