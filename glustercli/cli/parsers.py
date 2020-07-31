@@ -675,8 +675,20 @@ def parse_snapshot_status(data):
 
 
 def parse_snapshot_info(data):
-    raise NotImplementedError("Snapshot Info")
-
+    xml = etree.fromstring(data)
+    snapinfo = []
+    for snap_el in xml.findall('snapInfo/snapshots/snapshot'):
+        snapdata = {
+            'name': snap_el.find('name').text,
+            'create_time': snap_el.find('createTime').text,
+            'uuid': snap_el.find('uuid').text,
+            'status': snap_el.find('snapVolume/status').text,
+        }
+        if snap_el.find('snapVolume/originVolume'):
+            snapdata['origin_volume'] = \
+                snap_el.find('snapVolume/originVolume/name').text
+        snapinfo.append(snapdata)
+    return snapinfo
 
 def parse_snapshot_list(data):
     xml = etree.fromstring(data)
