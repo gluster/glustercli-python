@@ -38,7 +38,7 @@ def _subvol_health(subvol):
         # If down bricks are less than or equal to redudancy count
         # then Volume is UP but some bricks are down
         if subvol["type"] == TYPE_DISPERSE and \
-          (subvol["bricks"].length - up_bricks) <= subvol["disperse_redundancy"]:
+          (len(subvol["bricks"]) - up_bricks) <= subvol["disperse_redundancy"]:
             health = HEALTH_PARTIAL
 
     return health
