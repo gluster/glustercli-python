@@ -95,14 +95,16 @@ def _update_volume_utilization(volumes):
                         effective_capacity_used = brick["size_used"]
 
                     if effective_capacity_total == 0 or \
-                      brick["size_total"] <= effective_capacity_total:
+                      (brick["size_total"] <= effective_capacity_total and
+                       brick["size_total"] > 0):
                         effective_capacity_total = brick["size_total"]
 
                     if brick["inodes_used"] >= effective_inodes_used:
                         effective_inodes_used = brick["inodes_used"]
 
                     if effective_inodes_total == 0 or \
-                      brick["inodes_total"] <= effective_inodes_total:
+                      (brick["inodes_total"] <= effective_inodes_total and
+                       brick["inodes_total"] > 0):
                         effective_inodes_total = brick["inodes_total"]
 
             if subvol["type"] == TYPE_DISPERSE:
