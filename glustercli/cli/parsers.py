@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import copy
 import xml.etree.cElementTree as etree
+import math
 
 ParseError = etree.ParseError if hasattr(etree, 'ParseError') else SyntaxError
 
@@ -32,7 +33,7 @@ def _subvol_health(subvol):
     if len(subvol["bricks"]) != up_bricks:
         health = HEALTH_DOWN
         if subvol["type"] == TYPE_REPLICATE and \
-          up_bricks >= (subvol["replica"]/2 + 1):
+          up_bricks >= math.ceil(subvol["replica"]/2):
             health = HEALTH_PARTIAL
 
         # If down bricks are less than or equal to redudancy count
