@@ -2,7 +2,7 @@ import os
 import re
 from setuptools import setup
 
-VERSION = "0.7"
+VERSION = "0.8.0"
 
 
 setup(
