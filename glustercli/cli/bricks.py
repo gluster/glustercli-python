@@ -43,7 +43,7 @@ def remove_force(volname, bricks, replica=None):
     :param volname: Volume Name
     :param bricks: List of Bricks
     :param replica: Replica Count
-    :returns: Output of remove-brick start command, raises
+    :returns: Output of remove-brick force command, raises
      GlusterCmdException((rc, out, err)) on error
     """
     cmd = ["remove-brick", volname]
