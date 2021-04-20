@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import subprocess
+import xml.etree.cElementTree as ET
 from contextlib import contextmanager
 
 GLUSTERCMD = "gluster"
@@ -96,10 +97,45 @@ def set_gluster_socket(path):
     GLUSTERD_SOCKET = path
 
 
+def check_for_xml_errors(data):
+    stdout = data[0]
+    stderr = data[1]
+
+    # depending on the gluster sub-command that's run
+    # it can have a returncode of 0 (meaning success)
+    # however this could mean that the formatting of
+    # the xml was successful and not the command that
+    # was run. We need to check stdout and/or stderr
+    # for the `opRet` xml element and if it's -1, then
+    # format the error accordingly and raise
+    # GlusterCmdException
+
+    # for reasons unknown, some commands will fail and
+    # return to stdout instead of stderr and vice versa
+    error = stdout if stdout else stderr or None
+    if error is not None:
+        try:
+            error = ET.fromstring(error)
+            op_ret = error.find('opRet').text or None
+            op_err = error.find('opErrstr').text or None
+            if op_ret == '-1':
+                if op_err is None:
+                    # means command failed but no error
+                    # string so make up one
+                    op_err = 'FAILED'
+                return GlusterCmdException((int(op_ret), '', op_err))
+        except Exception:
+            pass
+
+
 def execute_or_raise(cmd):
     returncode, out, err = execute(cmd)
     if returncode != 0:
         raise GlusterCmdException((returncode, out, err))
+
+    exception = check_for_xml_errors((out, err))
+    if isinstance(exception, GlusterCmdException):
+        raise exception
 
     return out.strip()
 
