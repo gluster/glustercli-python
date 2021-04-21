@@ -116,10 +116,10 @@ def check_for_xml_errors(data):
     if error is not None:
         try:
             error = ET.fromstring(error)
-        except Exception:
+        except ET.ParseError:
             # means parsing xml data failed
             # so play it safe and ignore
-            pass
+            return
 
         op_ret = error.find('opRet').text or None
         op_err = error.find('opErrstr').text or None
