@@ -32,15 +32,16 @@ def _subvol_health(subvol):
     health = HEALTH_UP
     if len(subvol["bricks"]) != up_bricks:
         health = HEALTH_DOWN
-        if subvol["type"] == TYPE_REPLICATE and \
-          up_bricks >= math.ceil(subvol["replica"]/2):
-            health = HEALTH_PARTIAL
+        if subvol["type"] == TYPE_REPLICATE:
+            if up_bricks >= math.ceil(subvol["replica"] / 2):
+                health = HEALTH_PARTIAL
 
         # If down bricks are less than or equal to redudancy count
         # then Volume is UP but some bricks are down
-        if subvol["type"] == TYPE_DISPERSE and \
-          (len(subvol["bricks"]) - up_bricks) <= subvol["disperse_redundancy"]:
-            health = HEALTH_PARTIAL
+        if subvol["type"] == TYPE_DISPERSE:
+            down_bricks = (len(subvol["bricks"]) - up_bricks)
+            if down_bricks <= subvol["disperse_redundancy"]:
+                health = HEALTH_PARTIAL
 
     return health
 
@@ -61,9 +62,9 @@ def _update_volume_health(volumes):
             if subvol["health"] == HEALTH_DOWN:
                 vol["health"] = HEALTH_DEGRADED
 
-            if subvol["health"] == HEALTH_PARTIAL and \
-              vol["health"] != HEALTH_DEGRADED:
-                vol["health"] = subvol["health"]
+            if subvol["health"] == HEALTH_PARTIAL:
+                if vol["health"] != HEALTH_DEGRADED:
+                    vol["health"] = subvol["health"]
 
             if subvol["health"] != HEALTH_DOWN:
                 up_subvols += 1
@@ -90,22 +91,24 @@ def _update_volume_utilization(volumes):
             effective_inodes_total = 0
 
             for brick in subvol["bricks"]:
-                if brick["type"] != "Arbiter":
-                    if brick["size_used"] >= effective_capacity_used:
-                        effective_capacity_used = brick["size_used"]
+                if brick["type"] == "Arbiter":
+                    continue
 
-                    if effective_capacity_total == 0 or \
-                      (brick["size_total"] <= effective_capacity_total and
-                       brick["size_total"] > 0):
-                        effective_capacity_total = brick["size_total"]
+                if brick["size_used"] >= effective_capacity_used:
+                    effective_capacity_used = brick["size_used"]
 
-                    if brick["inodes_used"] >= effective_inodes_used:
-                        effective_inodes_used = brick["inodes_used"]
+                ect_is_zero = effective_capacity_total == 0
+                bst_lt_ect = brick["size_total"] <= effective_capacity_total
+                if ect_is_zero or (bst_lt_ect and brick["size_total"] > 0):
+                    effective_capacity_total = brick["size_total"]
 
-                    if effective_inodes_total == 0 or \
-                      (brick["inodes_total"] <= effective_inodes_total and
-                       brick["inodes_total"] > 0):
-                        effective_inodes_total = brick["inodes_total"]
+                if brick["inodes_used"] >= effective_inodes_used:
+                    effective_inodes_used = brick["inodes_used"]
+
+                eit_is_zero = effective_inodes_total == 0
+                bit_lt_eit = brick["inodes_total"] <= effective_inodes_total
+                if eit_is_zero or (bit_lt_eit and brick["inodes_total"] > 0):
+                    effective_inodes_total = brick["inodes_total"]
 
             if subvol["type"] == TYPE_DISPERSE:
                 # Subvol Size = Sum of size of Data bricks
@@ -203,7 +206,7 @@ def _group_subvols(volumes):
             }
             for bidx in range(subvol_bricks_count):
                 subvol["bricks"].append(
-                    vol["bricks"][sidx*subvol_bricks_count + bidx]
+                    vol["bricks"][sidx * subvol_bricks_count + bidx]
                 )
             out_volumes[idx]["subvols"].append(subvol)
 
@@ -226,11 +229,19 @@ def parse_volume_info(info, group_subvols=False):
 
 
 def _parse_a_node(node_el):
-    brick_path = (node_el.find('hostname').text + ":" + node_el.find('path').text)
+    name = (node_el.find('hostname').text + ":" + node_el.find('path').text)
+    online = node_el.find('status').text == "1" or False
+    if not online:
+        # if the node where the brick exists isn't
+        # online then no reason to continue as the
+        # caller of this method will populate "default"
+        # information
+        return {'name': name, 'online': online}
+
     value = {
-        'name': brick_path,
+        'name': name,
         'uuid': node_el.find('peerid').text,
-        'online': True if node_el.find('status').text == "1" else False,
+        'online': online,
         'pid': node_el.find('pid').text,
         'size_total': int(node_el.find('sizeTotal').text),
         'size_free': int(node_el.find('sizeFree').text),
@@ -285,7 +296,8 @@ def parse_volume_status(status_data, volinfo, group_subvols=False):
 
         for brick in vol["bricks"]:
             brick_status_data = tmp_brick_status.get(brick["name"], None)
-            if brick_status_data is None:
+            brick_online = tmp_brick_status.get("online", False)
+            if brick_status_data is None or not brick_online:
                 # Default Status
                 volumes[-1]["bricks"].append({
                     "name": brick["name"],
@@ -325,8 +337,10 @@ def _parse_profile_info_clear(volume_el):
     }
 
     for brick_el in volume_el.findall('brick'):
-        clear['bricks'].append({'brick_name': brick_el.find('brickName').text,
-                                'clear_stats': brick_el.find('clearStats').text})
+        clear['bricks'].append({
+            'brick_name': brick_el.find('brickName').text,
+            'clear_stats': brick_el.find('clearStats').text
+        })
 
     return clear
 
@@ -692,6 +706,7 @@ def parse_snapshot_info(data):
                 snap_el.find('snapVolume/originVolume/name').text
         snapinfo.append(snapdata)
     return snapinfo
+
 
 def parse_snapshot_list(data):
     xml = etree.fromstring(data)
