@@ -116,16 +116,19 @@ def check_for_xml_errors(data):
     if error is not None:
         try:
             error = ET.fromstring(error)
-            op_ret = error.find('opRet').text or None
-            op_err = error.find('opErrstr').text or None
-            if op_ret == '-1':
-                if op_err is None:
-                    # means command failed but no error
-                    # string so make up one
-                    op_err = 'FAILED'
-                return GlusterCmdException((int(op_ret), '', op_err))
         except Exception:
+            # means parsing xml data failed
+            # so play it safe and ignore
             pass
+
+        op_ret = error.find('opRet').text or None
+        op_err = error.find('opErrstr').text or None
+        if op_ret == '-1':
+            if op_err is None:
+                # means command failed but no error
+                # string so make up one
+                op_err = 'FAILED'
+            raise GlusterCmdException((int(op_ret), '', op_err))
 
 
 def execute_or_raise(cmd):
@@ -133,9 +136,7 @@ def execute_or_raise(cmd):
     if returncode != 0:
         raise GlusterCmdException((returncode, out, err))
 
-    exception = check_for_xml_errors((out, err))
-    if isinstance(exception, GlusterCmdException):
-        raise exception
+    check_for_xml_errors((out, err))
 
     return out.strip()
 
