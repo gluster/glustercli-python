@@ -298,7 +298,7 @@ def parse_volume_status(status_data, volinfo, group_subvols=False):
 
         for brick in vol["bricks"]:
             brick_status_data = tmp_brick_status.get(brick["name"], None)
-            brick_online = tmp_brick_status.get("online", False)
+            brick_online = brick_status_data.get("online", False)
             if brick_status_data is None or not brick_online:
                 # Default Status
                 volumes[-1]["bricks"].append({
