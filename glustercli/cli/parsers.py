@@ -3,6 +3,8 @@ import copy
 import xml.etree.cElementTree as etree
 import math
 
+from .utils import RebalanceOperationType as ROT
+
 ParseError = etree.ParseError if hasattr(etree, 'ParseError') else SyntaxError
 
 
@@ -568,7 +570,45 @@ def parse_bitrot_scrub_status(data):
 
 
 def parse_rebalance_status(data):
-    raise NotImplementedError("Rebalance Status")
+    status = etree.fromstring(data).find('volRebalance')
+    result = {}
+    try:
+        result['task_id'] = status.find('task-id').text
+        result['op_type'] = ROT(int(status.find('op').text)).name
+        result['node_count'] = int(status.find('nodeCount').text)
+
+        # individual node section
+        result['nodes'] = []
+        for i in status:
+            if i.tag != 'node':
+                continue
+            else:
+                result['nodes'].append({
+                    'node_name': i.find('nodeName').text,
+                    'id': i.find('id').text,
+                    'files': i.find('files').text,
+                    'size': i.find('size').text,
+                    'lookups': i.find('lookups').text,
+                    'failures': i.find('failures').text,
+                    'skipped': i.find('skipped').text,
+                    'status': i.find('statusStr').text,
+                    'runtime': i.find('runtime').text,
+                })
+
+        # aggregate section
+        result['aggregate'] = {
+            'files': status.find('aggregate/files').text,
+            'size': status.find('aggregate/size').text,
+            'lookups': status.find('aggregate/lookups').text,
+            'failures': status.find('aggregate/failures').text,
+            'skipped': status.find('aggregate/skipped').text,
+            'status': status.find('aggregate/statusStr').text,
+            'runtime': status.find('aggregate/runtime').text,
+        }
+    except (ParseError, AttributeError, ValueError) as err:
+        raise GlusterCmdOutputParseError(err)
+
+    return result
 
 
 def parse_quota_list_paths(quotainfo):

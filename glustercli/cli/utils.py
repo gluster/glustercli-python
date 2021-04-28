@@ -3,6 +3,7 @@
 import subprocess
 import xml.etree.cElementTree as ET
 from contextlib import contextmanager
+from enum import IntEnum
 
 GLUSTERCMD = "gluster"
 GLUSTERD_SOCKET = None
@@ -54,6 +55,36 @@ def execute(cmd):
                             universal_newlines=True)
     out, err = proc.communicate()
     return (proc.returncode, out, err)
+
+
+class RebalanceOperationType(IntEnum):
+    """
+    from rpc/xdr/src/cli1-xdr.x
+
+    Represents the type of rebalance cmds
+    that can be issued towards a gluster
+    volume.
+    (i.e. volume rebalance <gvol> fix-layout start)
+    """
+    NONE = 0
+    START = 1
+    STOP = 2
+    STATUS = 3
+    START_LAYOUT_FIX = 4
+    START_FORCE = 5
+    START_TIER = 6
+    STATUS_TIER = 7
+    START_DETACH_TIER = 8
+    STOP_DETACH_TIER = 9
+    PAUSE_TIER = 10
+    RESUME_TIER = 11
+    DETACH_STATUS = 12
+    STOP_TIER = 13
+    DETACH_START = 14
+    DETACH_COMMIT = 15
+    DETACH_COMMIT_FORCE = 16
+    DETACH_STOP = 17
+    TYPE_MAX = 18  # unused
 
 
 class GlusterCmdException(Exception):
