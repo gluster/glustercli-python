@@ -229,6 +229,11 @@ def parse_volume_info(info, group_subvols=False):
 
     return volumes
 
+def _check_node_value(node_el, key, type, default_value):
+    value = node_el.find(key)
+    if value is not None:
+        return type(value.text)
+    return type(default_value)
 
 def _parse_a_node(node_el):
     name = (node_el.find('hostname').text + ":" + node_el.find('path').text)
@@ -247,8 +252,8 @@ def _parse_a_node(node_el):
         'pid': node_el.find('pid').text,
         'size_total': int(node_el.find('sizeTotal').text),
         'size_free': int(node_el.find('sizeFree').text),
-        'inodes_total': int(node_el.find('inodesTotal').text),
-        'inodes_free': int(node_el.find('inodesFree').text),
+        'inodes_total': _check_node_value(node_el, 'inodesTotal', int, 0),   
+        'inodes_free': _check_node_value(node_el, 'inodesFree', int, 0),
         'device': node_el.find('device').text,
         'block_size': node_el.find('blockSize').text,
         'mnt_options': node_el.find('mntOptions').text,
