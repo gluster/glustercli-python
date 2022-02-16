@@ -1,0 +1,27 @@
+name: "On Release"
+
+on:
+  push:
+    tags:
+      - "*"
+
+env:
+  glustercli_version: $(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+
+jobs:
+  # Run tests.
+  # See also https://docs.docker.com/docker-hub/builds/automated-testing/
+  push-to-pypi-store:
+    name: Push to pypi
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.x'
+      - name: Publish to Pypi
+        run: |
+          rm -rf dist; VERSION=${{ env.glustercli_version }} python3 setup.py sdist bdist_wheel;
+          TWINE_PASSWORD=${{ secrets.TWINE_PASSWORD }} twine upload --username aravindavk dist/*
