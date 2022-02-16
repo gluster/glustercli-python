@@ -23,5 +23,5 @@ jobs:
           python-version: '3.x'
       - name: Publish to Pypi
         run: |
-          rm -rf dist; VERSION=${{ env.glustercli_version }} python3 setup.py sdist bdist_wheel;
+          rm -rf dist; VERSION=${{ env.glustercli_version }} python3 setup.py sdist;
           TWINE_PASSWORD=${{ secrets.TWINE_PASSWORD }} twine upload --username aravindavk dist/*
