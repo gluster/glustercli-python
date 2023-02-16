@@ -1,13 +1,16 @@
 import os
 import re
 from setuptools import setup
+from importlib.metadata import version, PackageNotFoundError
 
-VERSION = os.environ.get("VERSION", "master")
-
+try:
+    __version__ = version('glustercli')
+except PackageNotFoundError:
+    __version__ = "unknown"
 
 setup(
     name='glustercli',
-    version=VERSION,
+    version=__version__,
     description='Python bindings for GlusterFS CLI and Metrics collection',
     license='GPLv2 or LGPLv3+',
     author='Aravinda Vishwanathapura',
