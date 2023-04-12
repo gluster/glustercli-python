@@ -8,5 +8,6 @@ pycscope.*
 build
 dist
 docs/_build
+glustercli/_version.py
 .DS_Store
 _build

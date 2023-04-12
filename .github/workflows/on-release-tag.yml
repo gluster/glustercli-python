@@ -24,8 +24,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install setuptools wheel twine
+          pip install setuptools setuptools_scm wheel twine
       - name: Publish to Pypi
         run: |
-          rm -rf dist; VERSION=${{ env.glustercli_version }} python3 setup.py sdist bdist_wheel;
+          rm -rf dist; python3 setup.py sdist bdist_wheel;
           TWINE_PASSWORD=${{ secrets.TWINE_PASSWORD }} twine upload --username aravindavk dist/*
