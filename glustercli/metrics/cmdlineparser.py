@@ -60,7 +60,7 @@ def parse_cmdline_gsyncd(args):
     elif "--monitor" in args:
         data["role"] = "monitor"
     elif "--listen" in args:
-        data["role"] = "slave"
+        data["role"] = "secondary"
 
     return data
 

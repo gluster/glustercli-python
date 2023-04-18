@@ -16,10 +16,7 @@ Generate Geo-replication SSH Keys
 
 ## create
 ```python
-create(volname,
-       slave_host,
-       slave_vol,
-       slave_user='root',
+create(primary_volume, secondary_host, secondary_volume, secondary_user='root',
        push_pem=True,
        no_verify=False,
        force=False,
@@ -28,12 +25,12 @@ create(volname,
 
 Create Geo-replication Session
 
-:param volname: Master Volume Name
-:param slave_host: Slave Hostname or IP
-:param slave_vol: Slave Volume
-:param slave_user: Slave User, default is "root"
-:param push_pem: True|False Push SSH keys to Slave
-:param no_verify: True|False Skip the Slave Verification
+:param primary_volume: Primary Volume Name
+:param secondary_host: Secondary Hostname or IP
+:param secondary_volume: Secondary Volume
+:param secondary_user: Secondary User, default is "root"
+:param push_pem: True|False Push SSH keys to Secondary
+:param no_verify: True|False Skip the Secondary Verification
  process before create
 :param force: True|False Force Create Session
 :param ssh_port: SSH Port, Default is 22
@@ -43,15 +40,15 @@ Create Geo-replication Session
 
 ## start
 ```python
-start(volname, slave_host, slave_vol, slave_user='root', force=False)
+start(primary_volume, secondary_host, secondary_volume, secondary_user='root', force=False)
 ```
 
 Start Geo-replication Session
 
-:param volname: Master Volume Name
-:param slave_host: Slave Hostname or IP
-:param slave_vol: Slave Volume
-:param slave_user: Slave User, default is "root"
+:param primary_volume: Primary Volume Name
+:param secondary_host: Secondary Hostname or IP
+:param secondary_volume: Secondary Volume
+:param secondary_user: Secondary User, default is "root"
 :param force: True|False Force Start the Session
 :returns: Output of Start command, raises
  GlusterCmdException((rc, out, err)) on error
@@ -59,15 +56,15 @@ Start Geo-replication Session
 
 ## stop
 ```python
-stop(volname, slave_host, slave_vol, slave_user='root', force=False)
+stop(primary_volume, secondary_host, secondary_volume, secondary_user='root', force=False)
 ```
 
 Stop Geo-replication Session
 
-:param volname: Master Volume Name
-:param slave_host: Slave Hostname or IP
-:param slave_vol: Slave Volume
-:param slave_user: Slave User, default is "root"
+:param primary_volume: Primary Volume Name
+:param secondary_host: Secondary Hostname or IP
+:param secondary_volume: Secondary Volume
+:param secondary_user: Secondary User, default is "root"
 :param force: True|False Force Stop the Session
 :returns: Output of Stop command, raises
  GlusterCmdException((rc, out, err)) on error
@@ -75,15 +72,15 @@ Stop Geo-replication Session
 
 ## restart
 ```python
-restart(volname, slave_host, slave_vol, slave_user='root', force=False)
+restart(primary_volume, secondary_host, secondary_volume, secondary_user='root', force=False)
 ```
 
 Restart Geo-replication Session
 
-:param volname: Master Volume Name
-:param slave_host: Slave Hostname or IP
-:param slave_vol: Slave Volume
-:param slave_user: Slave User, default is "root"
+:param primary_volume: Primary Volume Name
+:param secondary_host: Secondary Hostname or IP
+:param secondary_volume: Secondary Volume
+:param secondary_user: Secondary User, default is "root"
 :param force: True|False Force Start the Session
 :returns: Output of Start command, raises
  GlusterCmdException((rc, out, err)) on error
@@ -91,19 +88,16 @@ Restart Geo-replication Session
 
 ## delete
 ```python
-delete(volname,
-       slave_host,
-       slave_vol,
-       slave_user='root',
+delete(primary_volume, secondary_host, secondary_volume, secondary_user='root',
        reset_sync_time=None)
 ```
 
 Delete Geo-replication Session
 
-:param volname: Master Volume Name
-:param slave_host: Slave Hostname or IP
-:param slave_vol: Slave Volume
-:param slave_user: Slave User, default is "root"
+:param primary_volume: Primary Volume Name
+:param secondary_host: Secondary Hostname or IP
+:param secondary_volume: Secondary Volume
+:param secondary_user: Secondary User, default is "root"
 :param reset_sync_time: True|False Reset Sync time on delete
 :returns: Output of Start command, raises
  GlusterCmdException((rc, out, err)) on error
@@ -111,15 +105,15 @@ Delete Geo-replication Session
 
 ## pause
 ```python
-pause(volname, slave_host, slave_vol, slave_user='root', force=False)
+pause(primary_volume, secondary_host, secondary_volume, secondary_user='root', force=False)
 ```
 
 Pause Geo-replication Session
 
-:param volname: Master Volume Name
-:param slave_host: Slave Hostname or IP
-:param slave_vol: Slave Volume
-:param slave_user: Slave User, default is "root"
+:param primary_volume: Primary Volume Name
+:param secondary_host: Secondary Hostname or IP
+:param secondary_volume: Secondary Volume
+:param secondary_user: Secondary User, default is "root"
 :param force: True|False Force Pause Session
 :returns: Output of Pause command, raises
  GlusterCmdException((rc, out, err)) on error
@@ -127,15 +121,15 @@ Pause Geo-replication Session
 
 ## resume
 ```python
-resume(volname, slave_host, slave_vol, slave_user='root', force=False)
+resume(primary_volume, secondary_host, secondary_volume, secondary_user='root', force=False)
 ```
 
 Resume Geo-replication Session
 
-:param volname: Master Volume Name
-:param slave_host: Slave Hostname or IP
-:param slave_vol: Slave Volume
-:param slave_user: Slave User, default is "root"
+:param primary_volume: Primary Volume Name
+:param secondary_host: Secondary Hostname or IP
+:param secondary_volume: Secondary Volume
+:param secondary_user: Secondary User, default is "root"
 :param force: True|False Force Resume Session
 :returns: Output of Resume command, raises
  GlusterCmdException((rc, out, err)) on error
@@ -143,20 +137,18 @@ Resume Geo-replication Session
 
 ## config_set
 ```python
-config_set(volname,
-           slave_host,
-           slave_vol,
+config_set(primary_volume, secondary_host, secondary_volume,
            key,
            value,
-           slave_user='root')
+           secondary_user='root')
 ```
 
 Set Config of a Geo-replication Session
 
-:param volname: Master Volume Name
-:param slave_host: Slave Hostname or IP
-:param slave_vol: Slave Volume
-:param slave_user: Slave User, default is "root"
+:param primary_volume: Primary Volume Name
+:param secondary_host: Secondary Hostname or IP
+:param secondary_volume: Secondary Volume
+:param secondary_user: Secondary User, default is "root"
 :param key: Config Key
 :param value: Config Value
 :returns: Output of Config set command, raises
@@ -165,15 +157,15 @@ Set Config of a Geo-replication Session
 
 ## config_reset
 ```python
-config_reset(volname, slave_host, slave_vol, key, slave_user='root')
+config_reset(primary_volume, secondary_host, secondary_volume, key, secondary_user='root')
 ```
 
 Reset configuration of Geo-replication Session
 
-:param volname: Master Volume Name
-:param slave_host: Slave Hostname or IP
-:param slave_vol: Slave Volume
-:param slave_user: Slave User, default is "root"
+:param primary_volume: Primary Volume Name
+:param secondary_host: Secondary Hostname or IP
+:param secondary_volume: Secondary Volume
+:param secondary_user: Secondary User, default is "root"
 :param key: Config Key
 :returns: Output of Config reset command, raises
  GlusterCmdException((rc, out, err)) on error
@@ -181,15 +173,15 @@ Reset configuration of Geo-replication Session
 
 ## config_get
 ```python
-config_get(volname, slave_host, slave_vol, key=None, slave_user='root')
+config_get(primary_volume, secondary_host, secondary_volume, key=None, secondary_user='root')
 ```
 
 Get Configuration of Geo-replication Session
 
-:param volname: Master Volume Name
-:param slave_host: Slave Hostname or IP
-:param slave_vol: Slave Volume
-:param slave_user: Slave User, default is "root"
+:param primary_volume: Primary Volume Name
+:param secondary_host: Secondary Hostname or IP
+:param secondary_volume: Secondary Volume
+:param secondary_user: Secondary User, default is "root"
 :param key: Config Key
 :returns: Geo-rep session Config Values, raises
  GlusterCmdException((rc, out, err)) on error
@@ -197,15 +189,15 @@ Get Configuration of Geo-replication Session
 
 ## status
 ```python
-status(volname=None, slave_host=None, slave_vol=None, slave_user='root')
+status(primary_volume=None, secondary_host=None, secondary_volume=None, secondary_user='root')
 ```
 
 Status of Geo-replication Session
 
-:param volname: Master Volume Name
-:param slave_host: Slave Hostname or IP
-:param slave_vol: Slave Volume
-:param slave_user: Slave User, default is "root"
+:param primary_volume: Primary Volume Name
+:param secondary_host: Secondary Hostname or IP
+:param secondary_volume: Secondary Volume
+:param secondary_user: Secondary User, default is "root"
 :returns: Geo-replication Status, raises
  GlusterCmdException((rc, out, err)) on error
 
