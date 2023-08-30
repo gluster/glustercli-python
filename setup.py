@@ -1,7 +1,11 @@
-import os
-import re
+try:
+    # python >=3.8
+    from importlib.metadata import version, PackageNotFoundError
+except ImportError:
+    # python <3.8
+    # importlib.metadata not available for python 3.7
+    from importlib_metadata import version, PackageNotFoundError
 from setuptools import setup
-from importlib.metadata import version, PackageNotFoundError
 
 try:
     __version__ = version('glustercli')
